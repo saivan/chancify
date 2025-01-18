@@ -1,0 +1,35 @@
+{
+  "name": "@repo/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./client": {
+      "types": "./src/index.client.ts",
+      "default": "./src/index.client.ts"
+    },
+    "./server": {
+      "types": "./src/index.server.ts",
+      "default": "./src/index.server.ts"
+    }
+  },
+  "devDependencies": {
+    "@repo/config": "workspace:*"
+  },
+  "dependencies": {
+    "@repo/authentication": "workspace:*",
+    "@repo/utilities": "workspace:*",
+    "@tanstack/react-query": "^5.39.0",
+    "@trpc/client": "next",
+    "@trpc/next": "^10.45.2",
+    "@trpc/react-query": "next",
+    "@trpc/server": "next",
+    "super-json": "^2.2.0",
+    "superjson": "^2.2.1",
+    "zod": "^3.23.8"
+  }
+}

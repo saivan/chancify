@@ -1,0 +1,28 @@
+{
+  "name": "@repo/authentication",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./client": {
+      "types": "./src/index.client.ts",
+      "default": "./src/index.client.ts"
+    },
+    "./server": {
+      "types": "./src/index.server.ts",
+      "default": "./src/index.server.ts"
+    }
+  },
+  "devDependencies": {
+    "@repo/config": "workspace:*"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^6.1.0",
+    "@clerk/types": "^4.40.1"
+  }
+}

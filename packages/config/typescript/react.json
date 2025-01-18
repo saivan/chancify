@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node Library",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "lib": ["es2023", "dom", "dom.iterable", "esnext"],
+    "module": "ESNext",
+    "target": "es2022",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "strict": true,
+    "jsx": "react-jsx",
+    "verbatimModuleSyntax": false
+  }
+}

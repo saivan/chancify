@@ -1,0 +1,9 @@
+{
+  "extends": "@repo/config/typescript/node.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*", "sst-env.d.ts"],
+  "exclude": ["dist", "build", "node_modules"]
+}
