@@ -48,13 +48,14 @@ const themes = {
       radius: 30,
     }]
   },
-  green: {
+  candy: {
     padding: 0.08,
     lights: {
       count: 22,
       size: 5,
       onColor: "var(--color-yellow-200)",
       offColor: "var(--color-yellow-400)",
+      power: 30,
     },
     pointer: {
       width: 0.30,
@@ -77,34 +78,29 @@ const themes = {
 }
 
 
-function WheelItem() {
-  const [t, setT] = useState(0)
-  useAnimationFrame(dt => setT(t + dt / 50))
-  return <PrizeWheel
-    className="w-256 bg-slate-200"
-    state={{
-      lights: {
-        brightness: new Array(22).fill(0).map((_, i) => 0.3 * Math.sin(2 * Math.PI * (2 * i - t) / 22) + 0.7)
-      }
-    }}
-    prizes={[
-      { name: "Free Lunch", probability: 5 },
-      { name: "Maryanne", probability: 1 },
-      { name: "Free Lunch", probability: 1 },
-      { name: "Awesome Thing", probability: 3 },
-      { name: "Stinky Snake", probability: 4 },
-      { name: "Awesome Sauce", probability: 3 },
-    ]}
-    theme={themes['green']}
-  />
-}
 
 
 export default function () {
   return (
     <div>
       <h1>Campaigns</h1>
-      <WheelItem />
+      <PrizeWheel
+        className="w-256 bg-slate-200"
+        state={{
+          lights: {
+            animating: true,
+          }
+        }}
+        prizes={[
+          { name: "Free Lunch", probability: 5 },
+          { name: "Maryanne", probability: 1 },
+          { name: "Free Lunch", probability: 1 },
+          { name: "Awesome Thing", probability: 3 },
+          { name: "Stinky Snake", probability: 4 },
+          { name: "Awesome Sauce", probability: 3 },
+        ]}
+        theme={themes['candy']}
+      />
     </div>
   )
 }

@@ -23,6 +23,7 @@ export interface Theme {
     count?: number
     offColor?: string
     onColor?: string
+    power?: number
   }
   wedges: {
     backgroundColor: string
@@ -34,6 +35,6 @@ export interface Theme {
 
 export interface WheelState {
   lights?: {
-    brightness?: number[]
+    animating: boolean
   }
 }

@@ -5,6 +5,8 @@ import { Pointer } from "./Pointer"
 import { Prize, Theme, WheelState } from "./types"
 import { Wedges } from "./Wedges"
 import dynamic from "next/dynamic"
+import { useAnimationFrame } from "@repo/utilities/client"
+import { useState } from "react"
 
 
 function Wheel(props: {
@@ -13,13 +15,27 @@ function Wheel(props: {
   state: WheelState
   theme: Theme
 }) {
+  // Allow the lights to animate
+  const [t, setT] = useState(0)
+  const [brightness, setBrightness] = useState<number[]>([])
+  useAnimationFrame(dt => {
+    setT(t + dt / 50)
+    const isAnimating = props.state.lights?.animating
+    const brightness = new Array(22).fill(0).map((_, i) => {
+      if (!isAnimating) return 1
+      return 0.3 * Math.sin(2 * Math.PI * (2 * i - t) / 22) + 0.7
+    })
+    setBrightness(brightness)
+  })
+
+  // Create the wheel
   return (
     <div className={cn('aspect-square block relative', props.className)}>
       <Wedges prizes={props.prizes} theme={props.theme} />
       <LargeShadow theme={props.theme} />
       <InnerFrame theme={props.theme} />
       <OuterFrame theme={props.theme} />
-      <Lights theme={props.theme} state={props.state} />
+      <Lights theme={props.theme} brightness={brightness} />
       <Pointer theme={props.theme} />
     </div>
   )
@@ -131,7 +147,7 @@ function OuterFrame(props: {
 
 function Lights(props: {
   theme: Theme
-  state?: WheelState
+  brightness: number[]
 }) {
   const n = props.theme?.lights?.count ?? 16
   const p = props.theme.padding ?? 0
@@ -139,10 +155,12 @@ function Lights(props: {
   const b = props.theme?.lights?.offColor ?? 'var(--color-yellow-400)'
   const c = props.theme?.lights?.onColor ?? 'var(--color-yellow-200)'
   const lights = Array.from({ length: n }, (_, i) => i)
+  const power = props.theme?.lights?.power ?? 30
+
 
   return (<div>
     {lights.map((_, i) => {
-      const brightness = props?.state?.lights?.brightness?.[i] ?? 100
+      const brightness = props.brightness[i] ?? 100
       return (
         <div
           key={i}
@@ -176,7 +194,7 @@ function Lights(props: {
               background: c,
               width: `${s * 2 / 3}%`,
               height: `${s * 2 / 3}%`,
-              boxShadow: `0 0 40px 20px ${c}`,
+              boxShadow: `0 0 40px ${power}px ${c}`,
               mixBlendMode: 'screen',
               opacity: brightness,
               transform: 'translateX(-50%) translateY(-50%)',
