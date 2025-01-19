@@ -1,4 +1,6 @@
 import { Prize, Theme } from './types'
+import { cssToHex } from '@repo/utilities/client'
+import { useMemo } from 'react'
 
 function polarToCartesian(centerX: number, centerY: number, radius: number, angleInDegrees: number) {
   const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0
@@ -48,7 +50,8 @@ function calculateWedges(prizes: Prize[]) {
 }
 
 function colorToMatrix(hexColor: string): string {
-  if (!hexColor) return "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" // Default black if no color provided
+  // Default black if no color provided
+  if (!hexColor) return "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" 
   const color = hexColor.startsWith('#') ? hexColor.slice(1) : hexColor
   try {
     const r = parseInt(color.substring(0, 2), 16) / 255
@@ -56,8 +59,9 @@ function colorToMatrix(hexColor: string): string {
     const b = parseInt(color.substring(4, 6), 16) / 255
     return `0 0 0 0 ${r} 0 0 0 0 ${g} 0 0 0 0 ${b} 0 0 0 1 0`
   } catch (e) {
+     // Default to black on error
     console.error('Invalid color format:', hexColor)
-    return "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" // Default to black on error
+    return "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"
   }
 }
 
@@ -78,6 +82,20 @@ function Wedge({
   centerY: number
   radius: number
 }) {
+  // Calculate the colors
+  const {
+    backgroundColor = '#000000', 
+    textColor = '#000000', 
+    glowColor = '#000000',
+  } = useMemo(() => {
+    return {
+      backgroundColor: cssToHex(theme.backgroundColor),
+      textColor: cssToHex(theme.textColor),
+      glowColor: cssToHex(theme.glowColor),
+    }
+  }, [theme])
+
+
   const uniqueFilterId = `filter_${prize.name.replace(/[^a-zA-Z0-9]/g, '_')}`
   
   // Calculate the middle angle
@@ -107,20 +125,20 @@ function Wedge({
           <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
           <feColorMatrix
             type="matrix"
-            values={colorToMatrix(theme.glowColor)}
+            values={colorToMatrix(glowColor)}
           />
           <feBlend mode="multiply" in2="shape" result="effect1_innerShadow" />
         </filter>
       </defs>
       <path
         d={describeArc(centerX, centerY, radius, startAngle, endAngle)}
-        fill={theme.backgroundColor}
+        fill={backgroundColor}
         filter={`url(#${uniqueFilterId})`}
       />
       <text
         x={getTextX(centerX, centerY, radius * 0.85, startAngle, endAngle)}
         y={getTextY(centerX, centerY, radius * 0.85, startAngle, endAngle)}
-        fill={theme.textColor}
+        fill={textColor}
         textAnchor={shouldFlip ? "end" : "start"}
         dominantBaseline="middle"
         transform={`rotate(${finalRotation}, 

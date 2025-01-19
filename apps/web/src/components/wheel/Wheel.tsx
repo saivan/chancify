@@ -2,7 +2,7 @@
 
 import { cn } from "@repo/utilities"
 import { Pointer } from "./Pointer"
-import { Prize, Theme } from "./types"
+import { Prize, Theme, WheelState } from "./types"
 import { Wedges } from "./Wedges"
 import dynamic from "next/dynamic"
 
@@ -10,6 +10,7 @@ import dynamic from "next/dynamic"
 function Wheel(props: {
   className?: string
   prizes: Prize[]
+  state: WheelState
   theme: Theme
 }) {
   return (
@@ -18,7 +19,7 @@ function Wheel(props: {
       <LargeShadow theme={props.theme} />
       <InnerFrame theme={props.theme} />
       <OuterFrame theme={props.theme} />
-      <Lights theme={props.theme} />
+      <Lights theme={props.theme} state={props.state} />
       <Pointer theme={props.theme} />
     </div>
   )
@@ -26,12 +27,12 @@ function Wheel(props: {
 
 export const PrizeWheel = dynamic(
   async () => Wheel,
-  { 
+  {
     ssr: false,
     loading: () => (
       <div className="w-256 bg-slate-200 aspect-square p-12">
         <div className="w-full h-full rounded-full bg-slate-300 animate-pulse"></div>
-      </div> 
+      </div>
     )
   }
 )
@@ -43,14 +44,14 @@ function LargeShadow(props: {
   return (
     <div
       className="absolute top-0 left-0 w-full h-full"
-      style={{ 
-        padding: `calc(${p * 100}%)` 
+      style={{
+        padding: `calc(${p * 100}%)`
       }}
     >
       <div
         className="relative rounded-full inset-0 top-0 left-0 w-full h-full"
-        style={{ 
-          mixBlendMode: 'multiply', 
+        style={{
+          mixBlendMode: 'multiply',
           boxShadow: 'rgb(49, 42, 29, 0.4) 0px 0px 100px 100px inset, rgb(49, 42, 29, 0.3) 20px 20px 40px 40px',
         }}
       />
@@ -130,45 +131,61 @@ function OuterFrame(props: {
 
 function Lights(props: {
   theme: Theme
+  state?: WheelState
 }) {
   const n = props.theme?.lights?.count ?? 16
   const p = props.theme.padding ?? 0
   const s = props.theme?.lights?.size ?? 0.5
-  const c = props.theme?.lights?.color ?? 'var(--color-yellow-200)'
+  const b = props.theme?.lights?.offColor ?? 'var(--color-yellow-400)'
+  const c = props.theme?.lights?.onColor ?? 'var(--color-yellow-200)'
   const lights = Array.from({ length: n }, (_, i) => i)
+
   return (<div>
-    {lights.map((_, i) => (
-      <div
-        key={i}
-        className="absolute top-0 left-0 w-full h-full"
-        style={{
-          left: 0,
-          padding: `calc(${p * 100}%)`,
-          transform: `rotate(${i * 360 / n}deg)`,
-        }}
-      >
-        <div className="absolute rounded-full w-full h-full left-[50%]"
+    {lights.map((_, i) => {
+      const brightness = props?.state?.lights?.brightness?.[i] ?? 100
+      return (
+        <div
+          key={i}
+          className="absolute top-0 left-0 w-full h-full"
           style={{
-            background: c,
-            width: `${s}%`,
-            height: `${s}%`,
-            mixBlendMode: 'screen',
-            opacity: 0.3,
-            transform: 'translateX(-50%) translateY(-50%)',
+            left: 0,
+            padding: `calc(${p * 100}%)`,
+            transform: `rotate(${i * 360 / n}deg)`,
           }}
-        />
-        <div className="absolute rounded-full w-full h-full left-[50%]"
-          style={{
-            background: c,
-            width: `${s*2/3}%`,
-            height: `${s*2/3}%`,
-            boxShadow: `0 0 40px 20px ${c}`,
-            mixBlendMode: 'screen',
-            transform: 'translateX(-50%) translateY(-50%)',
-          }}
-        />
-      </div>
-    ))}
+        >
+          <div className="absolute rounded-full w-full h-full left-[50%]"
+            style={{
+              background: c,
+              width: `${s}%`,
+              height: `${s}%`,
+              mixBlendMode: 'screen',
+              opacity: 0.3 * brightness,
+              transform: 'translateX(-50%) translateY(-50%)',
+            }}
+          />
+          <div className="absolute rounded-full w-full h-full left-[50%]"
+            style={{
+              background: b,
+              width: `${s * 2 / 3}%`,
+              height: `${s * 2 / 3}%`,
+              transform: 'translateX(-50%) translateY(-50%)',
+            }}
+          />
+          <div className="absolute rounded-full w-full h-full left-[50%]"
+            style={{
+              background: c,
+              width: `${s * 2 / 3}%`,
+              height: `${s * 2 / 3}%`,
+              boxShadow: `0 0 40px 20px ${c}`,
+              mixBlendMode: 'screen',
+              opacity: brightness,
+              transform: 'translateX(-50%) translateY(-50%)',
+            }}
+          />
+        </div>
+      )
+    })
+    }
   </div>)
 }
 

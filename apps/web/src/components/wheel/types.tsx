@@ -1,33 +1,39 @@
-"use client";
+"use client"
 
 export interface Prize {
-  name: string;
-  probability: number;
+  name: string
+  probability: number
 }
 
 export interface Theme {
-  padding?: number;
+  padding?: number
   frame?: {
-    width?: number;
-    inset?: number;
-    outerStroke?: string;
-    innerStroke?: string;
-    outerFill?: string;
-    innerFill?: string;
+    width?: number
+    inset?: number
+    outerStroke?: string
+    innerStroke?: string
+    outerFill?: string
+    innerFill?: string
   }
   pointer?: {
-    width?: number;
+    width?: number
   }
   lights?: {
-    size?: number;
-    count?: number;
-    color?: string;
-  };
+    size?: number
+    count?: number
+    offColor?: string
+    onColor?: string
+  }
   wedges: {
-    backgroundColor: string;
-    glowColor: string;
-    textColor: string;
-    radius: number;
-  }[];
+    backgroundColor: string
+    glowColor: string
+    textColor: string
+    radius: number
+  }[]
 }
 
+export interface WheelState {
+  lights?: {
+    brightness?: number[]
+  }
+}

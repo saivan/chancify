@@ -125,3 +125,29 @@ export function runScript(code: string, options = {
 }
 
 
+export function cssToHex(cssColor: string, element: HTMLElement = document.body): string | null {
+  // Create a temporary element
+  const tempElement = document.createElement('div')
+  tempElement.style.color = cssColor
+  element.appendChild(tempElement)
+
+  // Get the computed color value
+  const computedColor = getComputedStyle(tempElement).color
+  element.removeChild(tempElement)
+
+  // Extract the RGB values
+  const rgbMatch = computedColor.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/)
+  if (!rgbMatch) {
+    return null // Return null if the format is not expected
+  }
+
+  // Convert RGB to hex
+  const r = parseInt(rgbMatch[1], 10)
+  const g = parseInt(rgbMatch[2], 10)
+  const b = parseInt(rgbMatch[3], 10)
+
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`
+}
+
+
+
