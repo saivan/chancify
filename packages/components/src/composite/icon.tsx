@@ -56,6 +56,7 @@ const iconMap = {
   'megaphone': require('lucide-react').Megaphone,
   'gift': require('lucide-react').Gift,
   'users': require('lucide-react').Users,
+  'grip-vertical': require('lucide-react').GripVertical,
 } as const
 export type IconName = keyof typeof iconMap
 
