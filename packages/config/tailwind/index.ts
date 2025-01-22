@@ -39,6 +39,9 @@ export default {
     extend: {
       spacing: {
         '128': '32rem',
+        '144': '36rem',
+        '160': '40rem',
+        '192': '48rem',
         '256': '64rem',
       },
       colors: {

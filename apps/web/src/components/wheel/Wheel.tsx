@@ -30,7 +30,10 @@ function Wheel(props: {
 
   // Create the wheel
   return (
-    <div className={cn('aspect-square block relative', props.className)}>
+    <div className={cn(
+      'aspect-square block relative rounded-md', 
+      props.className
+    )}>
       <Wedges prizes={props.prizes} theme={props.theme} />
       <LargeShadow theme={props.theme} />
       <InnerFrame theme={props.theme} />
@@ -46,7 +49,7 @@ export const PrizeWheel = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-256 bg-slate-200 aspect-square p-12">
+      <div className="h-full bg-slate-200 aspect-square p-12">
         <div className="w-full h-full rounded-full bg-slate-300 animate-pulse"></div>
       </div>
     )

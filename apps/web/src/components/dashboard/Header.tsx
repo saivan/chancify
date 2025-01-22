@@ -1,7 +1,7 @@
 "use client"
 
 import { usePathComponents, kebabToTitleCase } from "@repo/utilities/client"
-import { 
+import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -16,13 +16,13 @@ import Link from "next/link"
 
 
 export const Authentication = dynamic(
-  () => import('./Authentication').then(mod => mod.Authentication), { 
-    loading: () => <div className="bg-slate-400 rounded animate-pulse w-10 h-10"></div>,
-    ssr: false, 
+  () => import('./Authentication').then(mod => mod.Authentication), {
+  loading: () => <div className="bg-slate-400 rounded animate-pulse w-10 h-10"></div>,
+  ssr: false,
 })
 
 
-export function Header (props: {
+export function Header(props: {
   hasMenuButton?: boolean
   hasAuth?: boolean
   sidebar?: ReactNode
@@ -38,23 +38,25 @@ export function Header (props: {
 
     // Get the link and label for the path
     const pathName = kebabToTitleCase(path)
-    const link = isFirst 
-      ? '/' 
+    const link = isFirst
+      ? '/'
       : `/${pathComponents.slice(0, index).join('/')}`
     const label = isFirst ? 'Home' : pathName
 
     // Create the component and return it
-    return (<Fragment key={index}>
-      <BreadcrumbItem>
-        {
-          isLast
-          ? <BreadcrumbPage>{label}</BreadcrumbPage>
-          : <BreadcrumbLink asChild>
-              <Link href={link}>{label}</Link>
-            </BreadcrumbLink>
-        }
-      </BreadcrumbItem> {!isLast && <BreadcrumbSeparator/>}
-    </ Fragment>)
+    return (
+      <Fragment key={index}>
+        <BreadcrumbItem>
+          {
+            isLast
+              ? <BreadcrumbPage>{label}</BreadcrumbPage>
+              : <BreadcrumbLink asChild>
+                <Link href={link}>{label}</Link>
+              </BreadcrumbLink>
+          }
+        </BreadcrumbItem>
+        {!isLast && <BreadcrumbSeparator />}
+      </ Fragment>)
   })
 
   // Create the header
@@ -66,7 +68,7 @@ export function Header (props: {
           title="Application"
           description="A cool application"
           className={props.hasMenuButton ? "block md:hidden" : ""}
-        > { props.sidebar } </SlideOver>
+        > {props.sidebar} </SlideOver>
         <Breadcrumb className="flex-1">
           <BreadcrumbList>
             {BreadCrumbItems}
