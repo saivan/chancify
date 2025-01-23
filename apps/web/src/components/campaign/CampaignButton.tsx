@@ -23,13 +23,13 @@ export function CampaignButton(props: {
   } = useSortable({ id: props.id })
 
   const style = {
+    opacity: isDragging ? 0.5 : 1,
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
     transition,
-    opacity: isDragging ? 0.5 : 1,
   }
 
   return (
-    <div ref={setNodeRef} style={style} className="grid grid-cols-[auto_1fr_auto] border-border border rounded-lg items-center">
+    <div ref={setNodeRef} style={style} className="grid grid-cols-[auto_1fr_auto] border-border border rounded-lg items-center overflow-hidden">
       <div
         className="p-2 border-r border-border h-full bg-slate-100 flex items-center cursor-move"
         {...attributes}

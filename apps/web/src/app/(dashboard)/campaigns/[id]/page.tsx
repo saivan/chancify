@@ -1,16 +1,14 @@
 "use client"
 
-import { CenterBox } from "@/components/dashboard/CenterBox"
-import { PrizeWheel } from "@/components/wheel"
-import { themes } from "@/models/Theme"
-import { Campaign, CampaignProvider, useCampaign } from "@/models/Campaign"
-import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, ComboboxCreatable, Icon, Label, MultipleSelector } from "@repo/components"
-import { deepMerge, shortId } from "@repo/utilities"
-import { useState } from "react"
 import { PotentialPrizes } from "@/components/campaign/Prizes"
-import { Action, availableActions } from "@/models/Action"
-import { useMemo } from 'react'
-
+import { CenterBox } from "@/components/dashboard/CenterBox"
+import { availableActions } from "@/models/Action"
+import { Campaign, CampaignProvider, CollectInformation, useCampaign } from "@/models/Campaign"
+import { themes } from "@/models/Theme"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Checkbox, ComboboxCreatable, Icon, Label, Switch } from "@repo/components"
+import { cn, shortId } from "@repo/utilities"
+import { useMemo, useState } from "react"
+import { WheelPreview } from "@/components/campaign/WheelPreview"
 
 
 
@@ -49,6 +47,8 @@ export default function () {
           <CampaignInformation />
           <PotentialPrizes />
           <WheelPreview />
+          <CollectInformation />
+          <CampaignStatus />
         </div>
       </CampaignProvider>
     </CenterBox>
@@ -87,20 +87,111 @@ function CampaignInformation() {
 }
 
 
-function WheelPreview() {
+function CollectInformation() {
+  return (
+    <Card className="shadow-none">
+      <CardHeader>
+        <CardTitle className="text-xl">Collect Information</CardTitle>
+        <CardDescription>
+          What do customers need to supply to claim their reward?
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-2">
+        <CheckBox label="Name" for="name" />
+        <CheckBox label="Email Address" for="email" />
+        <CheckBox label="Phone Number" for="phone" />
+        <CheckBox label="Postal Address" for="postalAddress" />
+      </CardContent>
+    </Card>
+  )
+}
+
+function CheckBox(props: { for: keyof CollectInformation, label: string }) {
+  const [campaign, setCampaign] = useCampaign()
+  const checked = campaign.collectInformation[props.for]
+  return (
+    <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+      <div className="space-y-0.5">
+        <Label>{props.label}</Label>
+      </div>
+      <div>
+        <Switch
+          checked={checked}
+          onCheckedChange={checked => {
+            setCampaign({
+              collectInformation: {
+                ...campaign.collectInformation,
+                [props.for]: checked
+              }
+            })
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function CampaignStatus() {
   const [campaign, setCampaign] = useCampaign()
   return (
-    <div className="bg-slate-200 w-full h-192 overflow-clip rounded-md">
-      <PrizeWheel
-        className="h-full"
-        state={{
-          lights: { animating: false },
-        }}
-        prizes={campaign.prizes}
-        theme={deepMerge(themes['red'], {
-          lights: { size: 4 },
-        })}
-      />
-    </div>
+    <Card className="shadow-none">
+      <CardHeader>
+        <CardTitle className="text-xl">Campaign Status</CardTitle>
+        <CardDescription>
+          Allow customers to start taking these actions and winning prizes
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4"> 
+        <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+          <div className="space-y-0.5">
+            <Label>Publish Campaign</Label>
+            <p className="text-sm text-slate-500">
+              Make this campaign available to your customers
+            </p>
+          </div>
+          <div>
+            <Switch
+              checked={campaign.status === 'active'}
+              onCheckedChange={checked => {
+                setCampaign({
+                  status: checked ? 'active' : 'inactive'
+                })
+              }}
+            />
+          </div>
+        </div>
+        <DeleteButton name={campaign.action.label} />
+      </CardContent>
+    </Card>
+  )
+}
+
+
+function DeleteButton(props: {
+  name: string
+}) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger type="button" className={cn(
+        "flex bg-destructive text-white items-center border-none w-max gap-2",
+        "p-2 px-4 border border-border rounded-md font-semibold",
+       )}>
+          <Icon icon="trash" />
+          Delete Campaign
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Deleting Campaign: {props.name}</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your campaign
+            and you'll have to recreate it if you want it back.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction className="bg-destructive">Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }

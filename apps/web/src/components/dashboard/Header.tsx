@@ -61,7 +61,7 @@ export function Header(props: {
 
   // Create the header
   return (
-    <div className="flex px-4 py-2 gap-4 items-center border-b border-slate-200 ">
+    <div className="flex px-4 py-2 gap-4 items-center border-b border-border">
       <Suspense >
         <SlideOver
           button={props.sidebarButton}

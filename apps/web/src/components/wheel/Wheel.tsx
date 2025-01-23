@@ -2,7 +2,8 @@
 
 import { cn } from "@repo/utilities"
 import { Pointer } from "./Pointer"
-import { Prize, Theme, WheelState } from "./types"
+import { Theme, WheelState } from "@/models/Theme"
+import { Prize } from "@/models/Campaign"
 import { Wedges } from "./Wedges"
 import dynamic from "next/dynamic"
 import { useAnimationFrame } from "@repo/utilities/client"
@@ -49,7 +50,7 @@ export const PrizeWheel = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-full bg-slate-200 aspect-square p-12">
+      <div className="h-full aspect-square p-12">
         <div className="w-full h-full rounded-full bg-slate-300 animate-pulse"></div>
       </div>
     )
@@ -159,7 +160,6 @@ function Lights(props: {
   const c = props.theme?.lights?.onColor ?? 'var(--color-yellow-200)'
   const lights = Array.from({ length: n }, (_, i) => i)
   const power = props.theme?.lights?.power ?? 30
-
 
   return (<div>
     {lights.map((_, i) => {

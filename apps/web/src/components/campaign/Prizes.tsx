@@ -38,8 +38,8 @@ export function PotentialPrizes() {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (over && active.id !== over.id) {
-      const oldIndex = active.id as number
-      const newIndex = over.id as number
+      const oldIndex = campaign.prizes.findIndex(prize => prize.id === active.id)
+      const newIndex = campaign.prizes.findIndex(prize => prize.id === over.id)
 
       setCampaign({
         prizes: arrayMove(campaign.prizes, oldIndex, newIndex)
@@ -83,13 +83,14 @@ export function PotentialPrizes() {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={campaign.prizes.map((_, index) => index)}
+            items={campaign.prizes.map(prize => prize.id)}
             strategy={verticalListSortingStrategy}
           >
             <div className="flex flex-col gap-2">
               {campaign.prizes.map((prize, index) => (
                 <PrizeItem
                   key={prize.id}
+                  id={prize.id}
                   total={total}
                   index={index}
                   name={prize.name}
@@ -114,6 +115,7 @@ export function PotentialPrizes() {
 
 interface PrizeItemProps {
   index: number
+  id: string
   name: string
   total: number
   probability: number
@@ -121,14 +123,14 @@ interface PrizeItemProps {
   onUpdate: (updates: { name?: string; probability?: number }) => void
 }
 
-function PrizeItem({ total, index, name, probability, onDelete, onUpdate }: PrizeItemProps) {
+function PrizeItem({ id, total, index, name, probability, onDelete, onUpdate }: PrizeItemProps) {
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: index })
+  } = useSortable({ id })
 
   const style = {
     transform: transform ? CSS.Transform.toString(transform) : undefined,
@@ -150,7 +152,7 @@ function PrizeItem({ total, index, name, probability, onDelete, onUpdate }: Priz
     <div
       ref={setNodeRef}
       style={style}
-      className="grid grid-cols-[auto_1fr] items-center gap-4 rounded-lg border border-border"
+      className="grid grid-cols-[auto_1fr] items-center gap-4 rounded-lg border border-border overflow-hidden"
     >
       <div
         className="grid place-items-center w-8 h-full cursor-grab bg-slate-100 border-r border-border"
@@ -161,8 +163,6 @@ function PrizeItem({ total, index, name, probability, onDelete, onUpdate }: Priz
       </div>
 
       <div className='flex w-full flex-wrap'>
-
-
         <div className='p-2 flex items-center gap-2 flex-1'>
           <div className={cn(
             'border border-slate-800 w-9 h-9 rounded flex items-center justify-center',
@@ -176,7 +176,6 @@ function PrizeItem({ total, index, name, probability, onDelete, onUpdate }: Priz
                 onChange={handleNameChange}
               />
             </div>
-
             <Button onClick={onDelete} variant="outline" size="icon" >
               <Icon icon="trash" />
             </Button>

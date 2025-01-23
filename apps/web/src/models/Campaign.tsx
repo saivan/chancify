@@ -19,14 +19,12 @@ export type CollectInformation = {
 
 export type Campaign = {
   id: string
-
+  status: string
   action: Action
   platform: string
   prizes: Prize[]
   theme: Theme
   collectInformation: CollectInformation
-
-  active: boolean
 }
 
 export const [useCampaign, CampaignProvider] = createObjectContext<Campaign>()

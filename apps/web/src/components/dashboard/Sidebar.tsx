@@ -206,7 +206,7 @@ export function SidebarComponent(props: {
   const isCompact = compacts && storedCompact
   const toggleCompact = () => setIsCompact(!isCompact)
   const sidebarClasses = "sticky top-0 flex h-[100vh] w-80 flex-col "
-    + "border-r-2 border-slate-100 "
+    + "border-r border-border "
     + (isCompact ? " w-auto " : "")
     + (props.className ? props.className : "")
 

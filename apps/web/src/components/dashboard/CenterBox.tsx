@@ -26,7 +26,7 @@ export function CenterBox({
     }
     <div className='py-6'>
       {
-        icon && <Image src={`/images/logos/${icon}.svg`} width={56} height={56} alt={icon} />
+        icon && <Image src={`/images/logos/${icon}.svg`} width={56} height={56} alt={icon} className='py-2' />
       }
       <h1 className='font-semibold text-2xl md:text-4xl tracking-tight text-slate-800 leading-tight'
       >{title}</h1>
