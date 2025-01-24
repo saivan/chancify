@@ -4,7 +4,7 @@ import {
   useState, useEffect, useCallback, createContext, type Dispatch,
   type ReactNode, useContext, useMemo, useRef,
 } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { type CookieOptions, getCookie, isWebBrowser, setCookie } from './browser'
 import { deepMerge } from './object'
 import { useDebouncedCallback } from 'use-debounce'
@@ -153,6 +153,60 @@ export function usePathComponents() {
 }
 
 
+export function useNavigationState() {
+  type QueryParams = Record<string, string>
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const [path, setPath] = useState<string>(pathname || '')
+  const [queryParams, setQueryParams] = useState<QueryParams>({})
+
+  // Update internal state when pathname or search params change
+  useEffect(() => {
+    if (pathname) {
+      setPath(pathname)
+    }
+    
+    const currentParams: QueryParams = {}
+    searchParams.forEach((value, key) => {
+      currentParams[key] = value
+    })
+    setQueryParams(currentParams)
+  }, [pathname, searchParams])
+
+  // Function to update both path and query parameters
+  const navigate = useCallback((newPath?: string, newParams?: QueryParams) => {
+    const updatedPath = newPath || path
+    const updatedParams = newParams || queryParams
+    
+    const searchString = new URLSearchParams(updatedParams).toString()
+    const fullPath = searchString 
+      ? `${updatedPath}?${searchString}`
+      : updatedPath
+    
+    router.push(fullPath)
+  }, [path, queryParams, router])
+
+  // Function to update only query parameters
+  const updateQueryParams = useCallback((newParams: QueryParams) => {
+    navigate(path, newParams)
+  }, [path, navigate])
+
+  // Function to update only path
+  const updatePath = useCallback((newPath: string) => {
+    navigate(newPath, queryParams)
+  }, [queryParams, navigate])
+
+  return {
+    path,
+    queryParams,
+    navigate,
+    updateQueryParams,
+    updatePath
+  }
+}
+
+
 export function useMediaQuery(width: number) {
   const [targetReached, setTargetReached] = useState(false)
   const updateTarget = useCallback((e: any) => {
@@ -228,6 +282,56 @@ export function createObjectContext<T extends object>() {
   }
   return [useCustomContext, Provider] as const
 }
+
+
+/**
+ * Create a context where the object has to be provided to the provider 
+ * @returns A tuple with the hook and provider for the context
+ * @example [useCount, CountProvider] = createObjectContext()
+ */
+export function createInitialisedObjectContext<T extends object>() {
+  // Create the context from the default value
+  type ContextValue = [T, Dispatch<Partial<T>>]
+  const ObjectContext = createContext<ContextValue | null>(null)
+
+  // Make a provider from the context
+  const Provider: React.FC<{
+    initial: T
+    children: ReactNode
+  }> = ({ children, initial }) => {
+    // Make a state variable and a function to update it
+    const [state, setStateDirect] = useState<T>(initial)
+
+    // Make a state variable and a function to deeply update it
+    function setState(value: Partial<T> | ((prevState: T) => Partial<T>)) {
+      setStateDirect((prevState: T) => {
+        const update = typeof value === 'function' 
+          ? (value as (prevState: T) => Partial<T>)(prevState) 
+          : value
+        const newObject = deepMerge(prevState, update) as T
+        return newObject
+      })
+    }
+    const wrapper = (
+      <ObjectContext.Provider value={[state, setState]}>
+        {children}
+      </ObjectContext.Provider>
+    )
+    return wrapper
+  }
+
+  // Make a hook to consume the context
+  const useCustomContext = () => {
+    const context = useContext(ObjectContext)
+    if (!context) {
+      throw new Error('Your custom context must be used within a Provider')
+    }
+    return context
+  }
+  return [useCustomContext, Provider] as const
+}
+
+
 
 export function useWindow<K extends keyof Window>(property: K, initialValue: any) {
   const [value, setValueDirect] = useState(initialValue)

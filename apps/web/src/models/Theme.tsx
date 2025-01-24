@@ -157,9 +157,9 @@ export const themes: Record<string, Theme> = {
     lights: {
       offColor: "var(--color-yellow-400)",
       onColor: "var(--color-yellow-200)",
-      power: 30,
+      power: 20,
       count: 22,
-      size: 6,
+      size: 5,
     },
     pointer: {
       width: 0.30,

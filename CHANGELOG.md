@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] 
 ### Added
-- Added the wheel
+- Made the wheel
+- Added the campaign setup page
+- Added the customer view page
 ### Changed
 ### Fixed
 
