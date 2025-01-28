@@ -5,8 +5,8 @@ import { Campaign } from "@/models/Campaign"
 import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
-import { useCampaigns } from "../../../provider"
+import { useState, useEffect } from "react"
+import { useCustomerViewState, useWheelCenteredEffect } from "../../../provider"
 import { Button, Input } from "@repo/components"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -14,15 +14,14 @@ import { z } from "zod"
 
 
 
+
 export default function () {
-  const [campaigns, setCampaigns] = useCampaigns()
-  const { queryParams, updateQueryParams } = useNavigationState()
-  const selectedCampaign = Number(queryParams.selectedCampaign ?? 0)
-  const campaign = campaigns[selectedCampaign]
+  const [state, setState] = useCustomerViewState()
+  useWheelCenteredEffect(true)
 
   return (
     <>
-      <div>
+      {/* <div>
         <h1 className='font-semibold text-2xl md:text-4xl tracking-tight text-slate-800 leading-tight'
         >{campaign.action.label}</h1>
         <p className='text-base md:text-lg text-slate-800 '>
@@ -45,7 +44,7 @@ export default function () {
             query: { selectedCampaign }
           }}>Spin Now</Link>
         </Button>
-      </div>
+      </div> */}
     </>
   )
 }

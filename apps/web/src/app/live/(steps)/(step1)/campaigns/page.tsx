@@ -5,15 +5,15 @@ import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
-import { useCampaigns } from "../../../provider"
+import { useCustomerViewState, useWheelCenteredEffect } from "../../../provider"
 import { Button } from "@repo/components"
 
 
 
 export default function ChooseCampaign() {
-  const [campaigns, setCampaigns] = useCampaigns()
-  const { queryParams, updateQueryParams } = useNavigationState()
-  const selectedCampaign = Number(queryParams.selectedCampaign ?? 0)
+  const [state, setState] = useCustomerViewState()
+  useWheelCenteredEffect(false)
+  const selectedCampaign = state.campaigns.selected
 
   return (
     <>
@@ -25,7 +25,7 @@ export default function ChooseCampaign() {
         </p>
       </div>
       <div className="flex flex-col gap-4">
-        {campaigns.map((campaign, index) => {
+        {state.campaigns.list.map((campaign, index) => {
           return (
             <CampaignButton
               key={campaign.id}
@@ -38,19 +38,14 @@ export default function ChooseCampaign() {
       <div>
         <Button asChild>
           <Link href={{
-            pathname: '/live/action',
+            pathname: '/live/details',
             query: { selectedCampaign }
-          }}> Claim Reward </Link>
+          }}>Next</Link>
         </Button>
       </div>
     </>
   )
 }
-
-
-
-
-
 
 
 function CampaignButton(props: {
@@ -60,7 +55,6 @@ function CampaignButton(props: {
   const { queryParams, updateQueryParams } = useNavigationState()
   const selectedCampaign = Number(queryParams.selectedCampaign)
   const isSelected = selectedCampaign === props.index
-  console.log(`selectedCampaign,isSelected`, selectedCampaign, isSelected)
   return (
     <Link
       className={cn(
@@ -68,7 +62,6 @@ function CampaignButton(props: {
         isSelected && "outline-2 outline-slate-800",
       )}
       href={{ query: { selectedCampaign: props.index } }}
-
     >
       <Image width={32} height={32}
         src={`/images/logos/${props.campaign.platform}.svg`}

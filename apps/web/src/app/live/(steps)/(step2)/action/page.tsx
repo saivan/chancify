@@ -6,16 +6,16 @@ import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
-import { useCampaigns } from "../../../provider"
+import { useCustomerViewState, useWheelCenteredEffect } from "../../../provider"
 import { Button } from "@repo/components"
 
 
 
 export default function ChooseCampaign() {
-  const [campaigns, setCampaigns] = useCampaigns()
-  const { queryParams, updateQueryParams } = useNavigationState()
-  const selectedCampaign = Number(queryParams.selectedCampaign ?? 0)
-  const campaign = campaigns[selectedCampaign]
+  const [state] = useCustomerViewState()
+  useWheelCenteredEffect(false)
+  const selectedCampaign = state.campaigns.selected
+  const campaign = state.campaigns.list[selectedCampaign]
 
   return (
     <>

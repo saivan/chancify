@@ -25,7 +25,7 @@ import { useMemo } from 'react'
 export function PotentialPrizes() {
   const [campaign, setCampaign] = useCampaign()
   const total = useMemo(() => campaign.prizes.reduce(
-    (acc, prize) => acc + prize.probability, 0
+    (acc, prize) => acc + prize.chance, 0
   ), [campaign.prizes])
 
   const sensors = useSensors(
@@ -53,7 +53,7 @@ export function PotentialPrizes() {
     })
   }
 
-  const handleUpdatePrize = (index: number, updates: { name?: string; probability?: number }) => {
+  const handleUpdatePrize = (index: number, updates: { name?: string; chance?: number }) => {
     setCampaign({
       prizes: campaign.prizes.map((prize, i) =>
         i === index ? { ...prize, ...updates } : prize
@@ -63,7 +63,7 @@ export function PotentialPrizes() {
 
   const handleAddPrize = () => {
     setCampaign({
-      prizes: [...campaign.prizes, { id: shortId(), name: "New Prize", probability: 1 }]
+      prizes: [...campaign.prizes, { id: shortId(), name: "New Prize", chance: 1 }]
     })
   }
 
@@ -94,7 +94,7 @@ export function PotentialPrizes() {
                   total={total}
                   index={index}
                   name={prize.name}
-                  probability={prize.probability}
+                  chance={prize.chance}
                   onDelete={() => handleDeletePrize(index)}
                   onUpdate={(updates) => handleUpdatePrize(index, updates)}
                 />
@@ -118,12 +118,12 @@ interface PrizeItemProps {
   id: string
   name: string
   total: number
-  probability: number
+  chance: number
   onDelete: () => void
-  onUpdate: (updates: { name?: string; probability?: number }) => void
+  onUpdate: (updates: { name?: string; chance?: number }) => void
 }
 
-function PrizeItem({ id, total, index, name, probability, onDelete, onUpdate }: PrizeItemProps) {
+function PrizeItem({ id, total, index, name, chance, onDelete, onUpdate }: PrizeItemProps) {
   const {
     attributes,
     listeners,
@@ -141,10 +141,10 @@ function PrizeItem({ id, total, index, name, probability, onDelete, onUpdate }: 
     onUpdate({ name: e.target.value })
   }
 
-  const handleProbabilityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlechanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value)
     if (!isNaN(value)) {
-      onUpdate({ probability: value })
+      onUpdate({ chance: value })
     }
   }
 
@@ -185,8 +185,8 @@ function PrizeItem({ id, total, index, name, probability, onDelete, onUpdate }: 
           <span className="text-gray-600 text-sm">Chance</span>
           <Input
             type="number"
-            value={probability}
-            onChange={handleProbabilityChange}
+            value={chance}
+            onChange={handlechanceChange}
             min="0"
             max="100"
             step="1"

@@ -1,5 +1,6 @@
-import { Prize, Theme } from './types'
-import { cssToHex } from '@repo/utilities/client'
+import { cssToHex, cssToRGB } from '@repo/utilities/client'
+import { Prize } from '@/models/Campaign'
+import { Theme } from '@/models/Theme'
 import { useMemo } from 'react'
 
 function polarToCartesian(centerX: number, centerY: number, radius: number, angleInDegrees: number) {
@@ -35,9 +36,9 @@ function describeArc(x: number, y: number, radius: number, startAngle: number, e
 
 function calculateWedges(prizes: Prize[]) {
   let currentAngle = 0
-  const total = prizes.reduce((sum, prize) => sum + prize.probability, 0)
+  const total = prizes.reduce((sum, prize) => sum + prize.chance, 0)
   return prizes.map(prize => {
-    const angle = (prize.probability / total) * 360
+    const angle = (prize.chance / total) * 360
     const startAngle = currentAngle
     const endAngle = currentAngle + angle
     currentAngle += angle
@@ -51,7 +52,7 @@ function calculateWedges(prizes: Prize[]) {
 
 function colorToMatrix(hexColor: string): string {
   // Default black if no color provided
-  if (!hexColor) return "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" 
+  if (!hexColor) return "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"
   const color = hexColor.startsWith('#') ? hexColor.slice(1) : hexColor
   try {
     const r = parseInt(color.substring(0, 2), 16) / 255
@@ -59,7 +60,7 @@ function colorToMatrix(hexColor: string): string {
     const b = parseInt(color.substring(4, 6), 16) / 255
     return `0 0 0 0 ${r} 0 0 0 0 ${g} 0 0 0 0 ${b} 0 0 0 1 0`
   } catch (e) {
-     // Default to black on error
+    // Default to black on error
     console.error('Invalid color format:', hexColor)
     return "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"
   }
@@ -84,8 +85,8 @@ function Wedge({
 }) {
   // Calculate the colors
   const {
-    backgroundColor = '#000000', 
-    textColor = '#000000', 
+    backgroundColor = '#000000',
+    textColor = '#000000',
     glowColor = '#000000',
   } = useMemo(() => {
     return {
@@ -97,10 +98,10 @@ function Wedge({
 
 
   const uniqueFilterId = `filter_${prize.name.replace(/[^a-zA-Z0-9]/g, '_')}`
-  
+
   // Calculate the middle angle
   const middleAngle = (startAngle + endAngle) / 2
-  
+
   // Determine if we need to flip the text
   // This ensures text is always readable from outside the wheel
   const rotationAngle = middleAngle + 90
@@ -151,7 +152,7 @@ function Wedge({
 }
 
 
-export function Wedges(props: {
+export function WedgesOld(props: {
   prizes: Prize[]
   theme: Theme
 }) {
@@ -182,3 +183,81 @@ export function Wedges(props: {
       ))}
     </svg>)
 }
+
+
+
+
+export function Wedges(props: {
+  prizes: Prize[]
+  theme: Theme
+}) {
+  // Calculate a conical gradient to display all of the wedges
+  const conicalGradient = useMemo(() => {
+    let totalProbability = 0
+    let totalChance = props.prizes.reduce((sum, prize) => sum + prize.chance, 0)
+    const stops = props.prizes.map((prize, index) => {
+      const wedge = props.theme.wedges[index % props.theme.wedges.length]
+      const color = cssToRGB(wedge.backgroundColor || '')
+      const highlight = cssToRGB(wedge.glowColor || '')
+      if (!color || !highlight) return ''
+
+      const probability = prize.chance / totalChance
+      const startAngle = totalProbability * 360
+      const endAngle = (totalProbability + probability) * 360
+      const weights = [0.5, 0.7, 0.9, 1, 1, 0.9, 0.7, 0.5]
+      const multipliedStops = weights.map((s, i) => {
+        const t = i / (weights.length - 1)
+        return {
+          color: color.map((color, i) => s * color + (1 - s) * highlight[i]),
+          angle: (startAngle + t * (endAngle - startAngle)),
+        }
+      })
+
+      totalProbability += probability
+      return multipliedStops.map(({ color, angle }) => {
+        return `rgb(${color.join(',')}) ${angle}deg`
+      })
+    })
+    return `conic-gradient(${stops.join(', ')})`
+  }, [props.theme.wedges])
+
+  // Place the text in the center of each wedge
+  const textItems = useMemo(() => {
+    let totalProbability = 0
+    let totalChance = props.prizes.reduce((sum, prize) => sum + prize.chance, 0)
+    return props.prizes.map((prize, index) => {
+      const probability = prize.chance / totalChance
+      const startAngle = totalProbability * 360
+      const endAngle = (totalProbability + probability) * 360
+      totalProbability += probability
+      return {
+        text: prize.name,
+        color: props.theme.wedges[index % props.theme.wedges.length].textColor,
+        angle: 90 - (startAngle + endAngle) / 2,
+      }
+    })
+  }, [props.prizes, props.theme.wedges])
+
+  // Create the wheel
+  return (<div
+    className='w-full h-full'
+    style={{ padding: `${props.theme.padding * 100}%` }}
+  >
+    <div className='w-full h-full rounded-full bg-red-300 relative'
+      style={{ background: conicalGradient }}
+    >
+      {
+        textItems.map((item, index) => {
+          return <div className='absolute top-0 left-0 w-full h-full flex justify-center items-center'
+            key={index}
+            style={{
+              color: item.color,
+              transform: `rotate(${-item.angle}deg) translateX(25%) `,
+            }}> {item.text} </div>
+        })
+      }
+    </div>
+  </div>)
+}
+
+

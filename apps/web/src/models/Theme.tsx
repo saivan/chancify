@@ -1,7 +1,7 @@
 
 export interface Prize {
   name: string
-  probability: number
+  chance: number
 }
 
 export interface Theme {

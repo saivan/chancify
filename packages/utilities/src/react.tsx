@@ -237,6 +237,7 @@ export function useIsMobile() {
   return useMediaQuery(640)
 }
 
+
 /**
  * Create a context from an object with a default value
  * @returns A tuple with the hook and provider for the context
@@ -344,6 +345,7 @@ export function useWindow<K extends keyof Window>(property: K, initialValue: any
   return [value, setValue]
 }
 
+
 export function debounceStateUpdates (value: any, delay: number) {
   const [state, setState] = useState(value)
   const options = { trailing: true }
@@ -368,7 +370,7 @@ export function useUpdateEffect(
 }
 
 
-type AnimationFrameCallback = (deltaTime: number) => void
+type AnimationFrameCallback = (deltaTime: number) => boolean | undefined
 export const useAnimationFrame = (callback: AnimationFrameCallback) => {
   const requestRef = useRef<number>()
   const previousTimeRef = useRef<number>()
@@ -376,7 +378,8 @@ export const useAnimationFrame = (callback: AnimationFrameCallback) => {
   const animate = useCallback((time: number) => {
     if (previousTimeRef.current !== undefined) {
       const deltaTime = time - previousTimeRef.current
-      callback(deltaTime)
+      const result = callback(deltaTime)
+      if (result === false) return
     }
     
     previousTimeRef.current = time

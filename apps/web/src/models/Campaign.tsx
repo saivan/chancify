@@ -7,7 +7,7 @@ export type Brand = 'google' | 'instagram' | 'tiktok' | 'facebook' | 'personal'
 export type Prize = {
   id: string
   name: string
-  probability: number
+  chance: number
 }
 
 export type CollectInformation = {

@@ -12,23 +12,44 @@ import { Toaster } from "@repo/components"
 export const metadata = {
   title: "Chancify Application",
   description: "A simple chancify application to get you started",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  manifest: '/pwa/manifest.json',
+  applicationName: "Chancify Application",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: "Chancify Application",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { sizes: "512x512", url: "/pwa/icon512_rounded.png", type: "image/png" },
+      { sizes: "512x512", url: "/pwa/icon512_maskable.png", type: "image/png" },
+    ],
+    apple: [
+      { sizes: "512x512", url: "/pwa/icon512_rounded.png", type: "image/png" },
+      { sizes: "512x512", url: "/pwa/icon512_maskable.png", type: "image/png" },
+    ],
+    shortcut: [{ url: "/favicon.ico" }],
+  },
 }
+
 
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
 })
 
-export default function RootLayout( props: { children: ReactNode }) {
+export default function RootLayout(props: { children: ReactNode }) {
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body className={cn("font-sans antialiased", fontSans.variable)}>
-          <AuthProvider >
-            <TRPCReactProvider>
-              { props.children }
-            </TRPCReactProvider>
-          </AuthProvider>
+        <AuthProvider >
+          <TRPCReactProvider>
+            {props.children}
+          </TRPCReactProvider>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>

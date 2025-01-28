@@ -27,6 +27,7 @@ function Wheel(props: {
       return 0.3 * Math.sin(2 * Math.PI * (2 * i - t) / 22) + 0.7
     })
     setBrightness(brightness)
+
   })
 
   // Create the wheel

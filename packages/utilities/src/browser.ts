@@ -114,6 +114,7 @@ export function loadScript(url: string, {
   return scriptNode
 }
 
+
 export function runScript(code: string, options = {
   appendTo: document.body,
   type: 'text/javascript',
@@ -149,5 +150,12 @@ export function cssToHex(cssColor: string, element: HTMLElement = document.body)
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`
 }
 
-
-
+export function cssToRGB(cssColor: string, element: HTMLElement = document.body): number[] | null {
+  const hexColor = cssToHex(cssColor, element)
+  const rgbMatch = hexColor?.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i)
+  if (!rgbMatch) return null
+  const r = parseInt(rgbMatch[1], 16)
+  const g = parseInt(rgbMatch[2], 16)
+  const b = parseInt(rgbMatch[3], 16)
+  return [r, g, b]
+}

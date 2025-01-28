@@ -18,12 +18,12 @@ export default function () {
     action: availableActions[0],
     platform: "Google",
     prizes: [
-      { id: shortId(), name: "Hello Aba", probability: 15 },
-      { id: shortId(), name: "Maryanne", probability: 1 },
-      { id: shortId(), name: "Free Lunch", probability: 1 },
-      { id: shortId(), name: "Awesome Thing", probability: 3 },
-      { id: shortId(), name: "Stinky Snake", probability: 4 },
-      { id: shortId(), name: "Awesome Sauce", probability: 3 },
+      { id: shortId(), name: "Hello Aba", chance: 15 },
+      { id: shortId(), name: "Maryanne", chance: 1 },
+      { id: shortId(), name: "Free Lunch", chance: 1 },
+      { id: shortId(), name: "Awesome Thing", chance: 3 },
+      { id: shortId(), name: "Stinky Snake", chance: 4 },
+      { id: shortId(), name: "Awesome Sauce", chance: 3 },
     ],
     theme: themes['red'],
     collectInformation: {
