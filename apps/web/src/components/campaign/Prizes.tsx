@@ -22,6 +22,7 @@ import { useCampaign } from '@/models/Campaign'
 import { cn, shortId } from '@repo/utilities'
 import { useMemo } from 'react'
 
+
 export function PotentialPrizes() {
   const [campaign, setCampaign] = useCampaign()
   const total = useMemo(() => campaign.prizes.reduce(

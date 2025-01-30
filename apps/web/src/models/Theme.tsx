@@ -34,9 +34,8 @@ export interface Theme {
 }
 
 export interface WheelState {
-  lights?: {
-    animating: boolean
-  }
+  animating: boolean
+  prize?: Prize
 }
 
 export const frames = {

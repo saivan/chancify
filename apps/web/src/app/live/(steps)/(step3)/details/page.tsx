@@ -6,19 +6,24 @@ import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
-import { useCustomerViewState, useWheelCenteredEffect } from "../../../provider"
-import { Button, Input } from "@repo/components"
-import { useForm } from "react-hook-form"
+import { useCustomerViewState, useEnforceWheelState } from "@/app/live/controller"
+import { Form, Button, Checkbox, FormControl, FormDescription, FormField, FormItem, FormLabel, Input, Label } from "@repo/components"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
 
 
 
 export default function () {
   const [state, setState] = useCustomerViewState()
-  useWheelCenteredEffect(false)
+  useEnforceWheelState({
+    current: 'disabled',
+    centered: false,
+    prizeIndex: undefined,
+  })
   const selectedCampaign = state.campaigns.selected
-  const campaign = state.campaigns.list[selectedCampaign] 
+  const campaign = state.campaigns.list[selectedCampaign]
 
   return (
     <>
@@ -32,24 +37,9 @@ export default function () {
       <div className="flex flex-col gap-4">
         <FormArea />
       </div>
-      <div className="flex gap-2">
-        <Button asChild variant='outline'>
-          <Link href={{
-            pathname: '/live/action',
-            query: { selectedCampaign }
-          }}>Back</Link>
-        </Button>
-        <Button asChild>
-          <Link href={{
-            pathname: '/live/spin',
-            query: { selectedCampaign }
-          }}>Spin Now</Link>
-        </Button>
-      </div>
     </>
   )
 }
-
 
 
 
@@ -58,42 +48,103 @@ const schema = z.object({
   phone: z.string().min(10),
   email: z.string().email(),
   address: z.string().min(5),
+  acceptedTerms: z.boolean().refine((val) => val === true, {
+    message: "You must accept the terms and conditions"
+  }),
 })
 
+type FormData = z.infer<typeof schema>
+
 export function FormArea() {
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(schema)
+  const router = useRouter()
+  const [state, setState] = useCustomerViewState()
+  const selectedCampaign = state.campaigns.selected
+  const form = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      acceptedTerms: false,
+      name: '',
+      phone: '',
+      email: '',
+      address: ''
+    }
   })
 
+  const { register, handleSubmit, formState: { errors }, control } = form
+
   return (
-    <form onSubmit={handleSubmit(console.log)} className="space-y-4 max-w-md">
-      {[
-        { id: "name", label: "Name", type: "text" },
-        { id: "phone", label: "Phone", type: "tel" },
-        { id: "email", label: "Email", type: "email" },
-        { id: "address", label: "Postal Address", type: "text" },
-      ].map(({ id, label, type }) => (
-        <div key={id} className="space-y-2">
-          <label htmlFor={id} className="text-sm font-medium">
-            {label}
-          </label>
-          <Input
-            id={id}
-            type={type}
-            className="bg-white"
-            {...register(id)}
-            aria-invalid={!!errors[id]}
-          />
-          {errors[id] && (
-            <span className="text-sm text-red-500">
-              Invalid {label.toLowerCase()}
-            </span>
-          )}
+    <Form {...form}>
+      <form onSubmit={handleSubmit(inputs => {
+        console.log(inputs)
+        router.push(`/live/spin?selectedCampaign=${selectedCampaign}`)
+      })} className="space-y-4 max-w-md">
+
+        <div className="pb-8">
+          {[
+            { id: "name" as const, label: "Name", type: "text" },
+            { id: "phone" as const, label: "Phone", type: "tel" },
+            { id: "email" as const, label: "Email", type: "email" },
+            { id: "address" as const, label: "Postal Address", type: "text" },
+          ].map(({ id, label, type }) => (
+            <div key={id} className="space-y-2">
+              <label htmlFor={id} className="text-sm font-medium">
+                {label}
+              </label>
+              <Input
+                id={id}
+                type={type}
+                className="bg-white"
+                {...register(id)}
+                aria-invalid={!!errors[id]}
+              />
+              {errors[id] && (
+                <span className="text-sm text-red-500">
+                  Invalid {label.toLowerCase()}
+                </span>
+              )}
+            </div>
+          ))}
         </div>
-      ))}
-      <Button type="submit" className="w-full">Submit</Button>
-    </form>
+
+        <FormField
+          control={control}
+          name="acceptedTerms"
+          render={({ field }) => (
+            <FormItem className="bg-slate-50 flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl className="my-[0.3rem]">
+                <Checkbox 
+                  id="terms-checkbox"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div>
+                <Label htmlFor="terms-checkbox" className="text-sm font-bold text-slate-900">
+                  Accept Terms and Conditions
+                </Label>
+                <div className="text-xs text-slate-600">
+                  You agree to the Terms of Service and Privacy Policy
+                </div>
+                {errors.acceptedTerms && (
+                  <span className="text-sm text-red-500">
+                    {errors.acceptedTerms.message as string}
+                  </span>
+                )}
+              </div>
+            </FormItem>
+          )}
+        />
+
+        <div className="flex gap-2">
+          <Button asChild variant='outline'>
+            <Link href={{
+              pathname: '/live/action',
+              query: { selectedCampaign }
+            }}>Back</Link>
+          </Button>
+          <Button type="submit">Spin Now</Button>
+        </div>
+      </form>
+    </Form>
   )
 }
-
-

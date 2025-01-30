@@ -3,11 +3,11 @@
 import { cn } from "@repo/utilities"
 import { Pointer } from "./Pointer"
 import { Theme, WheelState } from "@/models/Theme"
-import { Prize } from "@/models/Campaign"
+import { Prize, selectRandomPrize, toProbabilities } from "@/models/Campaign"
 import { Wedges } from "./Wedges"
 import dynamic from "next/dynamic"
 import { useAnimationFrame } from "@repo/utilities/client"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 
 
 function Wheel(props: {
@@ -15,19 +15,23 @@ function Wheel(props: {
   prizes: Prize[]
   state: WheelState
   theme: Theme
+  onTransitionEnd?: () => void
+  prizeIndex?: number
 }) {
+  // Calculate the angle of the wheel from the provided angle
+  const minDegrees = 18
+
   // Allow the lights to animate
   const [t, setT] = useState(0)
   const [brightness, setBrightness] = useState<number[]>([])
   useAnimationFrame(dt => {
     setT(t + dt / 50)
-    const isAnimating = props.state.lights?.animating
+    const isAnimating = props.state.animating
     const brightness = new Array(22).fill(0).map((_, i) => {
       if (!isAnimating) return 1
       return 0.3 * Math.sin(2 * Math.PI * (2 * i - t) / 22) + 0.7
     })
     setBrightness(brightness)
-
   })
 
   // Create the wheel
@@ -36,7 +40,13 @@ function Wheel(props: {
       'aspect-square block relative rounded-md', 
       props.className
     )}>
-      <Wedges prizes={props.prizes} theme={props.theme} />
+      <Wedges 
+        theme={props.theme} 
+        prizes={props.prizes} 
+        minDegrees={minDegrees}
+        prizeIndex={props.prizeIndex}
+        onTransitionEnd={props.onTransitionEnd}
+      />
       <LargeShadow theme={props.theme} />
       <InnerFrame theme={props.theme} />
       <OuterFrame theme={props.theme} />

@@ -5,14 +5,18 @@ import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
-import { useCustomerViewState, useWheelCenteredEffect } from "../../../provider"
+import { useCustomerViewState, useEnforceWheelState } from "@/app/live/controller"
 import { Button } from "@repo/components"
 
 
 
 export default function ChooseCampaign() {
   const [state, setState] = useCustomerViewState()
-  useWheelCenteredEffect(false)
+  useEnforceWheelState({ 
+    current: 'disabled', 
+    centered: false,
+    prizeIndex: undefined,
+  })
   const selectedCampaign = state.campaigns.selected
 
   return (
@@ -38,7 +42,7 @@ export default function ChooseCampaign() {
       <div>
         <Button asChild>
           <Link href={{
-            pathname: '/live/details',
+            pathname: '/live/action',
             query: { selectedCampaign }
           }}>Next</Link>
         </Button>

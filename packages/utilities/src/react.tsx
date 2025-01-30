@@ -370,7 +370,7 @@ export function useUpdateEffect(
 }
 
 
-type AnimationFrameCallback = (deltaTime: number) => boolean | undefined
+type AnimationFrameCallback = (deltaTime: number) => boolean | void
 export const useAnimationFrame = (callback: AnimationFrameCallback) => {
   const requestRef = useRef<number>()
   const previousTimeRef = useRef<number>()
