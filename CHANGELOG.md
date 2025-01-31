@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Made the wheel
 - Added the campaign setup page
 - Made the customer view page visuals
-- 
+- Made a data table component
 ### Changed
 - The application is now a PWA
 ### Fixed

@@ -31,7 +31,7 @@ export default function () {
       email: false,
       postalAddress: false,
     },
-    active: true,
+    status: 'active',
   })
 
   return (

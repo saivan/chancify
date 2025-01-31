@@ -28,9 +28,9 @@ export const coreRoutes: SidebarLinkDefinition = [{
     href: "/users", 
     icon: "users" 
   }, {
-    label: `Integrations`, 
-    href: "/integrations", 
-    icon: "refresh-cw",
+    label: `Accounts`, 
+    href: "/accounts", 
+    icon: "network",
   }],
 }]
 
