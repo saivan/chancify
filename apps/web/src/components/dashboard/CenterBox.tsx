@@ -12,6 +12,7 @@ export function CenterBox({
   icon,
   back,
   className,
+  headerClassName,
 }: { 
   children: ReactNode, 
   title: string, 
@@ -19,6 +20,7 @@ export function CenterBox({
   icon?: string, 
   back?: string
   className?: string
+  headerClassName?: string
 }) {
   const backPageName = back != null && camelToTitle(back?.split('/').pop() || '')
   return <div className={cn(
@@ -35,7 +37,7 @@ export function CenterBox({
       </Link>
       </div>
     }
-    <div className='py-6'>
+    <div className={cn('py-6', headerClassName)}>
       {
         icon && <Image src={`/images/logos/${icon}.svg`} width={56} height={56} alt={icon} className='py-2' />
       }

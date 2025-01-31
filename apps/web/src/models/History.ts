@@ -8,5 +8,6 @@ export type History = {
   status: 'claimed' | 'unclaimed'
   prize: Prize
   customer: Customer
+  campaignId: string
 }
 
