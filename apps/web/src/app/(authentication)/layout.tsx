@@ -17,14 +17,16 @@ export default async function RootLayout({
       style={{ 
         backgroundImage: "url(/images/auth-background.jpeg)",
         backgroundSize: "cover",
+        backgroundPositionY: "bottom",
       }}
       className="
-        flex background-cover h-[100vh] 
-        grid grid-cols-[3fr,min(90vw,500px),1fr] place-items-center
+        background-cover h-[100vh] 
+        grid md:grid-cols-[3fr,min(90vw,500px),1fr] place-items-end
+        grid-cols-[0px_1fr]
       "
     >
       <div className="
-        bg-white/30 rounded-lg 
+        bg-white/[0.85] rounded-lg 
         border border-slate-50
         md:background-red-800
         m-auto

@@ -1,7 +1,7 @@
 "use client"
 
 import { CenterBox } from "@/components/dashboard/CenterBox"
-import { Campaigns } from "@/components/campaign/Campaigns"
+import { Campaigns } from "./Campaigns"
 
 export default function () {
   const campaigns = [

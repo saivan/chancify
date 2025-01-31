@@ -57,6 +57,7 @@ const iconMap = {
   'gift': require('lucide-react').Gift,
   'users': require('lucide-react').Users,
   'grip-vertical': require('lucide-react').GripVertical,
+  'refresh-cw': require('lucide-react').RefreshCw,
 } as const
 export type IconName = keyof typeof iconMap
 

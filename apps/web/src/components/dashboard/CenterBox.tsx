@@ -1,5 +1,5 @@
 import { Button } from '@repo/components'
-import { camelToTitle } from '@repo/utilities'
+import { camelToTitle, cn } from '@repo/utilities'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ReactNode } from 'react'
@@ -11,9 +11,20 @@ export function CenterBox({
   caption,
   icon,
   back,
-}: { children: ReactNode, title: string, caption: string, icon?: string, back?: string }) {
+  className,
+}: { 
+  children: ReactNode, 
+  title: string, 
+  caption: string, 
+  icon?: string, 
+  back?: string
+  className?: string
+}) {
   const backPageName = back != null && camelToTitle(back?.split('/').pop() || '')
-  return <div className="w-full max-w-[1024px] mx-auto py-16 px-4 md:px-8">
+  return <div className={cn(
+    "w-full max-w-[1024px] mx-auto py-16 px-4 md:px-8",
+    className,
+  )}>
     {
       back &&
       <div className='mb-6'>

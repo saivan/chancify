@@ -22,11 +22,15 @@ export const coreRoutes: SidebarLinkDefinition = [{
     icon: "gift" 
   }],
 }, {
-  name: "Integrations",
+  name: "Organization",
   links: [{
-    label: `Accounts`, 
-    href: "/accounts", 
-      icon: "users" 
+    label: `Users`, 
+    href: "/users", 
+    icon: "users" 
+  }, {
+    label: `Integrations`, 
+    href: "/integrations", 
+    icon: "refresh-cw",
   }],
 }]
 

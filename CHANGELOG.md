@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Made the wheel
 - Added the campaign setup page
-- Added the customer view page
+- Made the customer view page visuals
+- 
 ### Changed
 - The application is now a PWA
 ### Fixed

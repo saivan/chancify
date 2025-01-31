@@ -11,11 +11,7 @@ import { Button, Input, Label } from "@repo/components"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { QRCodeSVG } from 'qrcode.react';
-import { QRCode } from "@/components/ui/QRCode"
-
-
-
+import { QRCode } from "@repo/components"
 
 
 export default function () {

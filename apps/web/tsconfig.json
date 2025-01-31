@@ -1,6 +1,6 @@
 {
   "extends": "@repo/config/typescript/nextjs.json",
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "**/*.js", "../../packages/database/test/dynamo.test.ts", "../../packages/files/test/files.test.ts", "src/app/error.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "**/*.js", "../../packages/database/test/dynamo.test.ts", "../../packages/files/test/files.test.ts", "src/app/error.tsx", "../../packages/components/src/composite/data-table.tsx", "../../packages/components/src/composite/QRCode.tsx"],
   "compilerOptions": {
     "declaration": true,
     "baseUrl": ".",

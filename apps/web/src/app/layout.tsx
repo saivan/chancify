@@ -44,7 +44,7 @@ const fontSans = FontSans({
 export default function RootLayout(props: { children: ReactNode }) {
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
-      <body className={cn("font-sans antialiased", fontSans.variable)}>
+      <body className={cn("font-sans antialiased overflow-hidden", fontSans.variable)}>
         <AuthProvider >
           <TRPCReactProvider>
             {props.children}

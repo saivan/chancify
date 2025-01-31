@@ -1,6 +1,6 @@
 "use client"
 
-import { PotentialPrizes } from "@/components/campaign/Prizes"
+import { PotentialPrizes } from "@/app/(dashboard)/campaigns/[id]/Prizes"
 import { CenterBox } from "@/components/dashboard/CenterBox"
 import { availableActions } from "@/models/Action"
 import { Campaign, CampaignProvider, CollectInformation, useCampaign } from "@/models/Campaign"
@@ -8,8 +8,7 @@ import { themes } from "@/models/Theme"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Checkbox, ComboboxCreatable, Icon, Label, Switch } from "@repo/components"
 import { cn, shortId } from "@repo/utilities"
 import { useMemo, useState } from "react"
-import { WheelPreview } from "@/components/campaign/WheelPreview"
-
+import { WheelPreview } from "@/app/(dashboard)/campaigns/[id]/WheelPreview"
 
 
 export default function () {

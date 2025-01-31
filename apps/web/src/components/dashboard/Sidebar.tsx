@@ -5,6 +5,7 @@ import { useLocalStorage, usePath } from "@repo/utilities/client"
 import { 
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, Icon, Button, 
   Separator, type IconName,
+  cn,
 } from "@repo/components";
 import { UserButton } from "@repo/authentication/client";
 import dynamic from "next/dynamic";
@@ -230,6 +231,12 @@ export function SidebarComponent(props: {
 }
 
 export const Sidebar = dynamic(() => Promise.resolve(SidebarComponent), { 
-  loading: () => <div className="w-20 h-full bg-red-200 rounded animate-pulse" />,
+  loading: () => {
+    return (
+      <div className={cn(
+        "w-80 h-full bg-slate-50 border-r border-border rounded animate-pulse" 
+      )} />
+    )
+  },
   ssr: false, 
 })

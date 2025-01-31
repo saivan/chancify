@@ -21,17 +21,18 @@ export default async function RootLayout({
       links={coreRoutes} 
     />
   )
-
   // Otherwise serve the route
   return (
-    <div className="flex">
+    <div className="grid grid-cols-[0_1fr] md:grid-cols-[auto_1fr] w-full h-full min-h-[100vh]">
       <Sidebar compacts 
         className="hidden md:flex" 
         links={coreRoutes} 
       />
-      <div className="flex flex-col w-full">
+      <div className="w-[100vw] md:w-full h-[100vh] grid grid-rows-[auto_1fr]">
         <Header hasMenuButton sidebar={compactSidebar} />
-        {children}
+        <div className="w-full h-full overflow-y-auto">
+          {children}
+        </div>
       </div>
     </div>
   )
