@@ -1,6 +1,9 @@
+'use client'
+
 import { CenterBox } from "@/components/dashboard/CenterBox";
-import { Card, CardContent, CardHeader, cn, Input, Label } from "@repo/components";
+import { Card, CardContent, CardHeader, cn, Input, Label, LabelledInput, LoadingButton } from "@repo/components";
 import Image from "next/image";
+import { useState } from 'react'
 
 export default function () {
   return (
@@ -40,13 +43,25 @@ function FormArea(props: {
 }
 
 function UrlUpdater() {
+  const [loading, setLoading] = useState(false)
   return (
     <FormArea
       title="Live Url"
       caption="Customers will access your campaigns at chancify.org"
     >
       <Label htmlFor="url-input">Handle</Label>
-      <Input className="w-96 max-w-full" id="url-input" placeholder="handle" />
+      <div className="flex gap-2 flex-wrap">
+        <LabelledInput label="chancify.org/live/" className="w-96 max-w-full" id="url-input" placeholder="handle" />
+        <LoadingButton variant="destructive" loading={loading} size='sm'
+          className="min-w-max"
+          onClick={async () => {
+            setLoading(true)
+            await new Promise(resolve => setTimeout(resolve, 2000))
+            setLoading(false)
+          }}
+        >Change Handle</LoadingButton>
+      </div>
+      <span className="text-xs text-slate-500">Changing this breaks existing links and QR codes</span>
     </FormArea>
   )
 }
@@ -100,7 +115,7 @@ function InstagramAccount() {
       </div>
       <div>
         <Label htmlFor="instagram-handle-input">Instagram Handle</Label>
-        <Input className="w-96 max-w-full" id="instagram-handle-input" placeholder="@handle" />
+        <LabelledInput label="@" className="w-96 max-w-full" id="instagram-handle-input" placeholder="handle" />
       </div>
     </div>
   )
@@ -120,7 +135,7 @@ function TikTokAccount() {
       </div>
       <div>
         <Label htmlFor="instagram-handle-input">TikTok Handle</Label>
-        <Input className="w-96 max-w-full" id="instagram-handle-input" placeholder="@handle" />
+        <LabelledInput label="@" className="w-96 max-w-full" id="instagram-handle-input" placeholder="handle" />
       </div>
     </div>
   )
