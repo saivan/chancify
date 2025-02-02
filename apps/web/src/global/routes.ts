@@ -24,13 +24,13 @@ export const coreRoutes: SidebarLinkDefinition = [{
 }, {
   name: "Organization",
   links: [{
+    label: `Settings`, 
+    href: "/settings", 
+    icon: "cog",
+  }, {
     label: `Users`, 
     href: "/users", 
     icon: "users" 
-  }, {
-    label: `Accounts`, 
-    href: "/accounts", 
-    icon: "network",
   }],
 }]
 

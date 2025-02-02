@@ -11,6 +11,7 @@ import { UserButton } from "@repo/authentication/client";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useContext, createContext } from "react";
+import Image from "next/image";
 
 const titleStyle = " text-sm text-slate-500 font-semibold tracking-tight ";
 const linkStyle = " text-slate-800 font-semibold ";
@@ -42,8 +43,10 @@ function Header() {
   return (
     <div className={padding + compactClasses + "flex justify-between"}>
       <Link href="/" className="flex items-center gap-2">
-        <div className="h-7 w-7 rounded-md bg-slate-600"></div>
-        {!isCompact && <div className="text-xl font-medium tracking-tight">Application</div>}
+        <div className="h-10 w-10 rounded-md">
+          <Image alt="Chancify Logo" src="/logo.svg" width={40} height={40} />
+        </div>
+        {!isCompact && <div className="text-xl font-medium tracking-tight">Chancify</div>}
       </Link>
       {
         compacts &&

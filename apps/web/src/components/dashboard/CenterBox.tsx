@@ -13,28 +13,28 @@ export function CenterBox({
   back,
   className,
   headerClassName,
-}: { 
-  children: ReactNode, 
-  title: string, 
-  caption: string, 
-  icon?: string, 
+}: {
+  children: ReactNode,
+  title: string,
+  caption: string,
+  icon?: string,
   back?: string
   className?: string
   headerClassName?: string
 }) {
   const backPageName = back != null && camelToTitle(back?.split('/').pop() || '')
   return <div className={cn(
-    "w-full max-w-[1024px] mx-auto py-16 px-4 md:px-8",
+    "w-full max-w-[1024px] mx-auto py-0 md:py-16 px-4 md:px-8",
     className,
   )}>
     {
       back &&
-      <div className='mb-6'>
-      <Link href={back}>
-        <Button variant='outline'>
-          Back to {backPageName}
-        </Button>
-      </Link>
+      <div className='my-6 md:mt-0'>
+        <Link href={back}>
+          <Button variant='outline'>
+            Back to {backPageName}
+          </Button>
+        </Link>
       </div>
     }
     <div className={cn('py-6', headerClassName)}>
