@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useCustomerViewState, useEnforceWheelState } from "@/app/live/controller"
+import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationId]/controller"
 
 
 export default function () {

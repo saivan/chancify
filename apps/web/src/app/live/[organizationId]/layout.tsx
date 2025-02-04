@@ -7,11 +7,7 @@ import { CustomerViewStateProvider } from './controller'
 
 
 
-export default function (props: { 
-  children: ReactNode
-  params: { [key: string]: string | string[] | undefined }
-}) {
-  const selectedIndex = Number(props.params['selected'] ?? 0)
+async function getCampaigns (organizationId: string) {
   const campaigns: Campaign[] = [{
     id: '1',
     action: availableActions[0],
@@ -53,8 +49,29 @@ export default function (props: {
     },
     status: 'active',
   }]
+  return campaigns
+}
 
+
+
+export default async function Layout({ 
+  children,
+  params,
+  searchParams
+}: { 
+  children: ReactNode
+  params: {
+    organizationId: string
+  }
+  searchParams?: {
+    selected?: string
+  }
+}) {
+  const selectedIndex = Number(searchParams?.selected ?? 0)
+  const { organizationId } = await params
+  const campaigns = await getCampaigns(organizationId)
   const selected = clamp(selectedIndex, 0, campaigns.length - 1)
+  
   return (
     <div className="w-[100svw] h-[100svh] relative flex">
       <video autoPlay muted loop playsInline
@@ -63,6 +80,9 @@ export default function (props: {
         <source src="/videos/tunnel.mp4" type="video/mp4" />
       </video>
       <CustomerViewStateProvider initial={{
+        organization: {
+          id: organizationId
+        },
         campaigns: {
           list: campaigns,
           selected,
@@ -72,7 +92,7 @@ export default function (props: {
           current: 'disabled',
         },
       }}> 
-        {props.children} 
+        {children}
       </CustomerViewStateProvider>
     </div>
   )

@@ -40,7 +40,7 @@ export function SpinProvider({ children }: {
     console.log(`state.wheel.current`, state.wheel.current)
     if (state.wheel.current != 'spinning') return
     console.log(`spun`, state)
-    router.push(`/live/prize?selectedCampaign=${state.campaigns.selected}`)
+    router.push(`/live/${state.organization.id}/prize?selectedCampaign=${state.campaigns.selected}`)
     setState({ wheel: { ...state.wheel , current: 'finished' } })
   }, [state])
 

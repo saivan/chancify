@@ -76,7 +76,6 @@ export function toProbabilities(prizes: Prize[], minWidth: number = 0.05): numbe
         : prob
     )
   }
-  
   return result
 }
 

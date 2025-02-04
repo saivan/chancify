@@ -2,7 +2,7 @@
 
 import {
   useState, useEffect, useCallback, createContext, type Dispatch,
-  type ReactNode, useContext, useMemo, useRef,
+  type ReactNode, useContext, useMemo, useRef, useLayoutEffect,
 } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { type CookieOptions, getCookie, isWebBrowser, setCookie } from './browser'
@@ -371,28 +371,42 @@ export function useUpdateEffect(
 
 
 type AnimationFrameCallback = (deltaTime: number) => boolean | void
-export const useAnimationFrame = (callback: AnimationFrameCallback) => {
-  const requestRef = useRef<number>()
-  const previousTimeRef = useRef<number>()
+export const useAnimationFrame = (
+  callback: AnimationFrameCallback,
+  enabled: boolean = true
+) => {
+  const frameRef = useRef<number|undefined>(undefined)
+  const previousTimeRef = useRef<number|undefined>(undefined)
+  const callbackRef = useRef(callback)
 
-  const animate = useCallback((time: number) => {
-    if (previousTimeRef.current !== undefined) {
-      const deltaTime = time - previousTimeRef.current
-      const result = callback(deltaTime)
-      if (result === false) return
+  // Update callback ref when callback changes
+  callbackRef.current = callback
+  useLayoutEffect(() => {
+    if (!enabled) {
+      return
     }
-    
-    previousTimeRef.current = time
-    requestRef.current = requestAnimationFrame(animate)
-  }, [callback])
 
-  useEffect(() => {
-    requestRef.current = requestAnimationFrame(animate)
-    
+    const animate = (time: DOMHighResTimeStamp) => {
+      if (previousTimeRef.current !== undefined) {
+        const deltaTime = time - previousTimeRef.current
+        const result = callbackRef.current(deltaTime)
+        
+        if (result === false) {
+          return
+        }
+      }
+
+      previousTimeRef.current = time
+      frameRef.current = requestAnimationFrame(animate)
+    }
+
+    frameRef.current = requestAnimationFrame(animate)
+
     return () => {
-      if (requestRef.current) {
-        cancelAnimationFrame(requestRef.current)
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current)
+        previousTimeRef.current = undefined
       }
     }
-  }, [animate])
+  }, [enabled])
 }

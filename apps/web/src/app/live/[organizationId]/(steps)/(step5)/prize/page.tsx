@@ -6,7 +6,7 @@ import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { useCustomerViewState, useEnforceWheelState } from "@/app/live/controller"
+import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationId]/controller"
 import { Button, Input, Label } from "@repo/components"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -52,7 +52,7 @@ export default function () {
       <div className="flex gap-2">
         <Button asChild variant='outline'>
           <Link href={{
-            pathname: '/live/campaigns',
+            pathname: `/live/${state.organization.id}/campaigns`,
             query: { selectedCampaign: 0 }
           }}>Complete</Link>
         </Button>

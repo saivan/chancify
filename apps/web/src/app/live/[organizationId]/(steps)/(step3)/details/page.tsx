@@ -6,7 +6,7 @@ import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
-import { useCustomerViewState, useEnforceWheelState } from "@/app/live/controller"
+import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationId]/controller"
 import { Form, Button, Checkbox, FormControl, FormDescription, FormField, FormItem, FormLabel, Input, Label } from "@repo/components"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -76,9 +76,8 @@ export function FormArea() {
     <Form {...form}>
       <form onSubmit={handleSubmit(inputs => {
         console.log(inputs)
-        router.push(`/live/spin?selectedCampaign=${selectedCampaign}`)
+        router.push(`/live/${state.organization.id}/spin?selectedCampaign=${selectedCampaign}`)
       })} className="space-y-4 max-w-md">
-
         <div className="pb-8">
           {[
             { id: "name" as const, label: "Name", type: "text" },
@@ -138,7 +137,7 @@ export function FormArea() {
         <div className="flex gap-2">
           <Button asChild variant='outline'>
             <Link href={{
-              pathname: '/live/action',
+              pathname: `/live/${state.organization.id}/action`,
               query: { selectedCampaign }
             }}>Back</Link>
           </Button>

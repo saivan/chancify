@@ -7,6 +7,9 @@ import { ReactNode, useEffect } from "react"
 
 
 export type CustomerViewState = {
+  organization: {
+    id: string
+  },
   campaigns: {
     list: Campaign[]
     selected: number
