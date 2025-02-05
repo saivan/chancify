@@ -6,17 +6,24 @@ import {
   DescribeTableCommand,
 } from '@aws-sdk/client-dynamodb'
 import dynamoSchema from './dynamo.schema.json'
+import { TableConnection } from '../src'
 
 
-// Get clients to interact with the database
-const dynamodbClient = new DynamoDBClient({
+const dynamoTableDescription = {
   region: 'us-east-1',
-  endpoint: 'http://localhost:8000',
+  endpoint: 'http://localhost:4566',
   credentials: {
     accessKeyId: 'dummy',
     secretAccessKey: 'dummy',
   },
-})
+}
+export const connection: TableConnection = {
+  name: 'testing',
+  ...dynamoTableDescription,
+}
+
+// Get clients to interact with the database
+const dynamodbClient = new DynamoDBClient(dynamoTableDescription)
 
 export async function initialise() {
   async function checkTableExists(tableName: string) {
@@ -42,12 +49,8 @@ export async function initialise() {
     const tableExists = await checkTableExists(dynamoSchema.TableName)
     if (!tableExists) await createTable(dynamoSchema as CreateTableCommandInput)
   } catch (error) {
+    console.log("Make sure you're running local-stack with `docker-compose up`")
     console.error(`Interaction with dynamodb failed`, error)
   }
 }
 
-// Setup dynamodb
-import { beforeAll } from "vitest"
-beforeAll(async () => {
-  await initialise()
-})

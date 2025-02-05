@@ -1,6 +1,6 @@
 
 {
-  "TableName": "starter",
+  "TableName": "testing",
   "KeySchema": [
     { "AttributeName": "pk", "KeyType": "HASH" },
     { "AttributeName": "sk", "KeyType": "RANGE" }

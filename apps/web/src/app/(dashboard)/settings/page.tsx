@@ -4,6 +4,8 @@ import { CenterBox } from "@/components/dashboard/CenterBox";
 import { Card, CardContent, CardHeader, cn, Input, Label, LabelledInput, LoadingButton } from "@repo/components";
 import Image from "next/image";
 import { useState } from 'react'
+import { useDashboard } from "../controller"
+
 
 export default function () {
   return (
@@ -13,7 +15,7 @@ export default function () {
         caption='Change settings to administrate your organization'
       >
         <div className="flex flex-col gap-8 py-8" >
-          <UrlUpdater />
+          <HandleUpdater />
           <SocialAccounts />
         </div>
       </CenterBox>
@@ -42,7 +44,10 @@ function FormArea(props: {
 
 }
 
-function UrlUpdater() {
+function HandleUpdater() {
+  const { state, setState } = useDashboard()
+  const { updateOrganizationHandle } = useDashboard()
+  const [handle, setHandle] = useState(state.organizationHandle)
   const [loading, setLoading] = useState(false)
   return (
     <FormArea
@@ -51,12 +56,20 @@ function UrlUpdater() {
     >
       <Label htmlFor="url-input">Handle</Label>
       <div className="flex gap-2 flex-wrap">
-        <LabelledInput label="chancify.org/live/" className="w-96 max-w-full" id="url-input" placeholder="handle" />
+        <LabelledInput 
+          id="url-input" 
+          placeholder="handle" 
+          label="chancify.org/live/" 
+          className="w-96 max-w-full" 
+          onChange={e => setHandle(e.target.value)}
+          value={handle} 
+        />
         <LoadingButton variant="destructive" loading={loading} size='sm'
           className="min-w-max"
           onClick={async () => {
             setLoading(true)
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            if (handle == null) throw new Error('Handle is required')
+            await updateOrganizationHandle(handle)
             setLoading(false)
           }}
         >Change Handle</LoadingButton>
@@ -82,6 +95,7 @@ function SocialAccounts() {
 }
 
 function GoogleMyBusinessAccount() {
+  const { state, setState } = useDashboard()
   return (
     <div className="flex flex-col gap-2">
       <div>
@@ -95,13 +109,21 @@ function GoogleMyBusinessAccount() {
       </div>
       <div>
         <Label htmlFor="review-link-input">Review Link</Label>
-        <Input className="w-96 max-w-full" id="review-link-input" placeholder="https://g.page/r/CTAANO9cfKlBEAE/review" />
+        <Input className="w-96 max-w-full" 
+          id="review-link-input" 
+          placeholder="https://g.page/r/CTAANO9cfKlBEAE/review" 
+          value={state.googleLink}
+          onChange={e => setState({
+            googleLink: e.target.value
+          })}
+        />
       </div>
     </div>
   )
 }
 
 function InstagramAccount() {
+  const { state, setState } = useDashboard()
   return (
     <div className="flex flex-col gap-2">
       <div>
@@ -115,13 +137,20 @@ function InstagramAccount() {
       </div>
       <div>
         <Label htmlFor="instagram-handle-input">Instagram Handle</Label>
-        <LabelledInput label="@" className="w-96 max-w-full" id="instagram-handle-input" placeholder="handle" />
+        <LabelledInput 
+          value={state.instagramHandle}
+          onChange={e => setState({
+            instagramHandle: e.target.value
+          })}
+          label="@" className="w-96 max-w-full" id="instagram-handle-input" placeholder="handle" 
+        />
       </div>
     </div>
   )
 }
 
 function TikTokAccount() {
+  const { state, setState } = useDashboard()
   return (
     <div className="flex flex-col gap-2">
       <div>
@@ -134,8 +163,13 @@ function TikTokAccount() {
         </p>
       </div>
       <div>
-        <Label htmlFor="instagram-handle-input">TikTok Handle</Label>
-        <LabelledInput label="@" className="w-96 max-w-full" id="instagram-handle-input" placeholder="handle" />
+        <Label htmlFor="tiktok-handle-input">TikTok Handle</Label>
+        <LabelledInput 
+          value={state.tikTokHandle}
+          onChange={e => setState({
+            tikTokHandle: e.target.value
+          })}
+          label="@" className="w-96 max-w-full" id="tiktok-handle-input" placeholder="handle" />
       </div>
     </div>
   )

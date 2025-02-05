@@ -15,7 +15,15 @@
     "./server": {
       "types": "./src/index.server.ts",
       "default": "./src/index.server.ts"
+    },
+    "./testing": {
+      "types": "./test/index.ts",
+      "default": "./test/index.ts"
     }
+  },
+  "scripts": {
+    "test": "APP_NAME='testing' vitest run",
+    "test:watch": "APP_NAME='testing' vitest watch"
   },
   "devDependencies": {
     "@repo/config": "workspace:*"

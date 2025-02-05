@@ -1,11 +1,16 @@
 
 import { expect, describe, it, beforeAll } from 'vitest'
-import { DynamoDB } from "@repo/database"
+import { DynamoDB, TableConnection } from "@repo/database"
 import { shortId } from "@repo/utilities"
 import { z } from "zod"
+import { initialise, connection } from './setup'
 
 
 describe (`dynamo`, () => {
+
+  beforeAll(async () => {
+    await initialise()
+  })
 
   describe(`constructing`, () => {
     it (`handles a simple zod schema`, () => {
@@ -21,6 +26,7 @@ describe (`dynamo`, () => {
         new DynamoDB()
           .name('user')
           .schema(UserSchema)
+          .connection(connection)
           .indexes([
             { partition: 'id' },
             { partition: 'name', sort: 'dateCreated' },
@@ -46,6 +52,7 @@ describe (`dynamo`, () => {
       })
       expect(() => {
         new DynamoDB()
+          .connection(connection)
           .schema(NestedSchema)
           .name('nested')
           .indexes([{ partition: 'id' }])
@@ -61,6 +68,7 @@ describe (`dynamo`, () => {
       })
       expect(() => {
         new DynamoDB()
+          .connection(connection)
           .schema(ListSchema)
           .name('list')
           .indexes([
@@ -78,6 +86,7 @@ describe (`dynamo`, () => {
         color: z.enum(['red', 'green', 'blue'])
       })
       const dynamo = new DynamoDB()
+        .connection(connection)
         .schema(simpleSchema)
         .name('simple')
         .indexes([{ partition: 'id' }])
@@ -95,6 +104,7 @@ describe (`dynamo`, () => {
       // Create a schema that only handles a string
       const dynamo = new DynamoDB()
         .name('errorCheck')
+        .connection(connection)
         .schema(z.object({ name: z.string() }))
         .indexes([{ partition: 'name' }])
 
@@ -109,6 +119,7 @@ describe (`dynamo`, () => {
       const dynamo = new DynamoDB()
         .schema(schema)
         .name('put-result')
+        .connection(connection)
         .indexes([{ partition: 'id' }])
 
       // Put something and check the result
@@ -127,6 +138,7 @@ describe (`dynamo`, () => {
       const dynamo = new DynamoDB()
         .schema(schema)
         .name('put-result')
+        .connection(connection)
         .indexes([{ partition: 'id' }])
 
       // Put something and check the result
@@ -149,6 +161,7 @@ describe (`dynamo`, () => {
       const dynamo = new DynamoDB()
         .schema(schema)
         .name('partition-result')
+        .connection(connection)
         .indexes([
           { partition: 'id' },
           { partition: 'name' },
@@ -193,6 +206,7 @@ describe (`dynamo`, () => {
       const dynamo = new DynamoDB()
         .schema(schema)
         .name('push-all')
+        .connection(connection)
         .indexes([{ partition: 'id' }])
 
       // Push a bunch of different data types
@@ -236,6 +250,7 @@ describe (`dynamo`, () => {
       const dynamo = new DynamoDB()
         .schema(FullSchema)
         .name('fullSchema')
+        .connection(connection)
         .indexes([{ partition: 'id' }])
       const item = {
         id: 5,
@@ -261,6 +276,7 @@ describe (`dynamo`, () => {
       const dynamo = new DynamoDB()
         .name('overwrite')
         .schema(schema)
+        .connection(connection)
         .indexes([{ partition: 'id', sort: 'id' }])
       await dynamo.put({ id: 1, name: 'john' })
       const startResult = await dynamo.get({ id: 1 })
@@ -280,6 +296,7 @@ describe (`dynamo`, () => {
       const dynamoOne = new DynamoDB()
         .name('one')
         .schema(schemaOne)
+        .connection(connection)
         .indexes([{ partition: 'name' }])
       const fred = { name: 'fred', age: 10 }
       await dynamoOne.put(fred)
@@ -289,6 +306,7 @@ describe (`dynamo`, () => {
       const dynamoTwo = new DynamoDB()
         .name('two')
         .schema(schemaTwo)
+        .connection(connection)
         .indexes([{ partition: 'name' }])
       const john = { name: 'john', age: 5 } 
       await dynamoTwo.put(john)
@@ -311,6 +329,7 @@ describe (`dynamo`, () => {
       })
       const dynamo = new DynamoDB()
         .name('gsiWriter')
+        .connection(connection)
         .schema(schema)
         .indexes([
           { partition: 'name' },
@@ -322,8 +341,12 @@ describe (`dynamo`, () => {
       await dynamo.put(james)
 
       // Check that the result is correct
-      const result = await dynamo.get({ id: 6 })
-      expect(result).toStrictEqual(james)
+      const idResult = await dynamo.get({ id: 6 })
+      expect(idResult).toStrictEqual(james)
+
+      // Check that the gsi is correct
+      const nameResult = await dynamo.get({ name: 'james' })
+      expect(nameResult).toStrictEqual(james)
     })
 
     it(`handles gsi composite partition keys`, async () => {
@@ -336,6 +359,7 @@ describe (`dynamo`, () => {
       })
       const dynamo = new DynamoDB()
         .name('gsiWriter')
+        .connection(connection)
         .schema(schema)
         .indexes([
           { partition: 'name' },
@@ -367,6 +391,7 @@ describe (`dynamo`, () => {
         })
         const dynamo = new DynamoDB()
           .name('gsiWriter')
+          .connection(connection)
           .schema(schema)
           .indexes([
             { partition: 'name' },
@@ -402,6 +427,7 @@ describe (`dynamo`, () => {
       return new DynamoDB()
         .name(name)
         .schema(schema)
+        .connection(connection)
         .indexes([
           { partition: 'id', sort: 'id' }, 
           { partition: 'string', sort: 'id' },
@@ -531,6 +557,7 @@ describe (`dynamo`, () => {
       const dynamo = new DynamoDB()
         .name('ignored-date-test')
         .schema(schema)
+        .connection(connection)
         .indexes([{ partition: 'id' }])
       await dynamo.put({ id: 5 })
       const result = await dynamo.get({ id: 5 })
@@ -596,6 +623,7 @@ describe (`dynamo`, () => {
     })
     const dynamo = new DynamoDB()
       .name('list-simple')
+      .connection(connection)
       .schema(schema)
       .indexes([
         { partition: 'id', sort: 'id' }, 
@@ -712,6 +740,7 @@ describe (`dynamo`, () => {
       const dynamo = new DynamoDB()
         .name(name)
         .schema(schema)
+        .connection(connection)
         .indexes([
           { partition: 'id', sort: 'id' }, 
           { partition: 'string', sort: 'dateCreated' },
@@ -758,6 +787,7 @@ describe (`dynamo`, () => {
       }).partial()
       const dynamo = new DynamoDB()
         .name('empty-list-test')
+        .connection(connection)
         .schema(schema)
         .indexes([
           { partition: 'id' },
@@ -788,6 +818,7 @@ describe (`dynamo`, () => {
     beforeAll(() => {
       dynamo = new DynamoDB()
         .name('delete-simple')
+        .connection(connection)
         .schema(z.object({
           id: z.string(),
           name: z.string(),
@@ -845,6 +876,7 @@ describe (`dynamo`, () => {
       const dynamo = new DynamoDB()
         .name('two-way-link-test')
         .schema(Memberships)
+        .connection(connection)
         .indexes([
           { partition: 'id' },
           { partition: ['chain', 'customerId'], sort: 'dateCreated' },

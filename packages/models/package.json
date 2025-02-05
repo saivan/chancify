@@ -17,6 +17,10 @@
       "default": "./src/index.server.ts"
     }
   },
+  "scripts": {
+    "test": "APP_NAME='testing' vitest run",
+    "test:watch": "APP_NAME='testing' vitest watch"
+  },
   "devDependencies": {
     "@repo/config": "workspace:*"
   },

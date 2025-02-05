@@ -1,12 +1,17 @@
 
-import { expect, describe, it } from 'vitest'
+import { expect, describe, it, beforeAll } from 'vitest'
 import { ensureObjectHasFields } from "@repo/utilities/client"
 import { shortId } from "@repo/utilities"
 import { baseModel } from "@repo/models"
 import { z } from "zod"
+import { connection, initialise } from '@repo/database/testing'
 
 
 describe(`Model`, () => {
+
+  beforeAll(async () => {
+    await initialise()
+  })
 
   const ModelSchema = z.object({
     id: z.string(),
@@ -15,13 +20,31 @@ describe(`Model`, () => {
     name: z.string(),
     group: z.string(),
   }).partial()
-
-  class Model extends baseModel({
+  type ModelType = z.infer<typeof ModelSchema>
+  class Model extends baseModel<ModelType>({
     name: `model-${shortId()}`,
     schema: ModelSchema,
+    connection,
     indexes: [
       { partition: 'id' },
       { partition: 'group', sort: 'dateCreated' },
+    ],
+  }) {}
+
+  const UserSchema = z.object({
+    id: z.string(),
+    email: z.string(),
+    dateCreated: z.string(),
+    dateUpdated: z.string(),
+  }).partial()
+  type UserType = z.infer<typeof UserSchema>
+  class User extends baseModel<UserType>({
+    name: `model-${shortId()}`,
+    schema: UserSchema,
+    connection,
+    indexes: [
+      { partition: 'id' },
+      { partition: 'email' },
     ],
   }) {}
 
@@ -78,16 +101,44 @@ describe(`Model`, () => {
       expect(await item.exists()).toBe(true)
     })
 
+    it(`returns true for a unique gsi combination`, async () => {
+      // Make a user
+      const id = shortId()
+      const email = 'john@me.com'
+      const john = new User({ email, id })
+
+      // Make sure the user doesn't exist yet
+      expect(await john.exists()).toBe(false)
+
+      // Create the user
+      await john.create()
+      expect(await john.exists()).toBe(true)
+
+      // Make sure we can find the user by email
+      const byEmail = new User({ email })
+      expect(await byEmail.exists()).toBe(true)
+    }) 
+
     it(`returns false if the model doesn't exist`, async () => {
       const item = new Model({ name: 'does-not-exist' })
       expect(await item.exists()).toBe(false)
+    })
+
+    it(`returns false if the model is missing a primary key`, async () => {
+      // Create a model
+      const item = new Model({ name: 'john' })
+      await item.create()
+
+      // MAke sure that a copy without the same primary key doesn't exist
+      const tester = new Model({ name: 'john' })
+      expect(await tester.exists()).toBe(false)
     })
   })
 
   describe(`push`, () => {
     it(`refuses to push without an id`, async () => {
       const model = new Model()
-      expect(async () => {
+      await expect(async () => {
         await model.push()
       }).rejects.toThrow()
     })
@@ -107,6 +158,26 @@ describe(`Model`, () => {
       await item.pull()
       expect(item.data).toStrictEqual(pusher.data)
       expect(item.data.name).toBe('james')
+    })
+
+    it(`can update an existing model with a sort key`, async () => {
+      // Make a user by email
+      const email = 'test@user.com'
+      const firstUser = new User({ email })
+      await firstUser.create()
+      const id = firstUser.id()
+
+      // Get the user by email
+      const getByEmailUser = new User({ email })
+      await getByEmailUser.pull()
+      expect(getByEmailUser.data.email).toBe(email)
+      expect(getByEmailUser.data.id).toBe(id)
+
+      // Try to push the user with a different id
+      const invalidUser = new User({ email, id: 'different-id' })
+      await expect(async () => {
+        await invalidUser.push()
+      }).rejects.toThrow(`Item not found in the database`)
     })
 
     it(`errors if the model doesn't exist`, async () => {
@@ -135,12 +206,14 @@ describe(`Model`, () => {
         artist: z.string(),
         releaseDate: z.string(),
       }).partial()
+      type RecordType = z.infer<typeof RecordSchema>
 
       // Make a model from the schema
-      class Record extends baseModel({
+      class Record extends baseModel<RecordType>({
         name: 'record',
         schema: RecordSchema,
         indexes: [{ partition: 'id' }],
+        connection,
       }) {
         async create () {
           ensureObjectHasFields(this.data, ['name', 'artist', 'releaseDate'])
@@ -171,14 +244,17 @@ describe(`Model`, () => {
         artist: z.string().optional(),
         releaseDate: z.string().optional(),
       }).partial()
+      type RecordType = z.infer<typeof RecordSchema>
 
       // Make sure we can't create a record because of the missing fields
       await expect(async () => {
         // Make a model from the schema
-        class Record extends baseModel({
+        // @ts-ignore - This is done on purpose to check the error
+        class Record extends baseModel<RecordType>({
           name: 'record',
           schema: RecordSchema,
           indexes: [{ partition: 'name' }],
+          connection,
         }) {
           async create () {
             ensureObjectHasFields(this.data, ['name', 'artist', 'releaseDate'])

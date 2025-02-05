@@ -45,6 +45,9 @@ importers:
       typescript:
         specifier: 5.5.3
         version: 5.5.3
+      vitest:
+        specifier: ^2.0.5
+        version: 2.1.8(@types/node@20.17.12)(jsdom@25.0.1)(sass@1.82.0)(terser@5.37.0)
 
   apps/functions:
     dependencies:
@@ -509,6 +512,9 @@ importers:
       '@repo/config':
         specifier: workspace:*
         version: link:../config
+      vitest:
+        specifier: ^2.0.5
+        version: 2.1.8(@types/node@20.17.12)(jsdom@25.0.1)(sass@1.82.0)(terser@5.37.0)
 
   packages/config:
     dependencies:

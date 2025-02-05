@@ -18,7 +18,8 @@
     }
   },
   "devDependencies": {
-    "@repo/config": "workspace:*"
+    "@repo/config": "workspace:*",
+    "vitest": "^2.0.5"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.2",

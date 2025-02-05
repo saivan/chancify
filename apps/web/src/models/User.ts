@@ -19,14 +19,24 @@ export const UserSchema = z.object({
 export type UserType = z.infer<typeof UserSchema>
 
 
-export class User extends baseModel({
+export class User extends baseModel<UserType>({
   name: 'User',
   schema: UserSchema,
   connection: dynamodbConnection,
   indexes: [
     { partition: 'id' },
-    { partition: 'email', sort: 'dateCreated' },
+    { partition: 'email' },
     { partition: 'organizationId', sort: 'email' },
   ],
-}) { }
+}) { 
+
+  static async getUserByEmail(email: string) {
+    const user = new User({ email })
+    const exists = await user.exists()
+    if (!exists) await user.create()
+    await user.pull()
+    return user
+  }
+
+}
 

@@ -5,7 +5,14 @@ import { schemaHasField } from '@repo/utilities/server'
 import { shortId } from '@repo/utilities/server'
 
 
-export function baseModel (options: {
+type ExpectedData = {
+  id?: string | undefined,
+  dateCreated?: string | undefined,
+  dateUpdated?: string | undefined,
+}
+
+
+export function baseModel<T extends ExpectedData>(options: {
   name: string,
   schema: ZodObject<any>,
   indexes: DynamoIndexes,
@@ -39,23 +46,25 @@ export function baseModel (options: {
   }
 
   // Return the model class
-  type DataType = z.infer<typeof schema>
   return class Model {
-
-    _data : Record<string, any> = {} 
+    _data : T = {
+      id: undefined,
+      dateCreated:undefined,
+      dateUpdated: undefined,
+    } as T
     _database = database
     _schema = schema
   
-    constructor ( input?: string | DataType ) {
+    constructor ( input?: string | T ) {
       if (typeof input === 'string') Object.assign(this._data, { id: input })
       if (input instanceof Object) this._data = input 
     }
   
     // Getters and setters
-    get data () : DataType { return this._data }
+    get data () : T { return this._data }
     set data (data: object) { 
       if (schema == null) throw Error(`No schema is defined for this model`)
-      this._data = schema.parse(data) 
+      this._data = schema.parse(data) as T
     }
 
     get schema () { return this._schema }
@@ -80,20 +89,29 @@ export function baseModel (options: {
     // Actions
 
     async exists () {
-      // Check whether we are missing any primary keys
-      const { primary, unique } = database._isolatePrimaryKey(this._data)
-      if (!unique) return false
+      // Make sure we have indexes in this model
+      const indexes = database.indexes()
+      if (indexes == null) throw Error(`Please define indexes for this model`)
 
-      // Check if the item exists in the database
-      const storedObject = await database.get(primary)
-      const exists = storedObject != null 
-      return exists
+      // Iterate through each database index
+      for (const [index, databaseIndex] of indexes.entries()) {
+        // Check whether we are missing any primary keys
+        const { primary, unique } = database._isolatePrimaryKey(this._data, { index })
+        if (!unique) continue
+
+        // Check if the item exists in the database
+        const storedObject = await database.get(primary)
+        const exists = storedObject != null 
+        if (exists) return true
+      }
+      return false
     }
   
     async create () {
       // Make sure this model doesn't already exist in the database
+      const hasAssignedId = this.id()
       const exists = await this.exists()
-      if (exists) {
+      if (hasAssignedId && exists) {
         throw Error(`This object already exists in the database`)
       }
   
@@ -102,7 +120,7 @@ export function baseModel (options: {
         const newId = idGenerator(this._data)
         this.id(newId)
       }
-  
+
       // Put the item in the database and record its id
       const dataInput = Object.assign({}, this._data, {
         dateCreated: new Date().toISOString(),
@@ -140,7 +158,7 @@ export function baseModel (options: {
     async pull () {
       const result = await database.get(this._data)
       if (result == null) throw Error(`Item not found in the database`)
-      this._data = result
+      this._data = result as T
       return this
     }
   
