@@ -1,24 +1,29 @@
 'use client'
-import { User } from "@/models/User"
+import { User, UserType } from "@/models/User"
 import { DataTable } from "@repo/components"
 import { SortingState } from "@tanstack/react-table"
-import {} from 'react'
+import { } from 'react'
+import { useDashboard } from "../controller"
+import { titleCase } from "@repo/utilities"
 
 
 export function UserList() {
+  const { 
+    state, setState, populateOrganizationUsers, 
+    updateUserRole, deleteOrganizationUser,
+  } = useDashboard()
   async function* fetchDataGenerator(sorting: SortingState) {
-    let users: User[] = [
-      { id: '1', name: "John Smith", email: "john@smith.com", role: 'admin' },
-      { id: '2', name: "Jane Doe", email: "jane@doe.org", role: 'editor' },
-      { id: '3', name: "Alice Wonderland", email: "alice@wonderland.org", role: 'viewer' },
-    ]
+    // Fetch the users directly
+    const userData: UserType[] = await populateOrganizationUsers()
+    let users = [...userData]
 
+    // Allow for reordering
     if (sorting.length > 0) {
       const { id, desc } = sorting[0]
       users = [...users].sort((a, b) => {
-        const aValue = a[id as keyof User]
-        const bValue = b[id as keyof User]
-        return desc 
+        const aValue = a[id as keyof UserType]
+        const bValue = b[id as keyof UserType]
+        return desc
           ? String(bValue).localeCompare(String(aValue))
           : String(aValue).localeCompare(String(bValue))
       })
@@ -27,20 +32,35 @@ export function UserList() {
     yield users
   }
 
-
   return (
-    <DataTable<User>
-      className="border-none"
-      items={fetchDataGenerator}
-      columns={[
-        { value: 'name' as const, label: 'Name', sortable: true },
-        { value: 'email' as const, label: 'Email', sortable: true },
-        { value: 'role' as const, label: 'Role' }
-      ]}
-      rowActions={[{
-        label: 'Delete User',
-        onClick: (user: User) => console.log('Delete user', user)
-      }]}
-    />
+    <div className="min-h-[200px]">
+      {/* @ts-ignore - we know that id will be defined for all users */}
+      <DataTable<UserType>
+        className=" border-none"
+        items={fetchDataGenerator}
+        columns={[
+          { 
+            value: data => (data.name || '(Name Unknown)'), 
+            label: 'Name', 
+            sortable: true 
+          },
+          { value: 'email' as const, label: 'Email', sortable: true },
+          { value: data => titleCase(data.role as 'string'), label: 'Role' }
+        ]}
+        rowActions={[{
+          label: 'Remove from Organization',
+          onClick: (user: UserType) => deleteOrganizationUser(user.id)
+        }, {
+          label: 'Set Role to Admin',
+          onClick: (user: UserType) => updateUserRole(user.id, 'admin')
+        }, {
+          label: 'Set Role to Editor',
+          onClick: (user: UserType) => updateUserRole(user.id, 'editor')
+        }, {
+          label: 'Set Role to Viewer',
+          onClick: (user: UserType) => updateUserRole(user.id, 'viewer')
+        }]}
+      />
+    </div>
   )
 }

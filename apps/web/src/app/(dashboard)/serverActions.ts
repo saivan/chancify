@@ -2,7 +2,6 @@
 import * as auth from "@repo/authentication/server"
 import { Organization } from "@/models/Organization"
 import { User, UserType } from "@/models/User"
-import type { OrganizationState } from "./controller"
 
 
 export async function resolveSignedInUserDetails() {
@@ -11,12 +10,43 @@ export async function resolveSignedInUserDetails() {
   const email = authUser?.primaryEmailAddress
   if (!email) throw new Error('Signed in user has no email address')
 
-  // Get the user and organization
-  const user = await User.getUserByEmail(email.emailAddress)
+  // Make sure the user exists and has the right information
+  const user = await User.ensureUserExists(email.emailAddress)
+  const missingFields = !user.data.name || !user.data.role
+  if (missingFields) {
+    user.data.name = user.data.name || authUser?.fullName || ''
+    user.data.role = user.data.role || 'viewer'
+    await user.push()
+  }
+
+  // Get the organization for the user
   const organization = await Organization.getUserOrganization(user)
   return { user, organization }
 }
 
+export async function getOrganizationUsers () {
+  // Get the signed in user and organization
+  const { user, organization } = await resolveSignedInUserDetails()
+
+  // Fetch the users from this organization
+  const users = await organization.users()
+  return users
+}
+
+export async function addOrganizationUser (data: {
+  email: string,
+  role: UserType['role'],
+}) {
+  const { user, organization } = await resolveSignedInUserDetails()
+  const newUser = new User({
+    organizationId: organization.id(),
+    ...data,
+  })
+  const exists = await newUser.exists()
+  if (!exists) await newUser.create()
+  await newUser.pull()
+  return newUser.data
+}
 
 export async function updateOrganizationHandle(handle: string) {
   // Get the signed in user and organization
@@ -48,10 +78,7 @@ export async function updateOrganization (data: {
   googleLink: string,
   instagramHandle: string,
   tikTokHandle: string,
-  organizationUsers: {
-    email: string
-    role: UserType['role']
-  }[],
+  organizationUsers: UserType[],
 }) {
   // Get the signed in user and organization
   const { user, organization } = await resolveSignedInUserDetails()
@@ -69,7 +96,8 @@ export async function updateOrganization (data: {
 
   // Make sure all of the organization users exist
   for (const { email, role } of data.organizationUsers) {
-    const user = await User.getUserByEmail(email)
+    if (!email) continue
+    const user = await User.ensureUserExists(email)
     user.set({
       ...user.data,
       organizationId: organization.id(),
@@ -82,6 +110,17 @@ export async function updateOrganization (data: {
   return organization.data
 }
 
+export async function removeUserFromOrganization(userId: string) {
+  const user = new User({ id: userId })
+  await user.delete()
+}
+
+export async function updateUserRole(userId: string, role: UserType['role']) {
+  const user = new User({ id: userId })
+  await user.pull()
+  user.data.role = role
+  await user.push()
+}
 
 export async function updateOrganizationSocialProfiles(social: string) {
   const { user, organization } = await resolveSignedInUserDetails()

@@ -35,8 +35,11 @@ export class Organization extends baseModel<OrganizationType>({
 }) { 
 
   async users () {
-    // Fetch the users from this organization 
-    return this
+    const organizationId = this.data.id
+    const users = await User.list({ organizationId })
+    const userData = users.items.map(user => user.data)
+    console.log(`userData`, userData)
+    return userData
   }
 
   static async getUserOrganization (user: User) {

@@ -30,7 +30,7 @@ export class User extends baseModel<UserType>({
   ],
 }) { 
 
-  static async getUserByEmail(email: string) {
+  static async ensureUserExists(email: string) {
     const user = new User({ email })
     const exists = await user.exists()
     if (!exists) await user.create()
