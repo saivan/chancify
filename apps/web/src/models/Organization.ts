@@ -5,6 +5,8 @@ import { z } from "zod";
 import { dynamodbConnection } from '@/config'
 import { User } from "./User";
 import { shortId } from "@repo/utilities";
+import { Campaign } from "./Campaign";
+import { themes } from "./Theme";
 
 
 export const OrganizationSchema = z.object({
@@ -40,6 +42,48 @@ export class Organization extends baseModel<OrganizationType>({
     const userData = users.items.map(user => user.data)
     console.log(`userData`, userData)
     return userData
+  }
+
+  async newCampaign () {
+    // Get the id of the organization
+    const organizationId = this.id()
+    if (organizationId == null) throw Error('There is no active organization')
+
+    // Make a new campaign and send it to the database
+    const campaign = new Campaign({
+      organizationId,
+      priority: 0,
+      status: 'inactive',
+      action: {
+        label: '',
+        value: '',
+        platform: 'personal',
+        icon: '',
+        instruction: '',
+      },
+      collectInformation: {
+        name: false,
+        email: false,
+        phone: false,
+        postalAddress: false,
+      },
+      prizes: [{
+        id: shortId(),
+        name: 'First Prize',
+        chance: 1,
+      }],
+      themeId: [...Object.keys(themes)][0],
+    })
+    console.log(`campaign`, campaign)
+    await campaign.create()
+    return campaign
+  }
+
+  async campaigns () {
+    const organizationId = this.id()
+    const campaignList = await Campaign.list({ organizationId })
+    const campaigns = campaignList.items
+    return campaigns
   }
 
   static async getUserOrganization (user: User) {

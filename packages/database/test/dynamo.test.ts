@@ -223,9 +223,42 @@ describe (`dynamo`, () => {
       }
       await dynamo.put(data)
 
-      // // Check that the data was stored correctly
-      // const result = await dynamo.get({ id })
-      // expect(result).toStrictEqual(data)
+      // Check that the data was stored correctly
+      const result = await dynamo.get({ id })
+      expect(result).toStrictEqual(data)
+    })
+
+    it(`can store lists of objects`, async () => {
+      const schema = z.object({
+        id: z.string(),
+        nest: z.array(z.object({
+          a: z.string(),
+          b: z.number(),
+          c: z.boolean(),
+          d: z.enum(['red', 'green', 'blue']),
+        })),
+      })
+      const dynamo = new DynamoDB()
+        .schema(schema)
+        .name('list-of-objects')
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+
+      // Push the nested data
+      const id = shortId()
+      const data = {
+        id,
+        nest: [
+          { a: 'a', b: 5, c: true, d: 'green' },
+          { a: 'b', b: 6, c: false, d: 'red' },
+          { a: 'c', b: 7, c: true, d: 'blue' },
+        ]
+      }
+      await dynamo.put(data)
+
+      // Fetch the data and check that it matches
+      const result = await dynamo.get({ id })
+      expect(result).toStrictEqual(data)
     })
   })
 

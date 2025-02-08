@@ -285,55 +285,6 @@ export function createObjectContext<T extends object>() {
 }
 
 
-/**
- * Create a context where the object has to be provided to the provider 
- * @returns A tuple with the hook and provider for the context
- * @example [useCount, CountProvider] = createObjectContext()
- */
-export function createInitialisedObjectContext<T extends object>() {
-  // Create the context from the default value
-  type ContextValue = [T, Dispatch<Partial<T>>]
-  const ObjectContext = createContext<ContextValue | null>(null)
-
-  // Make a provider from the context
-  const Provider: React.FC<{
-    initial: T
-    children: ReactNode
-  }> = ({ children, initial }) => {
-    // Make a state variable and a function to update it
-    const [state, setStateDirect] = useState<T>(initial)
-
-    // Make a state variable and a function to deeply update it
-    function setState(value: Partial<T> | ((prevState: T) => Partial<T>)) {
-      setStateDirect((prevState: T) => {
-        const update = typeof value === 'function' 
-          ? (value as (prevState: T) => Partial<T>)(prevState) 
-          : value
-        const newObject = deepMerge(prevState, update) as T
-        return newObject
-      })
-    }
-    const wrapper = (
-      <ObjectContext.Provider value={[state, setState]}>
-        {children}
-      </ObjectContext.Provider>
-    )
-    return wrapper
-  }
-
-  // Make a hook to consume the context
-  const useCustomContext = () => {
-    const context = useContext(ObjectContext)
-    if (!context) {
-      throw new Error('Your custom context must be used within a Provider')
-    }
-    return context
-  }
-  return [useCustomContext, Provider] as const
-}
-
-
-
 export function useWindow<K extends keyof Window>(property: K, initialValue: any) {
   const [value, setValueDirect] = useState(initialValue)
   function setValue (newValue: any) {
@@ -410,3 +361,52 @@ export const useAnimationFrame = (
     }
   }, [enabled])
 }
+
+
+/**
+ * Create a context where the object has to be provided to the provider
+ * @returns A tuple with the hook and provider for the context
+ * @example [useCount, CountProvider] = createObjectContext()
+ */
+export function createInitialisedObjectContext<T extends object>() {
+  // Create the context from the default value
+  type ContextValue = [T, Dispatch<Partial<T>>];
+  const ObjectContext = createContext<ContextValue | null>(null);
+
+  // Make a provider from the context
+  const Provider: React.FC<{
+    initial: T;
+    children: ReactNode;
+  }> = ({ children, initial }) => {
+    // Make a state variable and a function to update it
+    const [state, setStateDirect] = useState<T>(initial);
+
+    // Make a state variable and a function to deeply update it
+    function setState(value: Partial<T> | ((prevState: T) => Partial<T>)) {
+      setStateDirect((prevState: T) => {
+        const update = typeof value === 'function'
+          ? (value as (prevState: T) => Partial<T>)(prevState)
+          : value;
+        const newObject = deepMerge(prevState, update) as T;
+        return newObject;
+      });
+    }
+    const wrapper = (
+      <ObjectContext.Provider value={[state, setState]}>
+        {children}
+      </ObjectContext.Provider>
+    );
+    return wrapper;
+  };
+
+  // Make a hook to consume the context
+  const useCustomContext = () => {
+    const context = useContext(ObjectContext);
+    if (!context) {
+      throw new Error('Your custom context must be used within a Provider');
+    }
+    return context;
+  };
+  return [useCustomContext, Provider] as const;
+}
+

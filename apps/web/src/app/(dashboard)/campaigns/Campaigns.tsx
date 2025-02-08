@@ -1,6 +1,6 @@
 "use client"
 
-import { Campaign } from "@/models/Campaign"
+import type { CampaignType } from "@/models/Campaign"
 import {
   closestCenter,
   DndContext,
@@ -18,13 +18,20 @@ import {
 } from '@dnd-kit/sortable'
 import { useState } from "react"
 import { CampaignButton } from "./CampaignButton"
+import { cn } from "@repo/utilities"
+import { useDashboard } from "../controller"
+import { Button, Icon, LoadingButton } from "@repo/components"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { useDebouncedCallback } from "use-debounce"
 
 
 type Brand = 'google' | 'instagram' | 'tiktok' | 'facebook'
 export function Campaigns(props: {
-  campaigns: Campaign[]
+  campaigns: CampaignType[]
 }) {
-  const [items, setItems] = useState<Campaign[]>(props.campaigns)
+  const [campaigns, setCampaigns] = useState<CampaignType[]>(props.campaigns)
+  const { updateCampaign } = useDashboard()
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -32,35 +39,84 @@ export function Campaigns(props: {
     })
   )
 
+  const updateOrder = useDebouncedCallback(async (campaigns: CampaignType[]) => {
+    // Update each campaign
+    const orderedCampaigns = campaigns.map((campaign, index) => ({
+      ...campaign, priority: index
+    }))
+    for (let campaign of orderedCampaigns) {
+      updateCampaign(campaign)
+    }
+  }, 800)
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (over && active.id !== over.id) {
-      setItems((items) => {
+      setCampaigns((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id)
         const newIndex = items.findIndex((item) => item.id === over.id)
-        return arrayMove(items, oldIndex, newIndex)
+        const resultingArray = arrayMove(items, oldIndex, newIndex)
+        updateOrder(resultingArray)
+        return resultingArray
       })
     }
   }
 
-  return (
+  const CampaignArea = campaigns.length === 0 ? (
+    <div className={cn(
+      "text-center text-slate-700 p-8 border-dashed border-4",
+      "border-slate-300 rounded-md bg-slate-50"
+    )}> No Campaigns Defined </div>
+  ) : (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext items={items} strategy={verticalListSortingStrategy}>
+      <SortableContext items={campaigns} strategy={verticalListSortingStrategy}>
         <div className="flex flex-col gap-2">
-          {items.map((item) => (
+          {campaigns.map((campaign) => (
             <CampaignButton
-              key={item.id}
-              id={item.id}
-              name={item.name}
-              icon={item.icon as Brand}
+              key={campaign.id}
+              id={campaign.id}
+              name={campaign.action.label}
+              icon={campaign.action.icon as Brand}
             />
           ))}
         </div>
       </SortableContext>
     </DndContext>
+  )
+
+  return (
+    <div className="flex flex-col gap-4">
+      {CampaignArea}
+      <CreateCampaignButton />
+    </div>
+  )
+}
+
+
+function CreateCampaignButton() {
+  const { createCampaign } = useDashboard()
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+  return (
+    <LoadingButton
+      loading={loading}
+      onClick={async () => {
+        setLoading(true)
+        try {
+          const campaign = await createCampaign()
+          await router.push(`/campaigns/${campaign.id}`)
+        } catch (error) {
+          toast.error('Failed to create campaign')
+        }
+        setLoading(false)
+      }}
+      size="lg" className="w-max">
+      <Icon icon='plus' className='mr-2' />
+      Add Campaign
+    </LoadingButton>
   )
 }

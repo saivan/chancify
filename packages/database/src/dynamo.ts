@@ -17,7 +17,7 @@ import {
 } from 'zod'
 
 
-function determineDataType(input: ZodSchema): string {
+function determineDataType(input: ZodSchema): string | Record<string, any> {
   // Recursively remove optional types, as they aren't necessary
   const isOptionalType = input instanceof ZodOptional
   if (isOptionalType) {
@@ -30,35 +30,48 @@ function determineDataType(input: ZodSchema): string {
     return determineDataType(input._def.schema)
   }
 
-  // Determine the data type
+  // Handle arrays specifically
+  if (input instanceof ZodArray) {
+    const elementType = determineDataType(input._def.type)
+    return {
+      type: 'list',
+      items: typeof elementType === 'string' ? { type: elementType } : elementType
+    }
+  }
+
+  // Handle nested objects
+  if (input instanceof ZodObject) {
+    return {
+      type: 'map',
+      properties: zodToElectroAttributes(input)
+    }
+  }
+
+  // Handle primitive types
   if (input instanceof ZodString) return 'string'
   if (input instanceof ZodNumber) return 'number'
   if (input instanceof ZodBigInt) return 'bigint'
   if (input instanceof ZodDate) return 'string'
   if (input instanceof ZodBoolean) return 'boolean'
-  if (input instanceof ZodArray) return 'list'
-  if (input instanceof ZodObject) return 'any'
   if (input instanceof ZodEnum) return 'string'
 
   // If an unknown item is seen, error
   throw new Error(`${input} is of an unsupported data type`)
 }
 
-
 function zodToElectroAttributes(schema: ZodObject<any>): Record<string, any> {
   const attributeList = Object.entries(schema.shape)
     .map(([key, value]) => {
       const dataType = determineDataType(value as ZodSchema)
       return {
-        [key]: {
-          type: dataType,
-        },
+        [key]: typeof dataType === 'string' ? { type: dataType } : dataType
       }
     })
 
   const attributes = Object.assign({}, ...attributeList)
   return attributes
 }
+
 
 export type DynamoIndexes = {
   partition: string | string[]

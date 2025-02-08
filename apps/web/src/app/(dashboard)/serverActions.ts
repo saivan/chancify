@@ -2,6 +2,8 @@
 import * as auth from "@repo/authentication/server"
 import { Organization } from "@/models/Organization"
 import { User, UserType } from "@/models/User"
+import { Campaign, CampaignType } from "@/models/Campaign"
+import { revalidatePath } from "next/cache"
 
 
 export async function resolveSignedInUserDetails() {
@@ -24,7 +26,7 @@ export async function resolveSignedInUserDetails() {
   return { user, organization }
 }
 
-export async function getOrganizationUsers () {
+export async function getOrganizationUsers() {
   // Get the signed in user and organization
   const { user, organization } = await resolveSignedInUserDetails()
 
@@ -33,7 +35,7 @@ export async function getOrganizationUsers () {
   return users
 }
 
-export async function addOrganizationUser (data: {
+export async function addOrganizationUser(data: {
   email: string,
   role: UserType['role'],
 }) {
@@ -67,14 +69,14 @@ export async function updateOrganizationHandle(handle: string) {
   organization.data.handle = handle
   await organization.push()
   await organization.pull()
-  return { 
+  return {
     handle: organization.data.handle,
-    success: true, 
+    success: true,
     error: null,
   }
 }
 
-export async function updateOrganization (data: {
+export async function updateOrganization(data: {
   googleLink: string,
   instagramHandle: string,
   tikTokHandle: string,
@@ -126,4 +128,55 @@ export async function updateOrganizationSocialProfiles(social: string) {
   const { user, organization } = await resolveSignedInUserDetails()
   organization.data.googleLink = social
   await organization.push()
+}
+
+export async function createOrganizationCampaign() {
+  const { user, organization } = await resolveSignedInUserDetails()
+  const campaign = await organization.newCampaign()
+  return campaign.data
+}
+
+export async function getOrganizationCampaigns() {
+  const { user, organization } = await resolveSignedInUserDetails()
+  const campaigns = await organization.campaigns()
+  const campaignData = campaigns.map(campaign => campaign.data)
+  return campaignData as CampaignType[]
+}
+
+export async function updateCampaign(data: CampaignType) {
+  const { user, organization } = await resolveSignedInUserDetails()
+  const campaign = new Campaign(data)
+
+  try {
+    // Make sure the campaign belongs to the organization
+    if (campaign.data.organizationId !== organization.id()) {
+      throw new Error('This campaign does not belong to the organization')
+    }
+
+    // Update the campaign
+    await campaign.push()
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+  return { success: true, error: null }
+}
+
+export async function deleteCampaign(campaignId: string) {
+  const { user, organization } = await resolveSignedInUserDetails()
+  const campaign = new Campaign({ id: campaignId })
+
+  try {
+    // Make sure the campaign belongs to the organization
+    await campaign.pull()
+    if (campaign.data.organizationId !== organization.id()) {
+      throw new Error('This campaign does not belong to the organization')
+    }
+
+    // Delete the campaign
+    await campaign.delete()
+  } catch (error: any) {
+    console.log(`error`, error)
+    return { success: false, error: error.message }
+  }
+  return { success: true, error: null }
 }

@@ -151,7 +151,7 @@ export const frames = {
 
 export const themes: Record<string, Theme> = {
   red: {
-    name: 'red',
+    name: 'Red',
     padding: 0.08,
     lights: {
       offColor: "var(--color-yellow-400)",
@@ -187,7 +187,7 @@ export const themes: Record<string, Theme> = {
   },
 
   rose: {
-    name: 'rose',
+    name: 'Rose',
     padding: 0.08,
     lights: {
       count: 22,
@@ -214,7 +214,7 @@ export const themes: Record<string, Theme> = {
   },
 
   sunset: {
-    name: 'sunset',
+    name: 'Sunset',
     padding: 0.08,
     lights: {
       count: 16,
@@ -241,7 +241,7 @@ export const themes: Record<string, Theme> = {
   }, 
 
   emerald: {
-    name: 'emerald',
+    name: 'Emerald',
     padding: 0.08,
     lights: {
       count: 20,
@@ -268,7 +268,7 @@ export const themes: Record<string, Theme> = {
   },
 
   ocean: {
-    name: 'ocean',
+    name: 'Ocean',
     padding: 0.08,
     lights: {
       count: 20,
@@ -295,7 +295,7 @@ export const themes: Record<string, Theme> = {
   },
 
   purple: {
-    name: 'purple',
+    name: 'Purple',
     padding: 0.08,
     lights: {
       count: 22,
@@ -349,7 +349,7 @@ export const themes: Record<string, Theme> = {
   },
 
   candy: {
-    name: 'candy',
+    name: 'Candy',
     padding: 0.08,
     lights: {
       count: 22,
@@ -445,7 +445,7 @@ export const themes: Record<string, Theme> = {
     wedges: [{
       backgroundColor: "var(--color-slate-400)",
       textColor: "var(--color-slate-50)",
-      glowColor: "var(--color-slate-200)",
+      glowColor: "var(--color-slate-800)",
       radius: 34,
     }, {
       backgroundColor: "var(--color-slate-600)",

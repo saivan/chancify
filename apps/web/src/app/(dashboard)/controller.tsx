@@ -1,27 +1,25 @@
 "use client"
 
-import { Campaign, Prize } from "@/models/Campaign"
+import { Campaign, CampaignType } from "@/models/Campaign"
 import { User, UserType } from "@/models/User"
-import { createInitialisedObjectContext } from "@repo/utilities/client"
+import { createInitialisedObjectContext, isObjectEqual } from "@repo/utilities/client"
 import { useSearchParams } from "next/navigation"
 import { ReactNode, useEffect } from "react"
-import { addOrganizationUser, getOrganizationUsers, removeUserFromOrganization, updateOrganization, updateOrganizationHandle, updateUserRole } from "./serverActions"
+import { addOrganizationUser, createOrganizationCampaign, deleteCampaign, getOrganizationCampaigns, getOrganizationUsers, removeUserFromOrganization, updateCampaign, updateOrganization, updateOrganizationHandle, updateUserRole } from "./serverActions"
 import { toast, useSonner } from "sonner"
 import { useDebouncedCallback } from "use-debounce"
 import { useCallback } from "react"
 
-export type OrganizationState = {
+
+export type DashboardState = {
   organizationId: string
   organizationHandle: string
   googleLink: string
   instagramHandle: string
   tikTokHandle: string
   organizationUsers: UserType[]
-}
-
-export type DashboardState = OrganizationState & {
   history: History[]
-  campaigns: Campaign[]
+  campaigns: CampaignType[]
 }
 
 const [ 
@@ -31,12 +29,11 @@ const [
 export { DashboardStateProvider }
 
 
-
 export function useDashboard() {
   const [state, setStateDirect] = useDashboardState()
 
   // Methods to send this to the database
-  const sendToDatabase = useDebouncedCallback(async (state: DashboardState) => {
+  const pushOrganization = useDebouncedCallback(async (state: DashboardState) => {
     // Update the organization details
     updateOrganization({
       googleLink: state.googleLink as string,
@@ -44,53 +41,36 @@ export function useDashboard() {
       tikTokHandle: state.tikTokHandle,
       organizationUsers: state.organizationUsers,
     })
-
-    console.log(`updating to state`, state)
-
-
-
-
-
   }, 800)
+
+  const pushCampaigns = useDebouncedCallback(async (campaigns: CampaignType[]) => {
+    // Update each campaign
+    console.log(`TODO: not implemented`)
+  }, 800)
+
   const setState = useCallback((
     newState: Parameters<typeof setStateDirect>[0]
   ) => {
+    // 
     setStateDirect(newState)
-    sendToDatabase({ ...state, ...newState })
-  }, [setStateDirect, sendToDatabase])
 
+    // Push organization only when it changes
+    pushOrganization({ ...state, ...newState })
+
+    // Push campaigns only when they change
+    const isCampaignEqual = isObjectEqual(state.campaigns, newState.campaigns) 
+    if (!isCampaignEqual) pushCampaigns(newState.campaigns)
+  }, [setStateDirect, pushOrganization])
 
   // Methods to interact with the database
   return {
     state,
     setState,
 
-
-    async createCampaign(campaign: Campaign) {
-      console.log(`TODO: not implemented`)
-    },
-
-    async reorderCampaigns(campaigns: Campaign[]) {
-      console.log(`TODO: not implemented`)
-    },
-
-    async updateCampaign(campaign: Campaign) {
-      console.log(`TODO: not implemented`)
-    },
-
-    async getRewardHistory() {
-      console.log(`TODO: not implemented`)
-    },
-
     async updateOrganizationHandle(handle: string) {
       const result = await updateOrganizationHandle(handle)
       if (!result.success) toast.error(result.error)
       setState({ organizationHandle: result.handle })
-    },
-
-    async updateOrganizationSocialProfiles() {
-
-      console.log(`TODO: not implemented`)
     },
 
     async populateOrganizationUsers () {
@@ -134,6 +114,38 @@ export function useDashboard() {
         return user
       })
       setState({ organizationUsers: newUsers })
+    },
+
+    async loadCampaigns () {
+      const campaigns = await getOrganizationCampaigns()
+      setState({ campaigns })
+    },
+
+    async createCampaign() {
+      const campaign = await createOrganizationCampaign()
+      return campaign
+    },
+
+    async reorderCampaigns(campaigns: Campaign[]) {
+      console.log(`TODO: not implemented`)
+    },
+
+    async updateCampaign(data: CampaignType) {
+      const result = await updateCampaign(data)
+      if (!result.success) toast.error(result.error)
+    },
+
+    async deleteCampaign (campaignId: string) {
+      try {
+        await deleteCampaign(campaignId)
+        window.location.reload()
+      } catch (error) {
+        toast.error('Failed to delete campaign')
+      }
+    },
+
+    async getRewardHistory() {
+      console.log(`TODO: not implemented`)
     },
 
   }

@@ -1,18 +1,19 @@
 "use client"
 
 import { cn } from "@repo/utilities"
-import { Pointer } from "./Pointer"
+// import { Pointer } from "./Pointer"
 import { Theme, WheelState } from "@/models/Theme"
-import { Prize, selectRandomPrize, toProbabilities } from "@/models/Campaign"
 import { Wedges } from "./Wedges"
 import dynamic from "next/dynamic"
 import { useAnimationFrame } from "@repo/utilities/client"
 import { useState, useMemo } from "react"
+import { CampaignType } from "@/models/Campaign"
+import { Pointer } from "./Pointer"
 
 
 function Wheel(props: {
   className?: string
-  prizes: Prize[]
+  prizes: CampaignType['prizes']
   state: WheelState
   theme: Theme
   onTransitionEnd?: () => void

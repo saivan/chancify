@@ -18,14 +18,14 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Icon, Input } from "@repo/components"
-import { useCampaign } from '@/models/Campaign'
 import { cn, shortId } from '@repo/utilities'
 import { useMemo } from 'react'
+import { useCampaign } from './provider'
 
 
 export function PotentialPrizes() {
   const [campaign, setCampaign] = useCampaign()
-  const total = useMemo(() => campaign.prizes.reduce(
+  const total = useMemo(() => campaign.prizes?.reduce(
     (acc, prize) => acc + prize.chance, 0
   ), [campaign.prizes])
 
@@ -39,8 +39,8 @@ export function PotentialPrizes() {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (over && active.id !== over.id) {
-      const oldIndex = campaign.prizes.findIndex(prize => prize.id === active.id)
-      const newIndex = campaign.prizes.findIndex(prize => prize.id === over.id)
+      const oldIndex = campaign.prizes?.findIndex(prize => prize.id === active.id)
+      const newIndex = campaign.prizes?.findIndex(prize => prize.id === over.id)
 
       setCampaign({
         prizes: arrayMove(campaign.prizes, oldIndex, newIndex)
@@ -50,13 +50,13 @@ export function PotentialPrizes() {
 
   const handleDeletePrize = (index: number) => {
     setCampaign({
-      prizes: campaign.prizes.filter((_, i) => i !== index)
+      prizes: campaign.prizes?.filter((_, i) => i !== index)
     })
   }
 
   const handleUpdatePrize = (index: number, updates: { name?: string; chance?: number }) => {
     setCampaign({
-      prizes: campaign.prizes.map((prize, i) =>
+      prizes: campaign.prizes?.map((prize, i) =>
         i === index ? { ...prize, ...updates } : prize
       )
     })
@@ -64,7 +64,7 @@ export function PotentialPrizes() {
 
   const handleAddPrize = () => {
     setCampaign({
-      prizes: [...campaign.prizes, { id: shortId(), name: "New Prize", chance: 1 }]
+      prizes: [...campaign.prizes || [], { id: shortId(), name: "New Prize", chance: 1 }]
     })
   }
 

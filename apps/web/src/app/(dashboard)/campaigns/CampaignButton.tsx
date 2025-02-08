@@ -1,9 +1,11 @@
 "use client"
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button, Icon } from "@repo/components"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button, Icon, LoadingButton } from "@repo/components"
 import Image from "next/image"
 import { useSortable, } from '@dnd-kit/sortable'
 import Link from "next/link"
+import { useState } from 'react'
+import { useDashboard } from "../controller"
 
 type Brand = 'google' | 'instagram' | 'tiktok' | 'facebook'
 
@@ -40,14 +42,17 @@ export function CampaignButton(props: {
       <Link href={`/campaigns/${props.id}`}>
         <div className="flex items-center flex-1 gap-4 p-4">
           <Image height={24} width={24}
-            src={`/images/logos/${props.icon}.svg`}
-            alt={props.icon}
+            src={`/images/logos/${props.icon || 'unknown'}.svg`}
+            alt={props.icon || 'Incomplete Campaign'}
           />
-          {props.name}
+          {props.name || 'Incomplete Campaign'}
         </div>
       </Link>
       <div className="p-2">
-        <DeleteButton name={props.name} />
+        <DeleteButton 
+          name={props.name || 'Incomplete Campaign'} 
+          campaignId={props.id}
+        />
       </div>
     </div>
   )
@@ -56,10 +61,14 @@ export function CampaignButton(props: {
 
 function DeleteButton(props: {
   name: string
+  campaignId: string
 }) {
+  const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
+  const { deleteCampaign } = useDashboard()
   return (
-    <AlertDialog>
-      <AlertDialogTrigger type="button" className="p-2 border border-border rounded"  >
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger type="button" className="p-2 border border-border rounded">
         <Icon icon="trash" />
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -72,7 +81,16 @@ function DeleteButton(props: {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction className="bg-destructive">Continue</AlertDialogAction>
+          <LoadingButton
+            loading={loading}
+            variant='destructive'
+            onClick={async () => {
+              setLoading(true)
+              await deleteCampaign(props.campaignId)
+              setLoading(false)
+              setOpen(false)
+            }}
+          >Continue</LoadingButton>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

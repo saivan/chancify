@@ -17,8 +17,6 @@ export default async function RootLayout({
   if (!signedIn) redirect('/sign-in')
   const { user, organization } = await resolveSignedInUserDetails()
 
-  console.log(`organization.data`, organization.data)
-
   // Create a sidebar for the mobile view
   const compactSidebar = (
     <Sidebar

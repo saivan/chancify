@@ -10,16 +10,8 @@ export default function () {
         title='Users'
         caption='Allow the right people to access your campaigns'
         className="pb-8"
-      >
-        <NewUser />
-      </CenterBox>
+      > <NewUser /> </CenterBox>
       <UserList />
     </div>
   )
 }
-
-
-
-
-
-

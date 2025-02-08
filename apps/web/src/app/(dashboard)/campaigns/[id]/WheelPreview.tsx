@@ -1,13 +1,16 @@
+'use client'
 
 import { PrizeWheel } from "@/components/wheel"
-import { useCampaign } from "@/models/Campaign"
 import { Theme, themes } from "@/models/Theme"
-import { CardContent, CardDescription, CardHeader, CardTitle, Separator } from "@repo/components"
-import { cn, deepMerge, titleCase } from "@repo/utilities"
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@repo/components"
+import { cn, titleCase } from "@repo/utilities"
+import { } from 'react'
+import { useCampaign } from "./provider"
 
 
 export function WheelPreview() {
   const [campaign, setCampaign] = useCampaign()
+  const theme = themes[campaign.themeId || 'red']
   return (
     <div className="grid grid-cols-[20rem_auto] border border-border bg-slate-100 w-full h-192 overflow-clip rounded-lg">
       <div className="grid grid-rows-[auto_1fr] min-h-0 h-full border-r border-border bg-slate-100/60 z-10 backdrop-blur-md">
@@ -30,7 +33,7 @@ export function WheelPreview() {
             lights: { animating: false },
           }}
           prizes={campaign.prizes}
-          theme={campaign.theme}
+          theme={theme}
         />
       </div>
     </div>
@@ -41,12 +44,12 @@ function ThemeSelector() {
   const [campaign, setCampaign] = useCampaign()
   return (
     <div className="flex flex-col gap-4 h-full">
-      {Object.values(themes).map(theme => (
+      {Object.entries(themes).map(([themeId, theme]) => (
         <ThemeButton
           key={theme.name}
           theme={theme}
-          selected={theme.name === campaign.theme.name}
-          onClick={() => setCampaign({ theme })}
+          selected={themeId === campaign.themeId}
+          onClick={() => setCampaign({ themeId })}
         />
       ))}
     </div>

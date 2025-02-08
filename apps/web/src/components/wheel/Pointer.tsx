@@ -1,5 +1,8 @@
+'use client'
+
+import { Theme } from "@/models/Theme";
 import { cn } from "@repo/utilities";
-import { Theme } from "./types";
+import {} from 'react'
 
 
 export function Pointer(props: {

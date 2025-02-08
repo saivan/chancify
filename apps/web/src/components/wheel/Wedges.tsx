@@ -1,15 +1,16 @@
-import { cssToHex, cssToRGB } from '@repo/utilities/client'
-import { Prize, toProbabilities } from '@/models/Campaign'
+'use client'
+
+import { cn, cssToHex, cssToRGB } from '@repo/utilities/client'
+import type { CampaignType } from '@/models/Campaign'
 import { Theme } from '@/models/Theme'
 import { useMemo } from 'react'
-import { cn } from '@repo/components'
 
 
 export function Wedges(props: {
   onTransitionEnd?: () => void
   style?: React.CSSProperties
   className?: string
-  prizes: Prize[]
+  prizes: CampaignType['prizes']
   theme: Theme
   minDegrees: number
   prizeIndex?: number
@@ -68,7 +69,7 @@ export function Wedges(props: {
       })
     })
     return `conic-gradient(${stops.join(', ')})`
-  }, [props.theme.wedges])
+  }, [props.prizes, props.theme.wedges])
 
   // Place the text in the center of each wedge
   const textItems = useMemo(() => {
@@ -118,5 +119,58 @@ export function Wedges(props: {
       }
     </div>
   </div>)
+}
+
+
+/**
+ * Converts raw chances from prizes into probabilities with a minimum threshold
+ * @param prizes Array of Prize objects containing chances to convert
+ * @param minWidth Minimum probability threshold (default 5% or 0.05)
+ * @returns Array of probabilities corresponding to input prizes
+ */
+export function toProbabilities(
+  prizes: CampaignType['prizes'], 
+  minWidth: number = 0.05
+): number[] {
+  // Convert to probabilities with minimum threshold
+  if (prizes == null) throw new Error('Prizes are required')
+  const chances = prizes.map(prize => prize.chance)
+  const total = chances.reduce((sum, current) => sum + current, 0)
+  const rawProbabilities = chances.map(chance => chance / total)
+  
+  // Find indices of probabilities below minimum threshold
+  const belowMin = rawProbabilities
+    .map((prob, index) => ({ prob, index }))
+    .filter(item => item.prob < minWidth)
+    .map(item => item.index)
+  
+  // Find indices of probabilities at or above minimum threshold  
+  const aboveMin = rawProbabilities
+    .map((prob, index) => ({ prob, index }))
+    .filter(item => item.prob >= minWidth)
+    .map(item => item.index)
+  
+  // If no probabilities are below minimum, return raw probabilities
+  if (belowMin.length === 0) return rawProbabilities
+  
+  // Set minimum width for all below-threshold values, zero for others
+  const result = rawProbabilities.map((prob, index) => 
+    belowMin.includes(index) ? minWidth : 0
+  )
+  
+  // Calculate how much probability remains after setting minimums
+  const totalMinWidth = belowMin.length * minWidth
+  const remaining = 1.0 - totalMinWidth
+  
+  // If we have values above minimum, redistribute remaining probability
+  if (aboveMin.length > 0) {
+    const aboveMinSum = aboveMin.reduce((sum, index) => sum + rawProbabilities[index], 0)
+    return result.map((prob, index) => 
+      aboveMin.includes(index) 
+        ? (rawProbabilities[index] / aboveMinSum) * remaining 
+        : prob
+    )
+  }
+  return result
 }
 
