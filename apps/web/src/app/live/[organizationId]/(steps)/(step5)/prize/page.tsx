@@ -48,7 +48,6 @@ export default function () {
         <QRCode url="google.com" />
       </div>
 
-
       <div className="flex gap-2">
         <Button asChild variant='outline'>
           <Link href={{

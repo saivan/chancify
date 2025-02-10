@@ -18,7 +18,14 @@ export type CustomerViewState = {
     centered: boolean
     current: 'disabled' | 'ready' | 'spinning' | 'finished' 
     prizeIndex?: number
-  }
+  },
+  customer: {
+    name: string
+    postalAddress: string
+    phone: string
+    email: string
+    acceptedTerms: boolean
+  },
 }
 
 export const [ 

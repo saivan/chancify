@@ -47,7 +47,7 @@ const schema = z.object({
   name: z.string().min(2),
   phone: z.string().min(10),
   email: z.string().email(),
-  address: z.string().min(5),
+  postalAddress: z.string().min(5),
   acceptedTerms: z.boolean().refine((val) => val === true, {
     message: "You must accept the terms and conditions"
   }),
@@ -66,7 +66,7 @@ export function FormArea() {
       name: '',
       phone: '',
       email: '',
-      address: ''
+      postalAddress: ''
     }
   })
 
@@ -75,7 +75,7 @@ export function FormArea() {
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(inputs => {
-        console.log(inputs)
+        setState({ customer: inputs })
         router.push(`/live/${state.organization.id}/spin?selectedCampaign=${selectedCampaign}`)
       })} className="space-y-4 max-w-md">
         <div className="pb-8">
@@ -83,7 +83,7 @@ export function FormArea() {
             { id: "name" as const, label: "Name", type: "text" },
             { id: "phone" as const, label: "Phone", type: "tel" },
             { id: "email" as const, label: "Email", type: "email" },
-            { id: "address" as const, label: "Postal Address", type: "text" },
+            { id: "postalAddress" as const, label: "Postal Address", type: "text" },
           ].map(({ id, label, type }) => (
             <div key={id} className="space-y-2">
               <label htmlFor={id} className="text-sm font-medium">

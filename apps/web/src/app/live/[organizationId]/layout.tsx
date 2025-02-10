@@ -42,6 +42,13 @@ export default async function Layout({
           centered: false,
           current: 'disabled',
         },
+        customer: {
+          name: '',
+          phone: '',
+          email: '',
+          postalAddress: '',
+          acceptedTerms: false,
+        },
       }}> 
         {children}
       </CustomerViewStateProvider>

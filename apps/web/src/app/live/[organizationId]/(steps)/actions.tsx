@@ -4,7 +4,8 @@ import {
   createContext, useContext, useCallback, ReactNode,
 } from 'react'
 import { useCustomerViewState } from '../controller'
-import { selectRandomPrize } from './serverActions'
+import { selectRandomPrize } from "../serverActions"
+import { spin } from "../serverActions"
 import { useRouter } from 'next/navigation'
 
 
@@ -26,8 +27,10 @@ export function SpinProvider({ children }: {
 
     // Choose a random prize
     const selected = state.campaigns.selected
-    const prizes = state.campaigns.list[selected].prizes
-    const { index } = await selectRandomPrize(prizes)
+    const { index } = await spin({
+      campaign: state.campaigns.list[selected],
+      customer: state.customer,
+    })
     setState({ wheel: { 
       ...state.wheel, 
       prizeIndex: index, 
@@ -36,9 +39,7 @@ export function SpinProvider({ children }: {
   }, [state])
 
   const onEndSpin = useCallback(async () => {
-    console.log(`state.wheel.current`, state.wheel.current)
     if (state.wheel.current != 'spinning') return
-    console.log(`spun`, state)
     router.push(`/live/${state.organization.id}/prize?selectedCampaign=${state.campaigns.selected}`)
     setState({ wheel: { ...state.wheel , current: 'finished' } })
   }, [state])
