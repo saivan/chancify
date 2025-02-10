@@ -1,6 +1,6 @@
 "use client"
 
-import { Campaign } from "@/models/Campaign"
+import type { CampaignType } from "@/models/Campaign"
 import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
@@ -53,7 +53,7 @@ export default function ChooseCampaign() {
 
 
 function CampaignButton(props: {
-  campaign: Campaign
+  campaign: CampaignType
   index: number
 }) {
   const { queryParams, updateQueryParams } = useNavigationState()
@@ -68,8 +68,8 @@ function CampaignButton(props: {
       href={{ query: { selectedCampaign: props.index } }}
     >
       <Image width={32} height={32}
-        src={`/images/logos/${props.campaign.platform}.svg`}
-        alt={props.campaign.platform}
+        src={`/images/logos/${props.campaign.action.platform}.svg`}
+        alt={props.campaign.action.label}
       />
       <div>
         {props.campaign.action.label}

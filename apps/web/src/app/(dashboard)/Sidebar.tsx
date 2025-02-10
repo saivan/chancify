@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useContext, createContext } from "react";
 import Image from "next/image";
+import { useDashboard } from "./controller";
 
 const titleStyle = " text-sm text-slate-500 font-semibold tracking-tight ";
 const linkStyle = " text-slate-800 font-semibold ";
@@ -197,6 +198,25 @@ const SidebarContext = createContext<SidebarContextType>({
   toggleCompact: () => { },
 })
 
+function LiveButton () {
+  const { isCompact } = useContext(SidebarContext)
+  const { state } = useDashboard()
+  const handle = state.organizationHandle
+  return (
+    <div className={padding}>
+      <Link href={`/live/${handle}`}>
+        <Button
+          variant="default"
+          size="lg"
+          className="w-full gap-2"
+        >
+          <Icon icon="play" />{isCompact ? <></> : <span>Live</span> }
+        </Button>
+      </Link>
+    </div>
+  )
+}
+
 export function SidebarComponent(props: {
   links: SidebarLinkGroup[]
   help?: SidebarLinkGroup[]
@@ -226,6 +246,8 @@ export function SidebarComponent(props: {
           <Separator />
           <SidebarLinks groups={props.help} />
         </>}
+        <Separator />
+        <LiveButton />
         <Separator />
         <Authentication />
       </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { Campaign, Prize } from "@/models/Campaign"
+// import type { CampaignType } from "@/models/Campaign"
 import { createInitialisedObjectContext } from "@repo/utilities/client"
 import { useSearchParams } from "next/navigation"
 import { ReactNode, useEffect } from "react"
@@ -11,7 +11,7 @@ export type CustomerViewState = {
     id: string
   },
   campaigns: {
-    list: Campaign[]
+    list: CampaignType[]
     selected: number
   }
   wheel: {
@@ -45,5 +45,3 @@ export function useEnforceWheelState (enforceState: CustomerViewState['wheel']) 
     setState({ wheel: enforceState })
   }, [])
 }
-
-

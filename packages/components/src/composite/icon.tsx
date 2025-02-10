@@ -60,6 +60,7 @@ const iconMap = {
   'refresh-cw': require('lucide-react').RefreshCw,
   'network': require('lucide-react').Network, 
   'cog': require('lucide-react').Cog, 
+  'play': require('lucide-react').Play,
 } as const
 export type IconName = keyof typeof iconMap
 

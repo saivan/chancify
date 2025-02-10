@@ -3,7 +3,7 @@
 import * as auth from "@repo/authentication/server"
 import { redirect } from "next/navigation"
 import { Header } from "@/components/dashboard/Header"
-import { Sidebar } from "@/components/dashboard/Sidebar"
+import { Sidebar } from "@/app/(dashboard)/Sidebar"
 import { coreRoutes } from "@/global/routes"
 import { DashboardStateProvider } from "./controller"
 import { resolveSignedInUserDetails } from "./serverActions"

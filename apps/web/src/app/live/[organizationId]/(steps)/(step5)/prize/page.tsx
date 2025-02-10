@@ -40,7 +40,7 @@ export default function () {
       <div className="flex flex-col gap-4">
         <Label>Prize</Label>
         <div className="border border-border p-4 rounded-md bg-slate-200 font-semibold">
-          {prize?.name} Joh
+          {prize?.name}
         </div>
       </div>
 

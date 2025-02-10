@@ -1,13 +1,14 @@
 'use client'
 
 import { PrizeWheel } from "@/components/wheel";
-import { Campaign } from "@/models/Campaign";
+import type { CampaignType } from "@/models/Campaign";
 import { Button, cn } from "@repo/components";
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useCustomerViewState } from "./controller";
 import { useSearchParams, useParams } from 'next/navigation'
 import Link from "next/link";
+import { themes } from "@/models/Theme";
 
 
 export default function () {
@@ -30,8 +31,9 @@ export default function () {
       className={cn("overflow-hidden h-[100vh] relative")}
     >
       <AnimatePresence initial={false}>
-        {state.campaigns.list.map((campaign: Campaign, index: number) => {
+        {state.campaigns.list.map((campaign: CampaignType, index: number) => {
           if (index !== selectedIndex) return null;
+          const theme = themes[campaign.themeId]
           return (
             <div
               key={campaign.id}
@@ -53,7 +55,7 @@ export default function () {
                   <PrizeWheel
                     className="w-[max(100vw,90vh)] rotate-90"
                     prizes={campaign.prizes}
-                    theme={campaign.theme}
+                    theme={theme}
                     state={{ animating: true }}
                   />
                 </motion.div>

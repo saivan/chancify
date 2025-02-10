@@ -1,11 +1,10 @@
 'use client'
 
-
 import { 
   createContext, useContext, useCallback, ReactNode,
 } from 'react'
 import { useCustomerViewState } from '../controller'
-import { selectRandomPrize } from '@/models/Campaign'
+import { selectRandomPrize } from './serverActions'
 import { useRouter } from 'next/navigation'
 
 
@@ -28,7 +27,7 @@ export function SpinProvider({ children }: {
     // Choose a random prize
     const selected = state.campaigns.selected
     const prizes = state.campaigns.list[selected].prizes
-    const { index } = selectRandomPrize(prizes)
+    const { index } = await selectRandomPrize(prizes)
     setState({ wheel: { 
       ...state.wheel, 
       prizeIndex: index, 
@@ -50,6 +49,7 @@ export function SpinProvider({ children }: {
     </SpinContext.Provider>
   )
 }
+
 
 export function useSpinCallbacks() {
   const context = useContext(SpinContext)
