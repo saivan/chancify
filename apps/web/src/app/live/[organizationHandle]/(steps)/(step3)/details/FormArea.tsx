@@ -1,47 +1,17 @@
-
 "use client"
 
 import { Campaign } from "@/models/Campaign"
 import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
-import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationId]/controller"
-import { Form, Button, Checkbox, FormControl, FormDescription, FormField, FormItem, FormLabel, Input, Label } from "@repo/components"
+import { useState, useEffect } from "react"
+import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
+import { Form, Button, Checkbox, FormControl, FormDescription, FormField, FormItem, FormLabel, Input, Label, LoadingButton } from "@repo/components"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
-
-
-
-export default function () {
-  const [state, setState] = useCustomerViewState()
-  useEnforceWheelState({
-    current: 'disabled',
-    centered: false,
-    prizeIndex: undefined,
-  })
-  const selectedCampaign = state.campaigns.selected
-  const campaign = state.campaigns.list[selectedCampaign]
-
-  return (
-    <>
-      <div>
-        <h1 className='font-semibold text-2xl md:text-4xl tracking-tight text-slate-800 leading-tight'
-        >{campaign.action.label}</h1>
-        <p className='text-base md:text-lg text-slate-800 '>
-          Fill in your details to claim your spin
-        </p>
-      </div>
-      <div className="flex flex-col gap-4">
-        <FormArea />
-      </div>
-    </>
-  )
-}
-
-
+import { useSpinCallbacks } from "../../actions"
 
 const schema = z.object({
   name: z.string().min(2),
@@ -56,8 +26,10 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 export function FormArea() {
-  const router = useRouter()
+  const { pushHistoryDebounced } = useSpinCallbacks()
   const [state, setState] = useCustomerViewState()
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
   const selectedCampaign = state.campaigns.selected
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -70,14 +42,37 @@ export function FormArea() {
     }
   })
 
-  const { register, handleSubmit, formState: { errors }, control } = form
+  const { register, handleSubmit, formState: { errors }, control, watch } = form
+
+  // Send the form data to the server when it changes
+  const formValues = watch()
+  useEffect(() => {
+    // Don't push an empty form
+    const { name, phone, email, postalAddress } = formValues
+    if (!name && !phone && !email && !postalAddress) return
+    
+    // Otherwise push the form data to the server
+    pushHistoryDebounced({
+      id: state.historyId as string,
+      customer: { ...formValues, details: {} },
+    })
+    console.log('Form data changed:', formValues)
+  }, [formValues])
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit(inputs => {
-        setState({ customer: inputs })
-        router.push(`/live/${state.organization.id}/spin?selectedCampaign=${selectedCampaign}`)
-      })} className="space-y-4 max-w-md">
+      <form 
+        onSubmit={handleSubmit(async inputs => {
+          setLoading(true)
+          await pushHistoryDebounced({
+            id: state.historyId as string,
+            customer: { ...formValues, details: {} },
+          })
+          router.push(`/live/${state.organization.handle}/spin?selectedCampaign=${selectedCampaign}`)
+          setLoading(false)
+        })} 
+        className="space-y-4 max-w-md"
+      >
         <div className="pb-8">
           {[
             { id: "name" as const, label: "Name", type: "text" },
@@ -137,11 +132,11 @@ export function FormArea() {
         <div className="flex gap-2">
           <Button asChild variant='outline'>
             <Link href={{
-              pathname: `/live/${state.organization.id}/action`,
+              pathname: `/live/${state.organization.handle}/action`,
               query: { selectedCampaign }
             }}>Back</Link>
           </Button>
-          <Button type="submit">Spin Now</Button>
+          <LoadingButton loading={loading} type="submit">Spin Now</LoadingButton>
         </div>
       </form>
     </Form>

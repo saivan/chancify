@@ -5,7 +5,7 @@ import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
-import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationId]/controller"
+import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
 import { Button } from "@repo/components"
 
 
@@ -42,7 +42,7 @@ export default function ChooseCampaign() {
       <div>
         <Button asChild>
           <Link href={{
-            pathname: `/live/${state.organization.id}/action`,
+            pathname: `/live/${state.organization.handle}/action`,
             query: { selectedCampaign }
           }}>Next</Link>
         </Button>

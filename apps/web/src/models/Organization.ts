@@ -7,6 +7,7 @@ import { User } from "./User";
 import { shortId } from "@repo/utilities";
 import { Campaign } from "./Campaign";
 import { themes } from "./Theme";
+import { History } from "./History";
 
 
 export const OrganizationSchema = z.object({
@@ -83,7 +84,16 @@ export class Organization extends baseModel<OrganizationType>({
     const organizationId = this.id()
     const campaignList = await Campaign.list({ organizationId })
     const campaigns = campaignList.items
-    return campaigns
+    const campaignData = campaigns.map(campaign => campaign.data)
+    return campaignData
+  }
+
+  async history () {
+    const organizationId = this.id()
+    const historyList = await History.list({ organizationId })
+    const history = historyList.items
+    const historyData = history.map(entry => entry.data)
+    return historyData
   }
 
   static async getUserOrganization (user: User) {
@@ -108,4 +118,5 @@ export class Organization extends baseModel<OrganizationType>({
     await organization.pull()
     return organization
   }
+
 }

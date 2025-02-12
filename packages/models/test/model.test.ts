@@ -193,6 +193,33 @@ describe(`Model`, () => {
       expect(item.data.name).toBe('does-not-exist')
       expect(item.data.id).not.toBeUndefined()
     })
+
+    it(`can partially update an existing model`, async () => {
+      // Make a model
+      const item = new Model({ name: 'john' })
+      await item.create()
+      expect (item.data.name).toEqual('john')
+      expect (item.data.group).toBeUndefined()
+      const id = item.id()
+
+      // Update the model
+      const pusher = new Model({ id })
+      pusher.set({ group: 'swimming' })
+      expect (pusher.data.name).toBeUndefined()
+      expect (pusher.data.group).toEqual('swimming')
+      await pusher.push()
+
+      // Check that the database model has everything we expect
+      const puller = new Model({ id })
+      await puller.pull()
+      expect(puller.data.name).toBe('john')
+      expect(puller.data.group).toBe('swimming')
+
+      // Check that the old model can update
+      await item.pull()
+      expect(item.data).toStrictEqual(pusher.data)
+      expect(item.data.name).toBe('john')
+    })
   })
 
   describe(`extending`, () => {

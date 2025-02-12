@@ -43,23 +43,11 @@ export function useDashboard() {
     })
   }, 800)
 
-  const pushCampaigns = useDebouncedCallback(async (campaigns: CampaignType[]) => {
-    // Update each campaign
-    console.log(`TODO: not implemented`)
-  }, 800)
-
   const setState = useCallback((
     newState: Parameters<typeof setStateDirect>[0]
   ) => {
-    // 
     setStateDirect(newState)
-
-    // Push organization only when it changes
     pushOrganization({ ...state, ...newState })
-
-    // Push campaigns only when they change
-    const isCampaignEqual = isObjectEqual(state.campaigns, newState.campaigns) 
-    if (!isCampaignEqual) pushCampaigns(newState.campaigns)
   }, [setStateDirect, pushOrganization])
 
   // Methods to interact with the database

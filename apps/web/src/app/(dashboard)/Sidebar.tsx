@@ -43,11 +43,14 @@ function Header() {
   const iconName = isCompact ? "panel-left-open" : "panel-left-close"
   return (
     <div className={padding + compactClasses + "flex justify-between"}>
-      <Link href="/" className="flex items-center gap-2">
-        <div className="h-10 w-10 rounded-md">
-          <Image alt="Chancify Logo" src="/logo.svg" width={40} height={40} />
+      <Link href="/" className="flex items-center">
+        <div className="h-10 rounded-md">
+          {
+            isCompact
+            ? <Image alt="Chancify Logo" src="/logo.svg" width={40} height={40} />
+            : <Image alt="Chancify Logo" src="/logo-wide.svg" width={162} height={36} />
+          }
         </div>
-        {!isCompact && <div className="text-xl font-medium tracking-tight">Chancify</div>}
       </Link>
       {
         compacts &&
@@ -202,19 +205,29 @@ function LiveButton () {
   const { isCompact } = useContext(SidebarContext)
   const { state } = useDashboard()
   const handle = state.organizationHandle
-  return (
+  const linkContent = (
     <div className={padding}>
       <Link href={`/live/${handle}`}>
-        <Button
-          variant="default"
-          size="lg"
-          className="w-full gap-2"
+        <div
+          className={cn(
+            "bg-slate-800 text-white rounded-md py-2 flex items-center justify-center",
+            "w-full gap-2",
+            isCompact ? "px-2" : ""
+          )}
         >
           <Icon icon="play" />{isCompact ? <></> : <span>Live</span> }
-        </Button>
+        </div>
       </Link>
     </div>
   )
+  return isCompact ? (
+    <TooltipProvider>
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger className="block">{linkContent}</TooltipTrigger>
+        <TooltipContent side="right" >Live</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  ) : linkContent
 }
 
 export function SidebarComponent(props: {

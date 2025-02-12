@@ -6,13 +6,17 @@ import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
-import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationId]/controller"
-import { Button, QRCode } from "@repo/components"
+import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
+import { Button, LoadingButton, QRCode } from "@repo/components"
+import { useRouter } from "next/navigation"
+import { useSpinCallbacks } from "../../actions"
 
 
 
 export default function ChooseCampaign() {
-  const [state] = useCustomerViewState()
+  const [state, setState] = useCustomerViewState()
+  const [loading, setLoading] = useState(false)
+  const { pushHistory } = useSpinCallbacks()
   useEnforceWheelState({ 
     current: 'disabled', 
     centered: false,
@@ -20,6 +24,7 @@ export default function ChooseCampaign() {
   })
   const selectedCampaign = state.campaigns.selected
   const campaign = state.campaigns.list[selectedCampaign]
+  const router = useRouter()
 
   return (
     <>
@@ -36,16 +41,24 @@ export default function ChooseCampaign() {
       <div className="flex gap-2">
         <Button asChild variant='outline'>
           <Link href={{
-            pathname: `/live/${state.organization.id}/campaigns`,
+            pathname: `/live/${state.organization.handle}/campaigns`,
             query: { selectedCampaign }
           }}>Back</Link>
         </Button>
-        <Button asChild>
-          <Link href={{
-            pathname: `/live/${state.organization.id}/details`,
-            query: { selectedCampaign }
-          }}>Next</Link>
-        </Button>
+        <LoadingButton loading={loading} onClick={async () => {
+          // Create a new history record
+          setLoading(true)
+          const { id } = await pushHistory({
+            campaignId: campaign.id,
+            organizationId: state.organization.id,
+          })
+          setState({ historyId: id })
+
+          // Move to the next step
+          router.push(`/live/${state.organization.handle}/details?selectedCampaign=${selectedCampaign}`)
+          setLoading(false)
+        }} 
+        >Next</LoadingButton>
       </div>
     </>
   )

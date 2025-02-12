@@ -1,7 +1,7 @@
 import { clamp } from '@repo/utilities'
 import { ReactNode } from 'react'
 import { CustomerViewStateProvider } from './controller'
-import { getOrganizationCampaigns } from './serverActions'
+import { resolveOrganization } from './serverActions'
 
 
 
@@ -12,17 +12,17 @@ export default async function Layout({
 }: { 
   children: ReactNode
   params: {
-    organizationId: string
+    organizationHandle: string
   }
   searchParams?: {
     selected?: string
   }
 }) {
   const selectedIndex = Number(searchParams?.selected ?? 0)
-  const { organizationId } = await params
-  const campaigns = await getOrganizationCampaigns(organizationId)
+  const { organizationHandle } = await params
+  const { campaigns, organizationId } = await resolveOrganization(organizationHandle)
   const selected = clamp(selectedIndex, 0, campaigns.length - 1)
-  
+
   return (
     <div className="w-[100svw] h-[100svh] relative flex">
       <video autoPlay muted loop playsInline
@@ -32,7 +32,8 @@ export default async function Layout({
       </video>
       <CustomerViewStateProvider initial={{
         organization: {
-          id: organizationId
+          id: organizationId,
+          handle: organizationHandle,
         },
         campaigns: {
           list: campaigns,
@@ -42,13 +43,7 @@ export default async function Layout({
           centered: false,
           current: 'disabled',
         },
-        customer: {
-          name: '',
-          phone: '',
-          email: '',
-          postalAddress: '',
-          acceptedTerms: false,
-        },
+        historyId: null,
       }}> 
         {children}
       </CustomerViewStateProvider>

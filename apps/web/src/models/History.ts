@@ -9,10 +9,11 @@ export const HistorySchema = z.object({
   id: z.string(),
   organizationId: z.string(),
   campaignId: z.string(),
-  date: z.string(),
+  dateCreated: z.string(),
+  dateUpdated: z.string(),
 
-  // Information
-  status: z.enum(['claimed', 'unclaimed']),
+  // Data
+  status: z.enum(['claimed', 'unclaimed', 'incomplete']),
   prize: z.object({
     id: z.string(),
     name: z.string(),
@@ -24,11 +25,8 @@ export const HistorySchema = z.object({
     email: z.string(),
     postalAddress: z.string(),
     acceptedTerms: z.boolean(),
+    details: z.record(z.any()),
   }),
-
-  // Book keeping
-  dateCreated: z.string(),
-  dateUpdated: z.string(),
 })
 export type HistoryType = z.infer<typeof HistorySchema>
 export const PartialHistorySchema = HistorySchema.partial()
@@ -42,7 +40,6 @@ export class History extends baseModel<PartialHistorySchemaType>({
   indexes: [
     { partition: 'id' },
     { partition: 'organizationId', sort: 'dateCreated' },
-    { partition: 'status', sort: 'dateCreated' },
   ],
 }) { }
 

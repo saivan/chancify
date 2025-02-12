@@ -1,11 +1,12 @@
 
 "use client"
 
-import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationId]/controller"
+import { useCustomerViewState, useEnforceDefinedHistory, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
 
 
 export default function () {
   const [state, setState] = useCustomerViewState()
+  useEnforceDefinedHistory()
   useEnforceWheelState({
     current: 'ready',
     centered: true,

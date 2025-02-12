@@ -12,6 +12,7 @@ import {
   ZodNumber,
   ZodObject,
   ZodOptional,
+  ZodRecord,
   ZodSchema,
   ZodString
 } from 'zod'
@@ -47,6 +48,14 @@ function determineDataType(input: ZodSchema): string | Record<string, any> {
     }
   }
 
+  // Handle record types (arbitrary key-value pairs)
+  if (input instanceof ZodRecord) {
+    return {
+      type: 'any',
+      dynamodbType: 'M'
+    }
+  }
+
   // Handle primitive types
   if (input instanceof ZodString) return 'string'
   if (input instanceof ZodNumber) return 'number'
@@ -58,6 +67,7 @@ function determineDataType(input: ZodSchema): string | Record<string, any> {
   // If an unknown item is seen, error
   throw new Error(`${input} is of an unsupported data type`)
 }
+
 
 function zodToElectroAttributes(schema: ZodObject<any>): Record<string, any> {
   const attributeList = Object.entries(schema.shape)

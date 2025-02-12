@@ -6,7 +6,7 @@ import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationId]/controller"
+import { useCustomerViewState, useEnforceDefinedHistory, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
 import { Button, Input, Label } from "@repo/components"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -16,6 +16,7 @@ import { QRCode } from "@repo/components"
 
 export default function () {
   const [state, setState] = useCustomerViewState()
+  useEnforceDefinedHistory()
   useEnforceWheelState({
     current: 'finished',
     centered: false,
@@ -51,7 +52,7 @@ export default function () {
       <div className="flex gap-2">
         <Button asChild variant='outline'>
           <Link href={{
-            pathname: `/live/${state.organization.id}/campaigns`,
+            pathname: `/live/${state.organization.handle}/campaigns`,
             query: { selectedCampaign: 0 }
           }}>Complete</Link>
         </Button>

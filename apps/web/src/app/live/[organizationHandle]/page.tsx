@@ -93,7 +93,7 @@ export default function () {
 
                   <Button asChild size="lg" className="mt-8">
                     <Link href={{
-                      pathname: `/live/${state.organization.id}/campaigns`,
+                      pathname: `/live/${state.organization.handle}/campaigns`,
                       query: { selectedCampaign: state.campaigns.selected }
                     }}>Get Started</Link>
                   </Button>

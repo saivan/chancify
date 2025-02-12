@@ -1,14 +1,15 @@
 "use client"
 
-// import type { CampaignType } from "@/models/Campaign"
+import type { CampaignType } from "@/models/Campaign"
 import { createInitialisedObjectContext } from "@repo/utilities/client"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { ReactNode, useEffect } from "react"
 
 
 export type CustomerViewState = {
   organization: {
     id: string
+    handle: string
   },
   campaigns: {
     list: CampaignType[]
@@ -16,25 +17,19 @@ export type CustomerViewState = {
   }
   wheel: {
     centered: boolean
-    current: 'disabled' | 'ready' | 'spinning' | 'finished' 
+    current: 'disabled' | 'ready' | 'spinning' | 'finished'
     prizeIndex?: number
   },
-  customer: {
-    name: string
-    postalAddress: string
-    phone: string
-    email: string
-    acceptedTerms: boolean
-  },
+  historyId: string | null,
 }
 
-export const [ 
-  useCustomerViewState, 
+export const [
+  useCustomerViewState,
   CustomerViewStateProvider,
 ] = createInitialisedObjectContext<CustomerViewState>()
 
 
-export function useQueryParamUpdateEffect () {
+export function useQueryParamUpdateEffect() {
   const [state, setState] = useCustomerViewState()
   const searchParams = useSearchParams()
   useEffect(() => {
@@ -45,7 +40,18 @@ export function useQueryParamUpdateEffect () {
   }, [state.campaigns, searchParams])
 }
 
-export function useEnforceWheelState (enforceState: CustomerViewState['wheel']) {
+export function useEnforceDefinedHistory() {
+  // If we don't have a historyId navigate home
+  const [state, setState] = useCustomerViewState()
+  const router = useRouter()
+  useEffect(() => {
+    if (state.historyId == null) {
+      router.replace(`/live/${state.organization.handle}`)
+    }
+  }, [])
+}
+
+export function useEnforceWheelState(enforceState: CustomerViewState['wheel']) {
   // Enforce the state required for the wheel
   const [state, setState] = useCustomerViewState()
   useEffect(() => {

@@ -260,6 +260,36 @@ describe (`dynamo`, () => {
       const result = await dynamo.get({ id })
       expect(result).toStrictEqual(data)
     })
+
+    it(`can store zod records with arbitrary keys`, async () => {
+      const schema = z.object({
+        id: z.string(),
+        recordString: z.record(z.string()),
+        recordNumber: z.record(z.number()),
+      })
+      const dynamo = new DynamoDB()
+        .schema(schema)
+        .name('record')
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+
+      // Push the record
+      const id = shortId()
+      const data = {
+        id,
+        recordString: {
+          a: 'a', b: 'b', c: 'c',
+        },
+        recordNumber: {
+          u: 1, v: 2, w: 3,
+        }
+      }
+      await dynamo.put(data)
+
+      // Fetch the data and check that it matches
+      const result = await dynamo.get({ id })
+      expect(result).toStrictEqual(data)
+    })
   })
 
   describe(`get`, () => {

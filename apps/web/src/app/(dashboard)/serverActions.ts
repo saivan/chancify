@@ -139,8 +139,7 @@ export async function createOrganizationCampaign() {
 export async function getOrganizationCampaigns() {
   const { user, organization } = await resolveSignedInUserDetails()
   const campaigns = await organization.campaigns()
-  const campaignData = campaigns.map(campaign => campaign.data)
-  return campaignData as CampaignType[]
+  return campaigns as CampaignType[]
 }
 
 export async function updateCampaign(data: CampaignType) {
@@ -179,4 +178,10 @@ export async function deleteCampaign(campaignId: string) {
     return { success: false, error: error.message }
   }
   return { success: true, error: null }
+}
+
+export async function fetchHistory() {
+  const { user, organization } = await resolveSignedInUserDetails()
+  const history = await organization.history()
+  return history
 }
