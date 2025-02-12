@@ -51,7 +51,7 @@ export function HistoryList() {
 
 
   async function* fetchDataGenerator(sorting: SortingState) {
-    let historyItems = await fetchHistory()
+    let historyItems = await fetchHistory() as Required<HistoryType>[]
     if (sorting.length > 0) {
       const { id, desc } = sorting[0]
       historyItems = [...historyItems].sort((a, b) => {

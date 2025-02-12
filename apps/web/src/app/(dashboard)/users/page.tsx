@@ -5,7 +5,7 @@ import { NewUser } from "./NewUser";
 
 export default function () {
   return (
-    <div className="h-full grid grid-rows-[auto_1fr]">  
+    <div className="h-full">  
       <CenterBox
         title='Users'
         caption='Allow the right people to access your campaigns'
