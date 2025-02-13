@@ -1,10 +1,10 @@
 "use client"
 
 import type { CampaignType } from "@/models/Campaign"
-import { OrganizationType } from "@/models/Organization"
+import type { OrganizationType } from "@/models/Organization"
 import { createInitialisedObjectContext } from "@repo/utilities/client"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ReactNode, useEffect } from "react"
+import { useEffect } from "react"
 
 
 export type CustomerViewState = {
@@ -25,11 +25,13 @@ export type CustomerViewState = {
   historyId: string | null,
 }
 
-export const [
-  useCustomerViewState,
-  CustomerViewStateProvider,
+const [
+  hook,
+  provider,
 ] = createInitialisedObjectContext<CustomerViewState>()
 
+export const useCustomerViewState = hook
+export const CustomerViewStateProvider = provider
 
 export function useQueryParamUpdateEffect() {
   const [state, setState] = useCustomerViewState()
@@ -44,7 +46,7 @@ export function useQueryParamUpdateEffect() {
 
 export function useEnforceDefinedHistory() {
   // If we don't have a historyId navigate home
-  const [state, setState] = useCustomerViewState()
+  const [state] = useCustomerViewState()
   const router = useRouter()
   useEffect(() => {
     if (state.historyId == null) {
@@ -55,7 +57,7 @@ export function useEnforceDefinedHistory() {
 
 export function useEnforceWheelState(enforceState: CustomerViewState['wheel']) {
   // Enforce the state required for the wheel
-  const [state, setState] = useCustomerViewState()
+  const [, setState] = useCustomerViewState()
   useEffect(() => {
     setState({ wheel: enforceState })
   }, [])

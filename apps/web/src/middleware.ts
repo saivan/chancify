@@ -36,7 +36,7 @@ async function middleware (auth: any, request: any) {
   }
 
   // If we have a subpath of live, make sure we have a selected campaign
-  const result = addCampaignToLivePath(request)
+  const result = await addCampaignToLivePath(request)
   if (result) return result
 
   // If not redirecting, return the response to continue the request

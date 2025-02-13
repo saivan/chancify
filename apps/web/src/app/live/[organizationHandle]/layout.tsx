@@ -1,5 +1,5 @@
 import { clamp } from '@repo/utilities'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { CustomerViewStateProvider } from './controller'
 import { resolveOrganization } from './serverActions'
 

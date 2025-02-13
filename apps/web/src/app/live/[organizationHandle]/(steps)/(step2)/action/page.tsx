@@ -1,8 +1,8 @@
 "use client"
 
 import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
-import { CampaignType } from "@/models/Campaign"
-import { OrganizationType } from "@/models/Organization"
+import type { CampaignType } from "@/models/Campaign"
+import type { OrganizationType } from "@/models/Organization"
 import { Button, LoadingButton, QRCode } from "@repo/components"
 import Link from "next/link"
 import { useRouter } from "next/navigation"

@@ -1,16 +1,16 @@
 'use client'
+import type { CampaignType } from "@/models/Campaign"
+import type { HistoryType } from "@/models/History"
 import { Badge, DataTable } from "@repo/components"
-import { SortingState } from "@tanstack/react-table"
-import { HistoryType } from "@/models/History"
-import { fetchHistory } from "../serverActions"
+import type { SortingState } from "@tanstack/react-table"
 import { } from 'react'
-import { useDashboard } from "../controller"
 import { toast } from "sonner"
-import { CampaignType } from "@/models/Campaign"
+import { useDashboard } from "../controller"
+import { fetchHistory } from "../serverActions"
 
 
 export function HistoryList({ campaigns }: { campaigns: CampaignType[] }) {
-  const { state, resolveHistoryLink, deleteHistory } = useDashboard()
+  const { resolveHistoryLink, deleteHistory } = useDashboard()
 
   return (
     <DataTable<HistoryType>
@@ -55,14 +55,18 @@ export function HistoryList({ campaigns }: { campaigns: CampaignType[] }) {
       ]}
       rowActions={[{
         label: 'Verify Entry',
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onClick: async (history: HistoryType) => {
           const link = await resolveHistoryLink(history.id)
-          if (link == null) return toast.error("No link found for this entry")
+          if (link == null) {
+            toast.error("No link found for this entry")
+            return
+          }
           window.open(link, "_blank");
         }
       }, {
         label: 'Delete Entry',
-        onClick: (history: HistoryType) => deleteHistory(history.id)
+        onClick: (history: HistoryType) => { deleteHistory(history.id) }
       }]}
     />
   )

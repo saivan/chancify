@@ -1,18 +1,16 @@
-
 import { CenterBox } from "@/components/dashboard/CenterBox"
-import { CampaignType } from "@/models/Campaign"
-import { HistoryType } from "@/models/History"
-import { Badge, Button, Card, CardContent, CardHeader } from "@repo/components"
+import type { CampaignType } from "@/models/Campaign"
+import type { HistoryType } from "@/models/History"
+import { Badge, Card, CardContent, CardHeader } from "@repo/components"
 import { cn, titleCase } from "@repo/utilities"
 import { getFullHistoryData } from "../../serverActions"
 import VerifyButton, { ClaimButton } from "./ActionButtons"
 
-
-export default async function (props: {
-  params: { id: string }
+export default async function Page({ params }: {
+  params: Promise<{ id: string }>
 }) {
-  const { id } = await props.params
-  const { history, campaign, organization } = await getFullHistoryData(id)
+  const { id } = await params
+  const { history, campaign } = await getFullHistoryData(id)
 
   return (
     <CenterBox
@@ -31,11 +29,11 @@ export default async function (props: {
           </div>
 
           <div className="flex gap-4">
-            <VerifyButton history={history} campaign={campaign} organization={organization} />
+            <VerifyButton history={history} />
             <ClaimButton history={history} />
           </div>
-
         </div>
+        
         <div className="flex flex-col gap-8">
           <StatusDisplay history={history} />
           <PrizeDetails campaign={campaign} history={history} />
@@ -45,7 +43,6 @@ export default async function (props: {
     </CenterBox>
   )
 }
-
 
 function StatusDisplay(props: {
   history: Partial<HistoryType>
@@ -70,7 +67,7 @@ function StatusDisplay(props: {
             )}>{titleCase(props.history.status || 'incomplete')}</span>
           </div>
           <div className="flex flex-col">
-            <span className="text-sm text-slate-600" >Date</span>
+            <span className="text-sm text-slate-600">Date</span>
             <span>{
               props.history.dateCreated &&
               new Date(props.history?.dateCreated).toLocaleDateString()
@@ -99,15 +96,15 @@ function PrizeDetails(props: {
       <CardContent>
         <div className="flex gap-16">
           <div className="flex flex-col">
-            <span className="text-sm text-slate-600" >Prize</span>
+            <span className="text-sm text-slate-600">Prize</span>
             <span>{props.history.prize?.name || '(No Prize)'}</span>
           </div>
           <div className="flex flex-col">
-            <span className="text-sm text-slate-600" >Campaign</span>
+            <span className="text-sm text-slate-600">Campaign</span>
             <span>{props.campaign.action?.platform || '(No Platform)'}</span>
           </div>
           <div className="flex flex-col">
-            <span className="text-sm text-slate-600" >Action</span>
+            <span className="text-sm text-slate-600">Action</span>
             <span>{props.campaign.action?.label || '(No Action)'}</span>
           </div>
         </div>
@@ -115,7 +112,6 @@ function PrizeDetails(props: {
     </Card>
   )
 }
-
 
 function CustomerDetails(props: {
   history: Partial<HistoryType>
@@ -136,28 +132,28 @@ function CustomerDetails(props: {
           {
             props.campaign.collectInformation?.name &&
             <div className="flex flex-col">
-              <span className="text-sm text-slate-600" >Name</span>
+              <span className="text-sm text-slate-600">Name</span>
               <span>{props.history.customer?.name || '(No Name Supplied)'}</span>
             </div>
           }
           {
             props.campaign.collectInformation?.email &&
             <div className="flex flex-col">
-              <span className="text-sm text-slate-600" >Email</span>
+              <span className="text-sm text-slate-600">Email</span>
               <span>{props.history.customer?.email || '(No Email Supplied)'}</span>
             </div>
           }
           {
             props.campaign.collectInformation?.phone &&
             <div className="flex flex-col">
-              <span className="text-sm text-slate-600" >Phone</span>
+              <span className="text-sm text-slate-600">Phone</span>
               <span>{props.history.customer?.phone || '(No Phone Supplied)'}</span>
             </div>
           }
           {
             props.campaign.collectInformation?.postalAddress &&
             <div className="flex flex-col">
-              <span className="text-sm text-slate-600" >Phone</span>
+              <span className="text-sm text-slate-600">Phone</span>
               <span>{props.history.customer?.postalAddress || '(No Address Supplied)'}</span>
             </div>
           }
@@ -166,4 +162,3 @@ function CustomerDetails(props: {
     </Card>
   )
 }
-

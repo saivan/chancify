@@ -3,10 +3,8 @@
 import type { HistoryType } from '@/models/History'
 import { Button, LoadingButton } from '@repo/components'
 import { useState } from 'react'
-import { useDashboard } from '../../controller'
-import { CampaignType } from '@/models/Campaign'
-import { OrganizationType } from '@/models/Organization'
 import { toast } from 'sonner'
+import { useDashboard } from '../../controller'
 
 
 export function ClaimButton({ history }: { history: Partial<HistoryType> }) {
@@ -14,6 +12,7 @@ export function ClaimButton({ history }: { history: Partial<HistoryType> }) {
   const { updateHistory } = useDashboard()
   return (
     <LoadingButton 
+      loading={loading}
       onClick={async () => {
         setLoading(true)
         await updateHistory({ ...history, status: 'claimed' })
@@ -26,10 +25,8 @@ export function ClaimButton({ history }: { history: Partial<HistoryType> }) {
 }
 
 
-export default function VerifyButton({ history, campaign, organization }: {
+export default function VerifyButton({ history }: {
   history: Partial<HistoryType>,
-  campaign: Partial<CampaignType>
-  organization: Partial<OrganizationType>
 }) {
   const { resolveHistoryLink } = useDashboard()
   return (

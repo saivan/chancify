@@ -1,9 +1,9 @@
 "use server"
 import * as auth from "@repo/authentication/server"
 import { Organization } from "@/models/Organization"
-import { User, UserType } from "@/models/User"
-import { Campaign, CampaignType } from "@/models/Campaign"
-import { History, HistoryType } from "@/models/History"
+import { User, type UserType } from "@/models/User"
+import { Campaign, type CampaignType } from "@/models/Campaign"
+import { History, type HistoryType } from "@/models/History"
 
 
 export async function resolveSignedInUserDetails() {
@@ -29,7 +29,7 @@ export async function resolveSignedInUserDetails() {
 
 export async function getOrganizationUsers() {
   // Get the signed in user and organization
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
 
   // Fetch the users from this organization
   const users = await organization.users()
@@ -40,7 +40,7 @@ export async function addOrganizationUser(data: {
   email: string,
   role: UserType['role'],
 }) {
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
   const newUser = new User({
     organizationId: organization.id(),
     ...data,
@@ -53,7 +53,7 @@ export async function addOrganizationUser(data: {
 
 export async function updateOrganizationHandle(handle: string) {
   // Get the signed in user and organization
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
 
   // Check if the the handle is already in use
   const existingOrganization = new Organization({ handle })
@@ -85,7 +85,7 @@ export async function updateOrganization(data: {
   organizationUsers: UserType[],
 }) {
   // Get the signed in user and organization
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
 
   // Update the organization data
   organization.set({
@@ -130,25 +130,25 @@ export async function updateUserRole(userId: string, role: UserType['role']) {
 }
 
 export async function updateOrganizationSocialProfiles(social: string) {
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
   organization.data.googleLink = social
   await organization.push()
 }
 
 export async function createOrganizationCampaign() {
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
   const campaign = await organization.newCampaign()
   return campaign.data
 }
 
 export async function getOrganizationCampaigns() {
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
   const campaigns = await organization.campaigns()
   return campaigns as CampaignType[]
 }
 
 export async function updateCampaign(data: CampaignType) {
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
   const campaign = new Campaign(data)
 
   try {
@@ -187,7 +187,7 @@ export async function updateCampaign(data: CampaignType) {
 }
 
 export async function deleteCampaign(campaignId: string) {
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
   const campaign = new Campaign({ id: campaignId })
 
   try {
@@ -206,14 +206,14 @@ export async function deleteCampaign(campaignId: string) {
 }
 
 export async function fetchHistory() {
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
   const history = await organization.history()
   return history
 }
 
 export async function getFullHistoryData(id: string) {
   // Get a single history item
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
   const history = new History({ id })
   await history.pull()
   const historyData = history.data
@@ -238,7 +238,7 @@ export async function getFullHistoryData(id: string) {
 
 export async function resolveHistoryLink (id: string) {
   // Get the signed in user and organization
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
 
   // Pull the history item
   const history = new History({ id })
@@ -261,7 +261,7 @@ export async function resolveHistoryLink (id: string) {
 }
 
 export async function updateHistory (history: Partial<HistoryType>) {
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
   const historyItem = new History(history)
   if (historyItem.data.organizationId !== organization.id()) {
     throw new Error('This history item does not belong to the organization')
@@ -272,7 +272,7 @@ export async function updateHistory (history: Partial<HistoryType>) {
 }
 
 export async function deleteHistory (historyId: string) {
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
   const history = new History({ id: historyId })
   await history.pull()
   if (history.data.organizationId !== organization.id()) {

@@ -1,11 +1,18 @@
 {
   "extends": "@repo/config/typescript/nextjs.json",
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "**/*.js", "../../packages/database/test/dynamo.test.ts", "../../packages/files/test/files.test.ts", "src/app/error.tsx", "../../packages/components/src/composite/data-table.tsx", "../../packages/components/src/composite/QRCode.tsx", "../../packages/models/test/model.test.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/**/*"
+  ],
+  "exclude": ["node_modules"],
   "compilerOptions": {
-    "declaration": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "typeRoots": ["./node_modules/@types", "../../node_modules/@types"]
   }
 }

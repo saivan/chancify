@@ -35,7 +35,7 @@ type FormData = z.infer<ReturnType<typeof makeSchema>>
 
 export function FormArea() {
   const { pushHistory, pushHistoryDebounced } = useSpinCallbacks()
-  const [state, setState] = useCustomerViewState()
+  const [state] = useCustomerViewState()
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const selectedCampaign = state.campaigns.selected
@@ -64,7 +64,14 @@ export function FormArea() {
     // Otherwise push the form data to the server
     pushHistoryDebounced({
       id: state.historyId as string,
-      customer: { ...formValues, details: {} },
+      customer: {
+        name: formValues.name || '',
+        phone: formValues.phone || '',
+        email: formValues.email || '',
+        postalAddress: formValues.postalAddress || '',
+        acceptedTerms: formValues.acceptedTerms,
+        details: {}
+      },
     })
   }, [formValues])
 
@@ -75,7 +82,14 @@ export function FormArea() {
           setLoading(true)
           await pushHistory({
             id: state.historyId as string,
-            customer: { ...formValues, details: {} },
+            customer: {
+              name: formValues.name || '',
+              phone: formValues.phone || '',
+              email: formValues.email || '',
+              postalAddress: formValues.postalAddress || '',
+              acceptedTerms: formValues.acceptedTerms,
+              details: {}
+            },
           })
           console.log(`pushed`, inputs)
           router.push(`/live/${state.organization.handle}/spin?selectedCampaign=${selectedCampaign}`)
@@ -100,6 +114,7 @@ export function FormArea() {
                 <Input
                   id={id}
                   type={type}
+                  // @ts-ignore - zodResolver doesn't support inputMode
                   inputMode={inputMode}
                   className="bg-white"
                   {...register(id)}

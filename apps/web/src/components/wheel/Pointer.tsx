@@ -1,6 +1,6 @@
 'use client'
 
-import { Theme } from "@/models/Theme";
+import type { Theme } from "@/models/Theme";
 import { cn } from "@repo/utilities";
 import {} from 'react'
 

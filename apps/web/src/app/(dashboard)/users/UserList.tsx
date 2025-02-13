@@ -1,15 +1,15 @@
 'use client'
-import { User, UserType } from "@/models/User"
+import type { UserType } from "@/models/User"
 import { DataTable } from "@repo/components"
-import { SortingState } from "@tanstack/react-table"
+import { titleCase } from "@repo/utilities"
+import type { SortingState } from "@tanstack/react-table"
 import { } from 'react'
 import { useDashboard } from "../controller"
-import { titleCase } from "@repo/utilities"
 
 
 export function UserList() {
   const { 
-    state, setState, populateOrganizationUsers, 
+    populateOrganizationUsers, 
     updateUserRole, deleteOrganizationUser,
   } = useDashboard()
   async function* fetchDataGenerator(sorting: SortingState) {
@@ -49,16 +49,16 @@ export function UserList() {
         ]}
         rowActions={[{
           label: 'Remove from Organization',
-          onClick: (user: UserType) => deleteOrganizationUser(user.id)
+          onClick: (user: UserType) => { deleteOrganizationUser(user.id) }
         }, {
           label: 'Set Role to Admin',
-          onClick: (user: UserType) => updateUserRole(user.id, 'admin')
+          onClick: (user: UserType) => { updateUserRole(user.id, 'admin') }
         }, {
           label: 'Set Role to Editor',
-          onClick: (user: UserType) => updateUserRole(user.id, 'editor')
+          onClick: (user: UserType) => { updateUserRole(user.id, 'editor') }
         }, {
           label: 'Set Role to Viewer',
-          onClick: (user: UserType) => updateUserRole(user.id, 'viewer')
+          onClick: (user: UserType) => { updateUserRole(user.id, 'viewer') }
         }]}
       />
     </div>

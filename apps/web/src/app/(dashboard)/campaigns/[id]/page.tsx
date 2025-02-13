@@ -1,5 +1,3 @@
-
-
 import { CenterBox } from "@/components/dashboard/CenterBox"
 import { CampaignProvider } from "./provider"
 import { getOrganizationCampaigns } from "../../serverActions"
@@ -7,14 +5,12 @@ import Image from "next/image"
 import { EditCampaign } from "./EditCampaign"
 
 
-export default async function (props: {
-  params: {
-    id: string
-  }
+export default async function Page({ params }: {
+  params: Promise<{ id: string }>
 }) {
-  // Fetch the campaign data
+  const { id } = await params
   const campaigns = await getOrganizationCampaigns()
-  const campaign = campaigns.find(campaign => campaign.id === props.params.id)
+  const campaign = campaigns.find(campaign => campaign.id === id)
 
   // If we don't have a campaign, return an error page
   if (!campaign) {
@@ -34,11 +30,8 @@ export default async function (props: {
 
   // Render the campaign page
   return (
-    <CampaignProvider initial={campaign} >
+    <CampaignProvider initial={campaign}>
       <EditCampaign />
     </CampaignProvider>
   )
 }
-
-
-

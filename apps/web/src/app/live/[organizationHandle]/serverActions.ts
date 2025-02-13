@@ -1,7 +1,7 @@
 "use server"
 
-import { Campaign, type CampaignType } from "@/models/Campaign"
-import { History, HistoryType } from "@/models/History"
+import { type CampaignType } from "@/models/Campaign"
+import { History, type HistoryType } from "@/models/History"
 import { Organization } from "@/models/Organization"
 
 

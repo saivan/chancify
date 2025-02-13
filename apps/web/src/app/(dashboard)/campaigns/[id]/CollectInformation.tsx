@@ -1,7 +1,8 @@
 'use client'
+import type { CampaignType } from "@/models/Campaign"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Label, Switch } from "@repo/components"
+import { } from 'react'
 import { useCampaign } from "./provider"
-import {} from 'react'
 
 
 export function CollectInformation() {
@@ -23,9 +24,12 @@ export function CollectInformation() {
   )
 }
 
-function CheckBox(props: { for: keyof CollectInformation, label: string }) {
+function CheckBox(props: { 
+  for: keyof CampaignType['collectInformation'], 
+  label: string 
+}) {
   const [campaign, setCampaign] = useCampaign()
-  const checked = campaign.collectInformation[props.for]
+  const checked = campaign.collectInformation?.[props.for]
   return (
     <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
       <div className="space-y-0.5">
@@ -37,7 +41,10 @@ function CheckBox(props: { for: keyof CollectInformation, label: string }) {
           onCheckedChange={checked => {
             setCampaign({
               collectInformation: {
-                ...campaign.collectInformation,
+                name: campaign.collectInformation?.name ?? false,
+                phone: campaign.collectInformation?.phone ?? false,
+                email: campaign.collectInformation?.email ?? false,
+                postalAddress: campaign.collectInformation?.postalAddress ?? false,
                 [props.for]: checked
               }
             })

@@ -1,14 +1,13 @@
 "use client"
 
 import { cn } from "@repo/utilities"
-// import { Pointer } from "./Pointer"
-import { Theme, WheelState } from "@/models/Theme"
-import { Wedges } from "./Wedges"
-import dynamic from "next/dynamic"
+import type { CampaignType } from "@/models/Campaign"
+import type { Theme, WheelState } from "@/models/Theme"
 import { useAnimationFrame } from "@repo/utilities/client"
-import { useState, useMemo } from "react"
-import { CampaignType } from "@/models/Campaign"
+import dynamic from "next/dynamic"
+import { useState } from "react"
 import { Pointer } from "./Pointer"
+import { Wedges } from "./Wedges"
 
 
 function Wheel(props: {

@@ -1,18 +1,18 @@
 "use client"
 
 import { PrizeWheel } from "@/components/wheel"
+import { themes } from "@/models/Theme"
 import { cn } from "@repo/utilities/client"
 import { AnimatePresence, motion } from 'framer-motion'
 import { usePathname } from 'next/navigation'
-import { ReactNode } from 'react'
-import { useCustomerViewState, useQueryParamUpdateEffect  } from "../controller"
-import { themes } from "@/models/Theme"
+import type { ReactNode } from 'react'
+import { useCustomerViewState, useQueryParamUpdateEffect } from "../controller"
 import { SpinProvider, useSpinCallbacks } from "./actions"
 
 
 
 export default function Layout (props: { children: ReactNode }) {
-  const [state, setState] = useCustomerViewState()
+  const [state] = useCustomerViewState()
   const pathname = usePathname()
   useQueryParamUpdateEffect()
   return (
@@ -50,7 +50,7 @@ function WheelDisplay(props: {
   className?: string
 }) {
   const { onStartSpin, onEndSpin } = useSpinCallbacks()
-  const [state, setState] = useCustomerViewState()
+  const [state] = useCustomerViewState()
   const selectedCampaign = state.campaigns.selected
   const campaignCount = state.campaigns.list.length
 

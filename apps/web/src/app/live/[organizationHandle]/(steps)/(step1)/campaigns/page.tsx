@@ -1,13 +1,12 @@
 "use client"
 
+import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
 import type { CampaignType } from "@/models/Campaign"
-import { cn, useNavigationState, usePath } from "@repo/utilities/client"
+import { Button } from "@repo/components"
+import { cn, useNavigationState } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect } from "react"
-import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
-import { Button } from "@repo/components"
-
 
 
 export default function ChooseCampaign() {
@@ -61,7 +60,7 @@ function CampaignButton(props: {
   campaign: CampaignType
   index: number
 }) {
-  const { queryParams, updateQueryParams } = useNavigationState()
+  const { queryParams } = useNavigationState()
   const selectedCampaign = Number(queryParams.selectedCampaign)
   const isSelected = selectedCampaign === props.index
   return (

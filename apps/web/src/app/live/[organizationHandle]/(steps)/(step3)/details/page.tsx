@@ -1,21 +1,10 @@
 "use client"
 
-import { Campaign } from "@/models/Campaign"
-import { cn, useNavigationState, usePath } from "@repo/utilities/client"
-import Image from "next/image"
-import Link from "next/link"
-import { useState, useEffect } from "react"
 import { useCustomerViewState, useEnforceDefinedHistory, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
-import { Form, Button, Checkbox, FormControl, FormDescription, FormField, FormItem, FormLabel, Input, Label } from "@repo/components"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { useSpinCallbacks } from "../../actions"
 import { FormArea } from "./FormArea"
 
 export default function Content () {
-  const [state, setState] = useCustomerViewState()
+  const [state] = useCustomerViewState()
   useEnforceDefinedHistory()
   useEnforceWheelState({
     current: 'disabled',

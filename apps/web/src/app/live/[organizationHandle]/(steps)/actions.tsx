@@ -1,14 +1,16 @@
 'use client'
 
-import { 
-  createContext, useContext, useCallback, ReactNode,
-} from 'react'
-import { useCustomerViewState } from '../controller'
-import { saveHistory } from "../serverActions"
-import { spin } from "../serverActions"
-import { useRouter } from 'next/navigation'
 import type { HistoryType } from '@/models/History'
+import { useRouter } from 'next/navigation'
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+} from 'react'
 import { useDebouncedCallback } from 'use-debounce'
+import { useCustomerViewState } from '../controller'
+import { saveHistory, spin } from "../serverActions"
 
 
 type SpinCallbacks = {
@@ -71,6 +73,7 @@ export function SpinProvider({ children }: {
   const pushHistoryDebounced = useDebouncedCallback(pushHistory, 800)
 
   return (
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     <SpinContext.Provider value={{ onStartSpin, onEndSpin, pushHistoryDebounced, pushHistory }}>
       {children}
     </SpinContext.Provider>

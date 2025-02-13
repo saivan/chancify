@@ -10,12 +10,12 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "incremental": true,
-    "composite": true,
-    "declaration": true
+    "composite": false,
+    "jsx": "react-jsx" 
   },
   "exclude": ["node_modules"]
 }

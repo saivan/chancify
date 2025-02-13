@@ -3,7 +3,7 @@
 import {
   closestCenter,
   DndContext,
-  DragEndEvent,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -28,6 +28,7 @@ export function PotentialPrizes() {
   const total = useMemo(() => campaign.prizes?.reduce(
     (acc, prize) => acc + prize.chance, 0
   ), [campaign.prizes])
+  if (total == null) return null
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -41,8 +42,9 @@ export function PotentialPrizes() {
     if (over && active.id !== over.id) {
       const oldIndex = campaign.prizes?.findIndex(prize => prize.id === active.id)
       const newIndex = campaign.prizes?.findIndex(prize => prize.id === over.id)
+      if (oldIndex == null || newIndex == null) return
       setCampaign({
-        prizes: arrayMove(campaign.prizes, oldIndex, newIndex)
+        prizes: arrayMove(campaign.prizes || [], oldIndex, newIndex)
       })
     }
   }
@@ -83,11 +85,11 @@ export function PotentialPrizes() {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={campaign.prizes.map(prize => prize.id)}
+            items={campaign.prizes?.map(prize => prize.id) || []}
             strategy={verticalListSortingStrategy}
           >
             <div className="flex flex-col gap-2">
-              {campaign.prizes.map((prize, index) => (
+              {campaign.prizes?.map((prize, index) => (
                 <PrizeItem
                   key={prize.id}
                   id={prize.id}

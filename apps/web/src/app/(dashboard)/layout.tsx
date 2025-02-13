@@ -15,7 +15,7 @@ export default async function RootLayout({
   // Check if we are signed in
   const signedIn = await auth.signedIn()
   if (!signedIn) redirect('/sign-in')
-  const { user, organization } = await resolveSignedInUserDetails()
+  const { organization } = await resolveSignedInUserDetails()
 
   // Create a sidebar for the mobile view
   const compactSidebar = (

@@ -1,10 +1,10 @@
 'use client'
 
 import { CenterBox } from "@/components/dashboard/CenterBox";
-import { Card, CardContent, CardHeader, cn, Input, Label, LabelledInput, LoadingButton } from "@repo/components";
+import { cn, Input, Label, LabelledInput, LoadingButton } from "@repo/components";
 import Image from "next/image";
-import { useState } from 'react'
-import { useDashboard } from "../controller"
+import { useState } from 'react';
+import { useDashboard } from "../controller";
 
 
 export default function () {
@@ -45,7 +45,7 @@ function FormArea(props: {
 }
 
 function HandleUpdater() {
-  const { state, setState } = useDashboard()
+  const { state } = useDashboard()
   const { updateOrganizationHandle } = useDashboard()
   const [handle, setHandle] = useState(state.organizationHandle)
   const [loading, setLoading] = useState(false)

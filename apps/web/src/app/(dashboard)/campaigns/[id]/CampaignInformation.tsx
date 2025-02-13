@@ -25,6 +25,7 @@ export function CampaignInformation() {
           value={value}
           onChange={value => {
             const action = availableActions.find(action => action?.value === value)
+            // @ts-ignore - value is a string
             setCampaign({ action: action! })
           }}
           placeholder="What do you want customers to do?"

@@ -1,7 +1,7 @@
 'use client'
 
 import { PrizeWheel } from "@/components/wheel"
-import { Theme, themes } from "@/models/Theme"
+import { type Theme, themes } from "@/models/Theme"
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@repo/components"
 import { cn, titleCase } from "@repo/utilities"
 import { } from 'react'
@@ -9,7 +9,7 @@ import { useCampaign } from "./provider"
 
 
 export function WheelPreview() {
-  const [campaign, setCampaign] = useCampaign()
+  const [campaign] = useCampaign()
   const theme = themes[campaign.themeId || 'red']
   return (
     <div className="grid grid-cols-[20rem_auto] border border-border bg-slate-100 w-full h-192 overflow-clip rounded-lg">
@@ -30,11 +30,11 @@ export function WheelPreview() {
         <PrizeWheel
           className="h-full absolute -right-16 overflow-hidden"
           state={{
-            lights: { animating: false },
+            animating: false,
+            prize: undefined,
           }}
-          prizes={campaign.prizes}
-          theme={theme}
-        />
+          prizes={campaign.prizes ?? []}
+          theme={theme} />
       </div>
     </div>
   )

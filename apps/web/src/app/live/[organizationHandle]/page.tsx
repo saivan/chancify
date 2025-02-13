@@ -2,18 +2,17 @@
 
 import { PrizeWheel } from "@/components/wheel";
 import type { CampaignType } from "@/models/Campaign";
+import { themes } from "@/models/Theme";
 import { Button, cn } from "@repo/components";
 import { AnimatePresence, motion } from 'framer-motion';
+import Link from "next/link";
 import { useEffect, useState } from 'react';
 import { useCustomerViewState } from "./controller";
-import { useSearchParams, useParams } from 'next/navigation'
-import Link from "next/link";
-import { themes } from "@/models/Theme";
 
 
 export default function () {
   // Set the state of the customer view
-  const [state, setState] = useCustomerViewState()
+  const [state] = useCustomerViewState()
   const [selectedIndex, setSelectedIndex] = useState(0)
 
   useEffect(() => {
