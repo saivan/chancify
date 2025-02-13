@@ -1,75 +1,31 @@
-"use client"
 
 import { CenterBox } from "@/components/dashboard/CenterBox"
-import { Campaign, CampaignProvider } from "@/models/Campaign"
-import { availableActions } from "@/models/Action"
-import { cn, shortId, titleCase } from "@repo/utilities"
-import { themes } from "@/models/Theme"
-import { useState } from "react"
-import { History } from "@/models/History"
-import { Badge, Button, Card, CardContent, CardHeader, Input, Label } from "@repo/components"
-import Image from "next/image"
+import { CampaignType } from "@/models/Campaign"
+import { HistoryType } from "@/models/History"
+import { Badge, Button, Card, CardContent, CardHeader } from "@repo/components"
+import { cn, titleCase } from "@repo/utilities"
+import { getFullHistoryData } from "../../serverActions"
 
 
-export default function () {
-  const [history, setHistory] = useState<History>({
-    id: '1',
-    campaignId: '1',
-    date: new Date().toISOString(),
-    status: 'claimed',
-    customer: {
-      id: shortId(),
-      name: 'John Smith',
-      email: 'john@smith.com',
-      phone: '123-456-7890',
-      address: '123 Main St',
-      details: {},
-    },
-    prize: {
-      id: shortId(),
-      name: "Awesome prize",
-      chance: 15,
-    },
-  })
-  const [campaign, setCampaign] = useState<Campaign>({
-    id: '1',
-    action: availableActions[0],
-    platform: "Google",
-    prizes: [
-      { id: shortId(), name: "Hello Aba", chance: 15 },
-      { id: shortId(), name: "Maryanne", chance: 1 },
-      { id: shortId(), name: "Free Lunch", chance: 1 },
-      { id: shortId(), name: "Awesome Thing", chance: 3 },
-      { id: shortId(), name: "Stinky Snake", chance: 4 },
-      { id: shortId(), name: "Awesome Sauce", chance: 3 },
-    ],
-    theme: themes['red'],
-    collectInformation: {
-      name: false,
-      phone: false,
-      email: false,
-      postalAddress: false,
-    },
-    status: 'active',
-  })
-
-
-
-
+export default async function (props: {
+  params: { id: string }
+}) {
+  const { id } = await props.params
+  const { history, campaign } = await getFullHistoryData(id)
 
   return (
     <CenterBox
       back="/history"
       icon={campaign.action?.icon}
-      title={history.prize.name}
-      caption={campaign.action.label}
+      title={history.prize?.name || '(No Prize)'}
+      caption={campaign.action?.label || '(No Action)'}
       headerClassName="pb-2"
     >
       <div>
         <div className="flex w-full items-center justify-between pb-8">
           <div>
             <Badge variant={history.status === 'claimed' ? 'default' : 'outline'}>
-              {titleCase(history.status)}
+              {titleCase(history.status || 'incomplete')}
             </Badge>
           </div>
 
@@ -94,13 +50,8 @@ export default function () {
 }
 
 
-
-
-
-
-
 function StatusDisplay(props: {
-  history: History
+  history: Partial<HistoryType>
 }) {
   return (
     <Card>
@@ -119,11 +70,14 @@ function StatusDisplay(props: {
             <span className={cn(
               "font-semibold",
               props.history.status === 'claimed' ? 'text-green-600' : 'text-red-600',
-            )}>{titleCase(props.history.status)}</span>
+            )}>{titleCase(props.history.status || 'incomplete')}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-sm text-slate-600" >Date</span>
-            <span>{new Date(props.history.date).toLocaleDateString()}</span>
+            <span>{
+              props.history.dateCreated &&
+              new Date(props.history?.dateCreated).toLocaleDateString()
+            }</span>
           </div>
         </div>
       </CardContent>
@@ -132,8 +86,8 @@ function StatusDisplay(props: {
 }
 
 function PrizeDetails(props: {
-  campaign: Campaign
-  history: History
+  campaign: Partial<CampaignType>
+  history: Partial<HistoryType>
 }) {
   return (
     <Card>
@@ -149,15 +103,15 @@ function PrizeDetails(props: {
         <div className="flex gap-16">
           <div className="flex flex-col">
             <span className="text-sm text-slate-600" >Prize</span>
-            <span>{props.history.prize.name}</span>
+            <span>{props.history.prize?.name || '(No Prize)'}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-sm text-slate-600" >Campaign</span>
-            <span>{props.campaign.action.platform}</span>
+            <span>{props.campaign.action?.platform || '(No Platform)'}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-sm text-slate-600" >Action</span>
-            <span>{props.campaign.action.label}</span>
+            <span>{props.campaign.action?.label || '(No Action)'}</span>
           </div>
         </div>
       </CardContent>
@@ -167,7 +121,7 @@ function PrizeDetails(props: {
 
 
 function CustomerDetails(props: {
-  history: History
+  history: Partial<HistoryType>
 }) {
   return (
     <Card>
@@ -183,15 +137,15 @@ function CustomerDetails(props: {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col">
             <span className="text-sm text-slate-600" >Name</span>
-            <span>{props.history.customer.name}</span>
+            <span>{props.history.customer?.name || '(No Name Supplied)'}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-sm text-slate-600" >Email</span>
-            <span>{props.history.customer.email}</span>
+            <span>{props.history.customer?.email || '(No Email Supplied)'}</span>
           </div>
           <div className="flex flex-col">
             <span className="text-sm text-slate-600" >Phone</span>
-            <span>{props.history.customer.phone}</span>
+            <span>{props.history.customer?.phone || '(No Phone Supplied)'}</span>
           </div>
         </div>
       </CardContent>

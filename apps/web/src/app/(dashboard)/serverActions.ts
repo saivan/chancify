@@ -4,6 +4,7 @@ import { Organization } from "@/models/Organization"
 import { User, UserType } from "@/models/User"
 import { Campaign, CampaignType } from "@/models/Campaign"
 import { revalidatePath } from "next/cache"
+import { History } from "@/models/History"
 
 
 export async function resolveSignedInUserDetails() {
@@ -185,3 +186,18 @@ export async function fetchHistory() {
   const history = await organization.history()
   return history
 }
+
+export async function getFullHistoryData(id: string) {
+  // Get a single history item
+  const { user, organization } = await resolveSignedInUserDetails()
+  const history = new History({ id })
+  await history.pull()
+  const historyData = history.data
+
+  // Get the corresponding campaign
+  const campaign = new Campaign({ id: historyData.campaignId })
+  await campaign.pull()
+  const campaignData = campaign.data
+  return { history: historyData, campaign: campaignData }
+}
+

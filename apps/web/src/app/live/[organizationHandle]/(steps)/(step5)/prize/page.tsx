@@ -1,17 +1,12 @@
 
 "use client"
 
-import { Campaign } from "@/models/Campaign"
-import { cn, useNavigationState, usePath } from "@repo/utilities/client"
-import Image from "next/image"
-import Link from "next/link"
-import { useState, useEffect } from "react"
 import { useCustomerViewState, useEnforceDefinedHistory, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
-import { Button, Input, Label } from "@repo/components"
-import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Button, Input, Label, QRCode } from "@repo/components"
+import Link from "next/link"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { QRCode } from "@repo/components"
 
 
 export default function () {
@@ -27,6 +22,8 @@ export default function () {
   const prizes = campaign.prizes
   const prizeIndex = state.wheel.prizeIndex
   const prize = prizeIndex != null ? prizes[prizeIndex] : null
+  const historyUrl = `${window.location.origin}/history/${state.historyId}`
+  console.log(`historyUrl`, historyUrl)
 
 
   return (
@@ -46,7 +43,7 @@ export default function () {
       </div>
 
       <div className="border p-4 border-border rounded-md w-max h-max">
-        <QRCode url="google.com" />
+        <QRCode url={historyUrl} />
       </div>
 
       <div className="flex gap-2">
