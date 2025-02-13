@@ -214,6 +214,30 @@ export async function getFullHistoryData(id: string) {
   }
 }
 
+export async function resolveHistoryLink (id: string) {
+  // Get the signed in user and organization
+  const { user, organization } = await resolveSignedInUserDetails()
+
+  // Pull the history item
+  const history = new History({ id })
+  await history.pull()
+
+  // Pull the correct campaign
+  const campaign = new Campaign({ id: history.data.campaignId })
+  await campaign.pull()
+
+  // Determine the link to verify the
+  if (campaign.data.action?.platform == null) return null
+  const handleResolvers = {
+    instagram: () => `https://instagram.com/${organization.data.instagramHandle}`,
+    tiktok: () => `https://tiktok.com/@${organization.data.tikTokHandle}`,
+    google: () => organization.data.googleLink,
+  }
+  const platform = campaign.data.action.platform as keyof typeof handleResolvers
+  const link = platform in handleResolvers ? handleResolvers[platform]() : ''
+  return link
+}
+
 export async function updateHistory (history: Partial<HistoryType>) {
   const { user, organization } = await resolveSignedInUserDetails()
   const historyItem = new History(history)
@@ -223,4 +247,14 @@ export async function updateHistory (history: Partial<HistoryType>) {
   await historyItem.push()
   const historyData = historyItem.data
   return historyData
+}
+
+export async function deleteHistory (historyId: string) {
+  const { user, organization } = await resolveSignedInUserDetails()
+  const history = new History({ id: historyId })
+  await history.pull()
+  if (history.data.organizationId !== organization.id()) {
+    throw new Error('This history item does not belong to the organization')
+  }
+  await history.delete()
 }

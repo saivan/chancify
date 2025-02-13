@@ -81,6 +81,7 @@ export function Campaigns(props: {
               id={campaign.id}
               name={campaign.action.label}
               icon={campaign.action.icon as Brand}
+              status={campaign.status}
             />
           ))}
         </div>

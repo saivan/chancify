@@ -1,11 +1,12 @@
 "use client"
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Button, Icon, LoadingButton } from "@repo/components"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Badge, Button, Icon, LoadingButton } from "@repo/components"
 import Image from "next/image"
 import { useSortable, } from '@dnd-kit/sortable'
 import Link from "next/link"
 import { useState } from 'react'
 import { useDashboard } from "../controller"
+import { CampaignType } from "@/models/Campaign"
 
 type Brand = 'google' | 'instagram' | 'tiktok' | 'facebook'
 
@@ -14,6 +15,7 @@ export function CampaignButton(props: {
   id: string
   name: string
   icon: Brand
+  status: CampaignType['status']
 }) {
   const {
     attributes,
@@ -46,6 +48,10 @@ export function CampaignButton(props: {
             alt={props.icon || 'Incomplete Campaign'}
           />
           {props.name || 'Incomplete Campaign'}
+          { 
+          props.status === 'inactive' &&
+            <Badge variant="outline">Unpublished</Badge>
+          }
         </div>
       </Link>
       <div className="p-2">

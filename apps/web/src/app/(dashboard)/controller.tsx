@@ -5,11 +5,12 @@ import { User, UserType } from "@/models/User"
 import { createInitialisedObjectContext, isObjectEqual } from "@repo/utilities/client"
 import { useSearchParams } from "next/navigation"
 import { ReactNode, useEffect } from "react"
-import { addOrganizationUser, createOrganizationCampaign, deleteCampaign, getOrganizationCampaigns, getOrganizationUsers, removeUserFromOrganization, updateCampaign, updateHistory, updateOrganization, updateOrganizationHandle, updateUserRole } from "./serverActions"
+import { addOrganizationUser, createOrganizationCampaign, deleteCampaign, deleteHistory, getOrganizationCampaigns, getOrganizationUsers, removeUserFromOrganization, resolveHistoryLink, updateCampaign, updateHistory, updateOrganization, updateOrganizationHandle, updateUserRole } from "./serverActions"
 import { toast, useSonner } from "sonner"
 import { useDebouncedCallback } from "use-debounce"
 import { useCallback } from "react"
 import { HistoryType } from "@/models/History"
+import { OrganizationType } from "@/models/Organization"
 
 
 export type DashboardState = {
@@ -23,8 +24,8 @@ export type DashboardState = {
   campaigns: CampaignType[]
 }
 
-const [ 
-  useDashboardState, 
+const [
+  useDashboardState,
   DashboardStateProvider,
 ] = createInitialisedObjectContext<DashboardState>()
 export { DashboardStateProvider }
@@ -38,7 +39,7 @@ export function useDashboard() {
     // Update the organization details
     updateOrganization({
       googleLink: state.googleLink as string,
-      instagramHandle: state.instagramHandle ,
+      instagramHandle: state.instagramHandle,
       tikTokHandle: state.tikTokHandle,
       organizationUsers: state.organizationUsers,
     })
@@ -62,7 +63,7 @@ export function useDashboard() {
       setState({ organizationHandle: result.handle })
     },
 
-    async populateOrganizationUsers () {
+    async populateOrganizationUsers() {
       // If we already have the data, return it
       if (state.organizationUsers.length > 0) return state.organizationUsers
 
@@ -77,11 +78,11 @@ export function useDashboard() {
       role: UserType['role']
     }) {
       const newUserData = await addOrganizationUser(data)
-      setState({ 
-        organizationUsers: [...state.organizationUsers, newUserData] 
+      setState({
+        organizationUsers: [...state.organizationUsers, newUserData]
       })
     },
-    
+
     async deleteOrganizationUser(userId?: string) {
       // Remove the user from the organization directly
       if (!userId) return
@@ -105,7 +106,7 @@ export function useDashboard() {
       setState({ organizationUsers: newUsers })
     },
 
-    async loadCampaigns () {
+    async loadCampaigns() {
       const campaigns = await getOrganizationCampaigns()
       setState({ campaigns })
     },
@@ -124,7 +125,7 @@ export function useDashboard() {
       if (!result.success) toast.error(result.error)
     },
 
-    async deleteCampaign (campaignId: string) {
+    async deleteCampaign(campaignId: string) {
       try {
         await deleteCampaign(campaignId)
         window.location.reload()
@@ -137,9 +138,19 @@ export function useDashboard() {
       console.log(`TODO: not implemented`)
     },
 
-    async updateHistory (history: Partial<HistoryType>) {
+    async resolveHistoryLink(id: string) {
+      const link = await resolveHistoryLink(id)
+      return link
+    },
+
+    async updateHistory(history: Partial<HistoryType>) {
       const result = await updateHistory(history)
       return result
-    }
+    },
+
+    async deleteHistory (historyId: string) {
+      await deleteHistory(historyId)
+      window.location.reload()
+    },
   }
 }

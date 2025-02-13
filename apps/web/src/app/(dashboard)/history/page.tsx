@@ -1,8 +1,10 @@
 
 import { CenterBox } from "@/components/dashboard/CenterBox";
 import { HistoryList } from "./HistoryList";
+import { getOrganizationCampaigns } from "../serverActions";
 
-export default function () {
+export default async function () {
+  const campaigns = await getOrganizationCampaigns()
   return (
     <div className="h-full grid grid-rows-[auto_1fr]">  
       <CenterBox
@@ -10,7 +12,7 @@ export default function () {
         caption='Here is a list of every spin your customers have had'
         className="pb-8"
       > <div></div> </CenterBox>
-      <HistoryList />
+      <HistoryList campaigns={campaigns} />
     </div>
   )
 }
