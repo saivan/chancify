@@ -3,13 +3,13 @@ import * as auth from "@repo/authentication/server"
 import { Organization } from "@/models/Organization"
 import { User, UserType } from "@/models/User"
 import { Campaign, CampaignType } from "@/models/Campaign"
-import { revalidatePath } from "next/cache"
-import { History } from "@/models/History"
+import { History, HistoryType } from "@/models/History"
 
 
 export async function resolveSignedInUserDetails() {
   // Get the signed in user
   const authUser = await auth.user()
+  if (!authUser) throw new Error('No signed in user')
   const email = authUser?.primaryEmailAddress
   if (!email) throw new Error('Signed in user has no email address')
 
@@ -114,11 +114,13 @@ export async function updateOrganization(data: {
 }
 
 export async function removeUserFromOrganization(userId: string) {
+  await resolveSignedInUserDetails()
   const user = new User({ id: userId })
   await user.delete()
 }
 
 export async function updateUserRole(userId: string, role: UserType['role']) {
+  await resolveSignedInUserDetails()
   const user = new User({ id: userId })
   await user.pull()
   user.data.role = role
@@ -194,10 +196,31 @@ export async function getFullHistoryData(id: string) {
   await history.pull()
   const historyData = history.data
 
+  // Make sure the history item belongs to this organization
+  const isWrongOrganization = historyData.organizationId !== organization.id()
+  if (isWrongOrganization) {
+    throw new Error('This history item does not belong to the organization')
+  }
+
   // Get the corresponding campaign
   const campaign = new Campaign({ id: historyData.campaignId })
   await campaign.pull()
   const campaignData = campaign.data
-  return { history: historyData, campaign: campaignData }
+  const organizationData = organization.data
+  return { 
+    history: historyData, 
+    campaign: campaignData,
+    organization: organizationData,
+  }
 }
 
+export async function updateHistory (history: Partial<HistoryType>) {
+  const { user, organization } = await resolveSignedInUserDetails()
+  const historyItem = new History(history)
+  if (historyItem.data.organizationId !== organization.id()) {
+    throw new Error('This history item does not belong to the organization')
+  }
+  await historyItem.push()
+  const historyData = historyItem.data
+  return historyData
+}

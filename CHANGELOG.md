@@ -11,8 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Made the wheel
 - Added the campaign setup page
 - Made the customer view page visuals
-- Made a data table component
 - Campaigns can be pushed and reordered
+- History can be viewed for each item
+- [upstream] A data table component
+- [upstream] Listing models and databases in descending order
 ### Changed
 - [upstream] The application is now a PWA
 ### Fixed

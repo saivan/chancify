@@ -90,7 +90,7 @@ export class Organization extends baseModel<OrganizationType>({
 
   async history () {
     const organizationId = this.id()
-    const historyList = await History.list({ organizationId })
+    const historyList = await History.list({ organizationId }, { descending: true })
     const history = historyList.items
     const historyData = history.map(entry => entry.data)
     return historyData

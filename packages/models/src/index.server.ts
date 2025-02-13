@@ -177,6 +177,7 @@ export function baseModel<T extends ExpectedData>(options: {
         limit?: number
         pages?: number | string
         cursor?: string | null
+        descending?: boolean
       },
     ) {
       const results = await database.list(description, options)

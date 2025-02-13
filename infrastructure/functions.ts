@@ -1,3 +1,4 @@
+/// <reference path="../.sst/platform/config.d.ts" />
 
 import { Files } from "./files"
 

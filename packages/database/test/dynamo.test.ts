@@ -709,6 +709,15 @@ describe (`dynamo`, () => {
       expect(result.data[1].name).toBe('jane')
     })
 
+    it(`can list all items in a table in descending order`, async () => {
+      await addFivePeople()
+      const result = await dynamo.list({ school: "ash" }, { descending: true })
+      if (result == null) throw Error(`Result is null`)
+      expect(result.data.length).toBe(3)
+      expect(result.data.map(datum => datum.name))
+        .toEqual(['james', 'jane', 'john'])
+    })
+
     it(`can list all items in a table with a limit`, async () => {
       await addFivePeople()
       const result = await dynamo.list({ school: "ash" }, { limit: 2 })
@@ -829,6 +838,16 @@ describe (`dynamo`, () => {
       expect(result.data).toEqual(items)
     })
 
+    it(`can list all items backwards`, async () => {
+      const { dynamo, items } = await dynamoList(`list-backwards-${Math.random()}`)
+      const result = await dynamo.list({}, { descending: true })
+      if (result == null) throw Error(`Result is null`)
+      for (let item of result.data) {
+        delete item.dateCreated
+      }
+      expect(result.data).toEqual(items.slice().reverse())
+    })
+
     it(`can be used to list all items with a limit`, async () => {
       const { dynamo, items } = await dynamoList(`list-limit-${Math.random()}`)
       const result = await dynamo.list({}, { limit: 3 })
@@ -873,7 +892,6 @@ describe (`dynamo`, () => {
       expect(result.data.length).toBe(0)
       expect(result.cursor).toBeNull()
     })
-
   })
 
   describe(`delete`, () => {

@@ -1,4 +1,3 @@
-
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { schemaHasField, shortId } from '@repo/utilities/server'
 import { Entity } from 'electrodb'
@@ -16,7 +15,6 @@ import {
   ZodSchema,
   ZodString
 } from 'zod'
-
 
 function determineDataType(input: ZodSchema): string | Record<string, any> {
   // Recursively remove optional types, as they aren't necessary
@@ -68,7 +66,6 @@ function determineDataType(input: ZodSchema): string | Record<string, any> {
   throw new Error(`${input} is of an unsupported data type`)
 }
 
-
 function zodToElectroAttributes(schema: ZodObject<any>): Record<string, any> {
   const attributeList = Object.entries(schema.shape)
     .map(([key, value]) => {
@@ -82,7 +79,6 @@ function zodToElectroAttributes(schema: ZodObject<any>): Record<string, any> {
   return attributes
 }
 
-
 export type DynamoIndexes = {
   partition: string | string[]
   sort?: string | string[]
@@ -93,7 +89,6 @@ export type ComputeFunction = (
   oldState: Record<string, any>,
   action: 'create' | 'push' | 'delete' | 'get'
 ) => Record<string, any>
-
 
 export type TableConnection = {
   name: string
@@ -242,9 +237,10 @@ export class DynamoDB {
     limit?: number
     pages?: number | string
     cursor?: string | null
+    descending?: boolean
   } = {}): Promise<ListReturn> {
     // Unpack the options and validate the entity immediately
-    const { count, limit, cursor } = options
+    const { count, limit, cursor, descending } = options
     const entity = this._getEntity()
 
     // If nothing is provided, list everything
@@ -252,15 +248,19 @@ export class DynamoDB {
     if (listWholeTable) {
       // Scan the entire table
       const chosenCount = count ?? Infinity
-      const result = await entity.scan.go({ cursor, count: chosenCount })
+      const result = await entity.scan.go({ 
+        order: descending ? 'desc' : 'asc',
+        count: chosenCount,
+        cursor, 
+      })
 
       // Then sort the result according to the sort key
       const sortKey = this._indexes?.[0]?.sort as string[] || []
       result.data = result.data.sort((a, b) => {
         const aSort = sortKey.map((key) => a[key]).join('')
         const bSort = sortKey.map((key) => b[key]).join('')
-        if (aSort < bSort) return -1
-        if (aSort > bSort) return 1
+        if (aSort < bSort) return descending ? 1 : -1
+        if (aSort > bSort) return descending ? -1 : 1
         return 0
       }).slice(0, limit)
       return result
@@ -279,7 +279,12 @@ export class DynamoDB {
       // If so, query by this index
       const { indexLabel } = this._getIndexNames(i)
       const command = entity.query[indexLabel](item as never)
-      const result = await command.go({ cursor, limit, count })
+      const result = await command.go({ 
+        order: descending ? 'desc' : 'asc',
+        cursor, 
+        limit, 
+        count,
+      })
 
       // If we have the data, return it
       if (result.data) return result

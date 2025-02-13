@@ -5,13 +5,14 @@ import { HistoryType } from "@/models/History"
 import { Badge, Button, Card, CardContent, CardHeader } from "@repo/components"
 import { cn, titleCase } from "@repo/utilities"
 import { getFullHistoryData } from "../../serverActions"
+import VerifyButton, { ClaimButton } from "./ActionButtons"
 
 
 export default async function (props: {
   params: { id: string }
 }) {
   const { id } = await props.params
-  const { history, campaign } = await getFullHistoryData(id)
+  const { history, campaign, organization } = await getFullHistoryData(id)
 
   return (
     <CenterBox
@@ -30,12 +31,8 @@ export default async function (props: {
           </div>
 
           <div className="flex gap-4">
-            <Button variant="outline">
-              Verify Action
-            </Button>
-            <Button disabled={history.status === 'claimed'}>
-              Claim
-            </Button>
+            <VerifyButton history={history} campaign={campaign} organization={organization} />
+            <ClaimButton history={history} />
           </div>
 
         </div>

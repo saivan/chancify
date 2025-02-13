@@ -297,7 +297,7 @@ describe(`Model`, () => {
 
     it(`can list items`, async () => {
       // Create three models
-      const group = "friends"
+      const group = `friends-${shortId()}`
       const names = ['john', 'james', 'jeremy']
       for (let name of names) {
         await new Model({ group, name }).create()
@@ -317,6 +317,20 @@ describe(`Model`, () => {
       }
     })
 
+    it(`can list items in descending order`, async () => {
+      // Create three models
+      const group = `friends-${shortId()}`
+      const names = ['john', 'james', 'jeremy']
+      for (let name of names) {
+        await new Model({ group, name }).create()
+      }
+
+      // List the models
+      const { items } = await Model.list({ group }, { descending: true })
+      expect(items.length).toBe(3)
+      expect(items.map(item => item.data.name)).toEqual(names.reverse())
+      expect(items.map(item => item.data.group)).toEqual([group, group, group])
+    })
   })
 })
 

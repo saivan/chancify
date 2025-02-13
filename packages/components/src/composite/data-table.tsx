@@ -28,7 +28,6 @@ import {
   TableHeader,
   TableRow,
   cn,
-  Badge,
 } from "@repo/components"
 import Link from "next/link"
 
@@ -40,10 +39,7 @@ type ComplexColumnKey<T> = {
 type Column<T> = {
   value: keyof T | ((item: T) => any) | ComplexColumnKey<T>
   label: string
-  display?: {
-    type: 'badge'
-    variant?: (item: T) => 'default' | 'secondary' | 'outline' | 'destructive'
-  }
+  display?: (item: T) => React.ReactNode
   sortable?: boolean
 }
 
@@ -182,13 +178,8 @@ export function DataTable<T extends { id: string }>({
             </Button>
           ) : col.label,
         cell: ({ row }: { row: any }) => {
-          if (col.display?.type === 'badge') {
-            const variant = col.display.variant?.(row.original) || 'default'
-            return (
-              <Badge variant={variant}>
-                {getNestedValue(row.original, col.value as string | ((item: T) => any))}
-              </Badge>
-            )
+          if (col.display) {
+            return col.display(row.original)
           }
           if (typeof col.value === 'object') {
             return (
@@ -215,7 +206,7 @@ export function DataTable<T extends { id: string }>({
           <div className="flex items-center gap-2">
             {url && url(row.original) && (
               <Button asChild variant='outline' size="sm">
-                <Link href={url(row.original)} >
+                <Link href={url(row.original) || ""}>
                   Visit
                 </Link>
               </Button>

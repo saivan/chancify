@@ -5,10 +5,11 @@ import { User, UserType } from "@/models/User"
 import { createInitialisedObjectContext, isObjectEqual } from "@repo/utilities/client"
 import { useSearchParams } from "next/navigation"
 import { ReactNode, useEffect } from "react"
-import { addOrganizationUser, createOrganizationCampaign, deleteCampaign, getOrganizationCampaigns, getOrganizationUsers, removeUserFromOrganization, updateCampaign, updateOrganization, updateOrganizationHandle, updateUserRole } from "./serverActions"
+import { addOrganizationUser, createOrganizationCampaign, deleteCampaign, getOrganizationCampaigns, getOrganizationUsers, removeUserFromOrganization, updateCampaign, updateHistory, updateOrganization, updateOrganizationHandle, updateUserRole } from "./serverActions"
 import { toast, useSonner } from "sonner"
 import { useDebouncedCallback } from "use-debounce"
 import { useCallback } from "react"
+import { HistoryType } from "@/models/History"
 
 
 export type DashboardState = {
@@ -136,6 +137,9 @@ export function useDashboard() {
       console.log(`TODO: not implemented`)
     },
 
-
+    async updateHistory (history: Partial<HistoryType>) {
+      const result = await updateHistory(history)
+      return result
+    }
   }
 }

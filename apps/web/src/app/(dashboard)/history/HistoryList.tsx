@@ -1,5 +1,5 @@
 'use client'
-import { DataTable } from "@repo/components"
+import { Badge, DataTable } from "@repo/components"
 import { SortingState } from "@tanstack/react-table"
 import { HistoryType } from "@/models/History"
 import { fetchHistory } from "../serverActions"
@@ -33,10 +33,13 @@ export function HistoryList() {
       }, {
         value: 'status',
         label: 'Status',
-        display: {
-          type: 'badge',
-          variant: history => history.status === 'claimed' ? 'default' : 'outline'
-        },
+        display: history => (
+          <Badge variant={
+            history.status === 'claimed' ? 'default' 
+            : history.status === 'unclaimed' ? 'outline'
+            : 'secondary'}
+          > {history.status} </Badge>
+        ),
       }
       ]}
       rowActions={[{
@@ -48,7 +51,6 @@ export function HistoryList() {
       }]}
     />
   )
-
 
   async function* fetchDataGenerator(sorting: SortingState) {
     let historyItems = await fetchHistory() as Required<HistoryType>[]
