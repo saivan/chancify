@@ -29,7 +29,7 @@ interface ComboboxCreatableProps {
   options: Option[]
   onChange?: (value: string) => void
   placeholder?: string
-  groupBy?: string
+  groupBy?: string | ((item: Option) => string)
   value?: string
   className?: string
 }
@@ -60,13 +60,19 @@ export function ComboboxCreatable({
     onChange?.(newValue)
   }
 
+  const getGroupName = React.useCallback((option: Option): string => {
+    if (!groupBy) return ""
+    if (typeof groupBy === "function") return groupBy(option)
+    return option[groupBy] || "Other"
+  }, [groupBy])
+
   const handleCreate = () => {
     if (!inputValue) return
     const newOption = {
       value: inputValue.toLowerCase().replace(/\W/g, '-'),
       label: inputValue,
       // If groupBy is specified, add it to "Other" group
-      ...(groupBy && { [groupBy]: "Other" })
+      ...(typeof groupBy === "string" && { [groupBy]: "Other" })
     }
     setOptions([...options, newOption])
     setValue(newOption.value)
@@ -79,14 +85,14 @@ export function ComboboxCreatable({
     if (!groupBy) return { "": options }
 
     return options.reduce((groups: { [key: string]: Option[] }, option) => {
-      const groupName = option[groupBy] || "Other"
+      const groupName = getGroupName(option)
       if (!groups[groupName]) {
         groups[groupName] = []
       }
       groups[groupName].push(option)
       return groups
     }, {})
-  }, [options, groupBy])
+  }, [options, groupBy, getGroupName])
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

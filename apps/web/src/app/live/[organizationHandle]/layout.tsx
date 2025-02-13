@@ -20,8 +20,8 @@ export default async function Layout({
 }) {
   const selectedIndex = Number(searchParams?.selected ?? 0)
   const { organizationHandle } = await params
-  const { campaigns, organizationId } = await resolveOrganization(organizationHandle)
-  const selected = clamp(selectedIndex, 0, campaigns.length - 1)
+  const organization = await resolveOrganization(organizationHandle)
+  const selected = clamp(selectedIndex, 0, organization.campaigns.length - 1)
 
   return (
     <div className="w-[100svw] h-[100svh] relative flex">
@@ -32,11 +32,12 @@ export default async function Layout({
       </video>
       <CustomerViewStateProvider initial={{
         organization: {
-          id: organizationId,
+          id: organization.organizationId,
           handle: organizationHandle,
+          data: organization.data,
         },
         campaigns: {
-          list: campaigns,
+          list: organization.campaigns,
           selected,
         },
         wheel: {

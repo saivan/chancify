@@ -1,6 +1,5 @@
 
-
-import { baseModel } from "@repo/models";
+import { baseModel } from "@repo/models"
 import { z } from "zod";
 import { dynamodbConnection } from '@/config'
 import { User } from "./User";
@@ -19,6 +18,7 @@ export const OrganizationSchema = z.object({
   googleLink: z.string(),
   instagramHandle: z.string(),
   tikTokHandle: z.string(),
+  facebookUsername: z.string(),
 
   // Book keeping
   dateCreated: z.string(),
@@ -41,7 +41,6 @@ export class Organization extends baseModel<OrganizationType>({
     const organizationId = this.data.id
     const users = await User.list({ organizationId })
     const userData = users.items.map(user => user.data)
-    console.log(`userData`, userData)
     return userData
   }
 
@@ -75,7 +74,6 @@ export class Organization extends baseModel<OrganizationType>({
       }],
       themeId: [...Object.keys(themes)][0],
     })
-    console.log(`campaign`, campaign)
     await campaign.create()
     return campaign
   }

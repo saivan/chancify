@@ -4,7 +4,7 @@ import type { CampaignType } from "@/models/Campaign"
 import { cn, useNavigationState, usePath } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect } from "react"
 import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
 import { Button } from "@repo/components"
 
@@ -18,6 +18,11 @@ export default function ChooseCampaign() {
     prizeIndex: undefined,
   })
   const selectedCampaign = state.campaigns.selected
+
+  // Make sure we dispose of any old history ids
+  useEffect(() => {
+    setState({ historyId: null })
+  }, [])
 
   return (
     <>

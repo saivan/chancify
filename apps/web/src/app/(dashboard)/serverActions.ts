@@ -81,6 +81,7 @@ export async function updateOrganization(data: {
   googleLink: string,
   instagramHandle: string,
   tikTokHandle: string,
+  facebookUsername: string,
   organizationUsers: UserType[],
 }) {
   // Get the signed in user and organization
@@ -93,6 +94,7 @@ export async function updateOrganization(data: {
       googleLink: data.googleLink,
       instagramHandle: data.instagramHandle,
       tikTokHandle: data.tikTokHandle,
+      facebookUsername: data.facebookUsername,
     },
   })
   await organization.push()
@@ -155,12 +157,33 @@ export async function updateCampaign(data: CampaignType) {
       throw new Error('This campaign does not belong to the organization')
     }
 
+    // If the campaign is active, ensure we have the required handle
+    if (campaign.data.status === 'active') {
+
+      if (campaign.data.action?.platform == 'facebook' && !organization.data.facebookUsername) {
+        throw new Error('Please set your Facebook username in the organization settings')
+      }
+
+      if (campaign.data.action?.platform == 'instagram' && !organization.data.instagramHandle) {
+        throw new Error('Please set your Instagram handle in the organization settings')
+      }
+
+      if (campaign.data.action?.platform == 'tiktok' && !organization.data.tikTokHandle) {
+        throw new Error('Please set your TikTok handle in the organization settings')
+      }
+
+      if (campaign.data.action?.platform == 'google' && !organization.data.googleLink) {
+        throw new Error('Please set your Google link in the organization settings')
+      }
+    }
+
     // Update the campaign
     await campaign.push()
   } catch (error: any) {
-    return { success: false, error: error.message }
+    await campaign.pull()
+    return { success: false, error: error.message, campaign: campaign.data }
   }
-  return { success: true, error: null }
+  return { success: true, error: null, campaign: campaign.data }
 }
 
 export async function deleteCampaign(campaignId: string) {
@@ -177,7 +200,6 @@ export async function deleteCampaign(campaignId: string) {
     // Delete the campaign
     await campaign.delete()
   } catch (error: any) {
-    console.log(`error`, error)
     return { success: false, error: error.message }
   }
   return { success: true, error: null }

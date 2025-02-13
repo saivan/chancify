@@ -39,7 +39,7 @@ export default async function (props: {
         <div className="flex flex-col gap-8">
           <StatusDisplay history={history} />
           <PrizeDetails campaign={campaign} history={history} />
-          <CustomerDetails history={history} />
+          <CustomerDetails campaign={campaign} history={history} />
         </div>
       </div>
     </CenterBox>
@@ -119,6 +119,7 @@ function PrizeDetails(props: {
 
 function CustomerDetails(props: {
   history: Partial<HistoryType>
+  campaign: Partial<CampaignType>
 }) {
   return (
     <Card>
@@ -132,18 +133,34 @@ function CustomerDetails(props: {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col">
-            <span className="text-sm text-slate-600" >Name</span>
-            <span>{props.history.customer?.name || '(No Name Supplied)'}</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm text-slate-600" >Email</span>
-            <span>{props.history.customer?.email || '(No Email Supplied)'}</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm text-slate-600" >Phone</span>
-            <span>{props.history.customer?.phone || '(No Phone Supplied)'}</span>
-          </div>
+          {
+            props.campaign.collectInformation?.name &&
+            <div className="flex flex-col">
+              <span className="text-sm text-slate-600" >Name</span>
+              <span>{props.history.customer?.name || '(No Name Supplied)'}</span>
+            </div>
+          }
+          {
+            props.campaign.collectInformation?.email &&
+            <div className="flex flex-col">
+              <span className="text-sm text-slate-600" >Email</span>
+              <span>{props.history.customer?.email || '(No Email Supplied)'}</span>
+            </div>
+          }
+          {
+            props.campaign.collectInformation?.phone &&
+            <div className="flex flex-col">
+              <span className="text-sm text-slate-600" >Phone</span>
+              <span>{props.history.customer?.phone || '(No Phone Supplied)'}</span>
+            </div>
+          }
+          {
+            props.campaign.collectInformation?.postalAddress &&
+            <div className="flex flex-col">
+              <span className="text-sm text-slate-600" >Phone</span>
+              <span>{props.history.customer?.postalAddress || '(No Address Supplied)'}</span>
+            </div>
+          }
         </div>
       </CardContent>
     </Card>

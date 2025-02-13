@@ -1,14 +1,12 @@
-
 "use client"
 
-import { Campaign } from "@/models/Campaign"
-import { cn, useNavigationState, usePath } from "@repo/utilities/client"
-import Image from "next/image"
-import Link from "next/link"
-import { useState } from "react"
 import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
+import { CampaignType } from "@/models/Campaign"
+import { OrganizationType } from "@/models/Organization"
 import { Button, LoadingButton, QRCode } from "@repo/components"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { useSpinCallbacks } from "../../actions"
 
 
@@ -25,6 +23,10 @@ export default function ChooseCampaign() {
   const selectedCampaign = state.campaigns.selected
   const campaign = state.campaigns.list[selectedCampaign]
   const router = useRouter()
+  const url = generateUrl({
+    organization: state.organization.data,
+    campaign,
+  })
 
   return (
     <>
@@ -36,7 +38,7 @@ export default function ChooseCampaign() {
         </p>
       </div>
       <div className="flex flex-col gap-4 border rounded-md border-border w-max p-4">
-        <QRCode url="https://g.page/r/CTAANO9cfKlBEAE" />
+        <QRCode url={url} />
       </div>
       <div className="flex gap-2">
         <Button asChild variant='outline'>
@@ -55,7 +57,12 @@ export default function ChooseCampaign() {
           setState({ historyId: id })
 
           // Move to the next step
-          router.push(`/live/${state.organization.handle}/details?selectedCampaign=${selectedCampaign}`)
+          const skipDetails = !campaign.collectInformation.email
+            && !campaign.collectInformation.name
+            && !campaign.collectInformation.phone
+            && !campaign.collectInformation.postalAddress
+          const nextPage = skipDetails ? 'spin' : 'details'
+          router.push(`/live/${state.organization.handle}/${nextPage}?selectedCampaign=${selectedCampaign}`)
           setLoading(false)
         }} 
         >Next</LoadingButton>
@@ -64,9 +71,28 @@ export default function ChooseCampaign() {
   )
 }
 
+function generateUrl({ organization, campaign }: {
+  organization: Partial<OrganizationType>
+  campaign: Partial<CampaignType>
+}): string {
+  if (campaign.action?.platform === 'google') {
+    return organization.googleLink || ''
+  }
 
+  if (campaign.action?.platform === 'tiktok') {
+    return `https://www.tiktok.com/@${organization.tikTokHandle}` 
+  }
 
+  if (campaign.action?.platform === 'instagram') {
+    return `https://www.instagram.com/${organization.instagramHandle}`
+  }
 
+  if (campaign.action?.platform === 'facebook') {
+    return `https://fb.com/${organization.facebookUsername}`
+  }
+
+  return ''
+}
 
 
 

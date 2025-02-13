@@ -89,6 +89,7 @@ function SocialAccounts() {
         <GoogleMyBusinessAccount />
         <InstagramAccount />
         <TikTokAccount />
+        <FacebookAccount />
       </div>
     </FormArea>
   )
@@ -170,6 +171,32 @@ function TikTokAccount() {
             tikTokHandle: e.target.value
           })}
           label="@" className="w-96 max-w-full" id="tiktok-handle-input" placeholder="handle" />
+      </div>
+    </div>
+  )
+}
+
+function FacebookAccount () {
+  const { state, setState } = useDashboard()
+  return (
+    <div className="flex flex-col gap-2">
+      <div>
+        <Image src={`/images/logos/facebook.svg`} width={28} height={28} alt={'instagram logo'} className='py-2' />
+        <h2 className='font-semibold text-base md:text-lg tracking-tight text-slate-800 leading-tight'>
+          Facebook
+        </h2>
+        <p className='text-sm font-semibold italic text-slate-500 '>
+          Connect your Facebook Account
+        </p>
+      </div>
+      <div>
+        <Label htmlFor="facebook-username-input">Facebook Username</Label>
+        <LabelledInput 
+          value={state.facebookUsername}
+          onChange={e => setState({
+            facebookUsername: e.target.value
+          })}
+          label="fb.com/" className="w-96 max-w-full" id="facebook-username-input" placeholder="handle" />
       </div>
     </div>
   )

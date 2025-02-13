@@ -1,4 +1,3 @@
-import type { CampaignType } from "./Campaign"
 
 export const availableActions = [{ 
     label: 'Follow us on Instagram', 

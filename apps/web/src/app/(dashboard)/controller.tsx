@@ -19,6 +19,7 @@ export type DashboardState = {
   googleLink: string
   instagramHandle: string
   tikTokHandle: string
+  facebookUsername: string
   organizationUsers: UserType[]
   history: History[]
   campaigns: CampaignType[]
@@ -37,19 +38,21 @@ export function useDashboard() {
   // Methods to send this to the database
   const pushOrganization = useDebouncedCallback(async (state: DashboardState) => {
     // Update the organization details
-    updateOrganization({
+    await updateOrganization({
       googleLink: state.googleLink as string,
       instagramHandle: state.instagramHandle,
       tikTokHandle: state.tikTokHandle,
       organizationUsers: state.organizationUsers,
+      facebookUsername: state.facebookUsername,
     })
   }, 800)
 
   const setState = useCallback((
     newState: Parameters<typeof setStateDirect>[0]
   ) => {
+    const finalState = { ...state, ...newState }
     setStateDirect(newState)
-    pushOrganization({ ...state, ...newState })
+    pushOrganization(finalState)
   }, [setStateDirect, pushOrganization])
 
   // Methods to interact with the database
@@ -116,13 +119,12 @@ export function useDashboard() {
       return campaign
     },
 
-    async reorderCampaigns(campaigns: Campaign[]) {
-      console.log(`TODO: not implemented`)
-    },
-
     async updateCampaign(data: CampaignType) {
       const result = await updateCampaign(data)
-      if (!result.success) toast.error(result.error)
+      if (!result.success) {
+        toast.error(result.error)
+      }
+      return result
     },
 
     async deleteCampaign(campaignId: string) {
@@ -132,10 +134,6 @@ export function useDashboard() {
       } catch (error) {
         toast.error('Failed to delete campaign')
       }
-    },
-
-    async getRewardHistory() {
-      console.log(`TODO: not implemented`)
     },
 
     async resolveHistoryLink(id: string) {

@@ -1,6 +1,7 @@
 "use client"
 
 import type { CampaignType } from "@/models/Campaign"
+import { OrganizationType } from "@/models/Organization"
 import { createInitialisedObjectContext } from "@repo/utilities/client"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ReactNode, useEffect } from "react"
@@ -10,7 +11,8 @@ export type CustomerViewState = {
   organization: {
     id: string
     handle: string
-  },
+    data: Partial<OrganizationType>
+  }
   campaigns: {
     list: CampaignType[]
     selected: number
@@ -46,7 +48,7 @@ export function useEnforceDefinedHistory() {
   const router = useRouter()
   useEffect(() => {
     if (state.historyId == null) {
-      router.replace(`/live/${state.organization.handle}`)
+      router.replace(`/live/${state.organization.handle}/campaigns`)
     }
   }, [])
 }

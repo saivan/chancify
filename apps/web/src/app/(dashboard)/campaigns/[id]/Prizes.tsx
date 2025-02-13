@@ -41,7 +41,6 @@ export function PotentialPrizes() {
     if (over && active.id !== over.id) {
       const oldIndex = campaign.prizes?.findIndex(prize => prize.id === active.id)
       const newIndex = campaign.prizes?.findIndex(prize => prize.id === over.id)
-
       setCampaign({
         prizes: arrayMove(campaign.prizes, oldIndex, newIndex)
       })
@@ -64,7 +63,7 @@ export function PotentialPrizes() {
 
   const handleAddPrize = () => {
     setCampaign({
-      prizes: [...campaign.prizes || [], { id: shortId(), name: "New Prize", chance: 1 }]
+      prizes: [...campaign.prizes || [], { id: shortId(), name: "", chance: 1 }]
     })
   }
 
@@ -173,6 +172,7 @@ function PrizeItem({ id, total, index, name, chance, onDelete, onUpdate }: Prize
             <div className="flex-1">
               <Input
                 type="text"
+                placeholder='Prize Name'
                 value={name}
                 onChange={handleNameChange}
               />

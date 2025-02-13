@@ -8,10 +8,12 @@ import { Organization } from "@/models/Organization"
 export async function resolveOrganization(handle: string) {
   const organization = new Organization({ handle })
   await organization.pull()
-  const campaigns = await organization.campaigns()
+  const allCampaigns = await organization.campaigns()
+  const campaigns = allCampaigns.filter(campaign => campaign.status === 'active')
   return {
     organizationId: organization.id() as string,
     campaigns: campaigns as CampaignType[], 
+    data: organization.data,
   }
 }
 
@@ -32,9 +34,8 @@ export async function spin(props: {
   return { history, index }
 }
 
-export async function getHistory (data: Partial<HistoryType>) {
+async function getHistory (data: Partial<HistoryType>) {
   // Make sure the history entry exists
-  console.log(`data`, data)
   if (data.id == null) {
     // Make sure the required fields are present
     if (data.campaignId == null) throw new Error('Campaign ID is required')
@@ -54,7 +55,6 @@ export async function getHistory (data: Partial<HistoryType>) {
   await history.pull()
   return history
 }
-
 
 export async function saveHistory(data: Partial<HistoryType>) {
   // Get the history entry
@@ -82,16 +82,13 @@ export async function saveHistory(data: Partial<HistoryType>) {
     && data.campaignId !== history.data.campaignId
   if (isChangingCampaign) throw new Error('Cannot change campaign')
 
-    console.log('sending some data', history.data, data)
-
   // Update the history entry
   history.set({ ...data, id: history.data.id || data.id })
   await history.push()
   return history.data
 }
 
-
-export async function selectRandomPrize(prizes: CampaignType['prizes']) {
+async function selectRandomPrize(prizes: CampaignType['prizes']) {
   // Calculate total chance of all prizes
   if (prizes == null) throw new Error('Prizes are required')
   const totalChance = prizes.reduce((sum, prize) => sum + prize.chance, 0)

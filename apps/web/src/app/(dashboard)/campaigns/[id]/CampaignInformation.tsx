@@ -3,6 +3,7 @@ import { availableActions } from "@/models/Action"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, ComboboxCreatable, Label } from "@repo/components"
 import { useMemo } from "react"
 import { useCampaign } from "./provider"
+import { snakeToTitleCase } from "@repo/utilities"
 
 export function CampaignInformation() {
   const [campaign, setCampaign] = useCampaign()
@@ -27,7 +28,7 @@ export function CampaignInformation() {
             setCampaign({ action: action! })
           }}
           placeholder="What do you want customers to do?"
-          groupBy="platform"
+          groupBy={(item) => snakeToTitleCase(item.platform)}
         />
       </CardContent>
     </Card>

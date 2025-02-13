@@ -207,7 +207,7 @@ function LiveButton () {
   const handle = state.organizationHandle
   const linkContent = (
     <div className={padding}>
-      <Link href={`/live/${handle}`}>
+      <Link href={`/live/${handle}/campaigns`}>
         <div
           className={cn(
             "bg-slate-800 text-white rounded-md py-2 flex items-center justify-center",

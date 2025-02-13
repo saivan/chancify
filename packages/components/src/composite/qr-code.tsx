@@ -8,8 +8,10 @@ type QRCodeProps = {
 }
 
 export function QRCode({ url }: QRCodeProps) {
-  const [qrCode] = useState(
-    new QRCodeStyling({
+  const [qrCode, setQrCode] = useState<QRCodeStyling | null>(null);
+
+  useEffect(() => {
+    const qr = new QRCodeStyling({
       type: 'svg',
       data: url,
       dotsOptions: {
@@ -25,10 +27,13 @@ export function QRCode({ url }: QRCodeProps) {
       cornersDotOptions: {
         type: 'square',
       }
-    })
-  );
+    });
+    setQrCode(qr);
+  }, [url]);
 
   useEffect(() => {
+    if (!qrCode) return;
+    
     const container = document.getElementById('qr-code-container');
     if (container) {
       container.innerHTML = '';

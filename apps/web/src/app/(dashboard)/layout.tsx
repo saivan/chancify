@@ -32,6 +32,7 @@ export default async function RootLayout({
       googleLink: organization.data.googleLink || '', 
       instagramHandle: organization.data.instagramHandle || '',
       tikTokHandle: organization.data.tikTokHandle || '',
+      facebookUsername: organization.data.facebookUsername || '',
       organizationUsers: [],
       history: [],
       campaigns: [],
