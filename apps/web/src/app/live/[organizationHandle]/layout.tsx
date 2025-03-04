@@ -24,12 +24,12 @@ export default async function Layout({
   const selected = clamp(selectedIndex, 0, organization.campaigns.length - 1)
 
   return (
-    <div className="w-[100svw] h-[100svh] relative flex">
-      <video autoPlay muted loop playsInline
+    <div className="w-[100svw] h-[100svh] relative flex bg-slate-200">
+      {/* TODO: Find a good background video for the wheel */}
+      {/* <video autoPlay muted loop playsInline
         className="bg-slate-200 absolute -z-10 top-1/2 left-1/2 w-full h-full object-cover -translate-x-1/2 -translate-y-1/2"
-      > 
-        <source src="/videos/tunnel.mp4" type="video/mp4" />
-      </video>
+      > <source src="/videos/tunnel.mp4" type="video/mp4" />
+      </video> */}
       <CustomerViewStateProvider initial={{
         organization: {
           id: organization.organizationId,

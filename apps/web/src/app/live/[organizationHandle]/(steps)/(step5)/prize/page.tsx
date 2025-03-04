@@ -37,7 +37,7 @@ export default function () {
         </div>
       </div>
 
-      <div className="border p-4 border-border rounded-md w-max h-max">
+      <div className="border p-4 border-border rounded-md w-max h-max max-w-full">
         <QRCode url={historyUrl} />
       </div>
 

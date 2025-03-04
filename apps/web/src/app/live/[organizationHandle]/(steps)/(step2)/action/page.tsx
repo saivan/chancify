@@ -37,7 +37,7 @@ export default function ChooseCampaign() {
           {campaign.action.instruction}
         </p>
       </div>
-      <div className="flex flex-col gap-4 border rounded-md border-border w-max p-4">
+      <div className="flex flex-col gap-4 border rounded-md border-border w-max max-w-full p-4">
         <QRCode url={url} />
       </div>
       <div className="flex gap-2">
