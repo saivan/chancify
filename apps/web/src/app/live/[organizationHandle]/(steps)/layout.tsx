@@ -33,23 +33,31 @@ export default function Layout (props: { children: ReactNode }) {
           />
         </div>
         <div className={cn(
-          "z-10 absolute inset-0 md:static md:flex md:items-center flex items-center justify-center",
+          "z-10 absolute inset-0 flex items-start pt-[40svh] pb-2 justify-center",
+          "md:static md:flex md:items-center md:pt-0 md:pb-0",
           state.wheel?.centered && 'pointer-events-none',
+          "max-h-[100svh] overflow-auto", // Make this container scrollable
         )}>
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               className={cn(
-                "flex flex-col justify-center gap-8 p-4 my-auto px-6 md:px-20",
                 "w-11/12 md:w-full",
-                state.wheel?.centered == false && "bg-white/70 backdrop-blur-md md:bg-transparent md:backdrop-blur-none",
-                state.wheel?.centered == false && "rounded-lg shadow-2xl shadow-slate-700/10 md:shadow-none md:rounded-none",
+                "md:py-0 py-12",
               )}
               initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3, type: 'keyframes' }}
               key={pathname}
             > 
-              {props.children} 
+              <div className={cn(
+                "flex flex-col justify-center gap-8 my-auto",
+                "p-4 px-6 md:px-20",
+                state.wheel?.centered == false && "bg-white/70 backdrop-blur-md md:bg-transparent md:backdrop-blur-none",
+                state.wheel?.centered == false && "rounded-lg shadow-2xl shadow-slate-700/10 md:shadow-none md:rounded-none",
+                "overflow-y-auto" // Add scrolling to this inner container
+              )}>
+                {props.children} 
+              </div>
             </motion.div>
           </AnimatePresence>
         </div>

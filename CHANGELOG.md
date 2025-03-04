@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - [upstream] QR Codes are now responsive
 - The wheel display is mobile friendly now
+- Made the instructions scrollable in the live mobile view
 
 
 ## [v1.0.0] 14 Feb 2025
