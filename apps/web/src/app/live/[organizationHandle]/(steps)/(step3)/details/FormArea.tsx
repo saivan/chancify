@@ -91,7 +91,6 @@ export function FormArea() {
               details: {}
             },
           })
-          console.log(`pushed`, inputs)
           router.push(`/live/${state.organization.handle}/spin?selectedCampaign=${selectedCampaign}`)
           setLoading(false)
         })}
