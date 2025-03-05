@@ -10,6 +10,8 @@ export default function Content () {
     current: 'disabled',
     centered: false,
     prizeIndex: undefined,
+    animating: false,
+    rotating: false,
   })
   const selectedCampaign = state.campaigns.selected
   const campaign = state.campaigns.list[selectedCampaign]

@@ -1,0 +1,13 @@
+@keyframes full-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: full-spin 12s linear infinite;
+}
+
+.wheel-return {
+  transition: transform 2s ease-out;
+  transform: rotate(0deg) !important;
+}

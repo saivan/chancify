@@ -12,6 +12,8 @@ export default function () {
   useEnforceWheelState({
     current: 'finished',
     centered: false,
+    animating: false,
+    rotating: false,
   })
 
   const selected = state.campaigns.selected

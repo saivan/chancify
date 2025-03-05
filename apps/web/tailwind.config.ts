@@ -1,6 +1,7 @@
+import sharedConfig from "@repo/config/tailwind"
+import type { Config } from "tailwindcss"
 
-import sharedConfig from "@repo/config/tailwind";
-import type { Config } from "tailwindcss";
+
 export default {
   content: [
     "./src/**/*.{ts,tsx}",
@@ -10,7 +11,9 @@ export default {
     "**/node_modules/**"
   ],
   presets: [sharedConfig],
-  extend: {
+  theme: {
+    extend: {
+    },
   },
-} as Pick<Config, "content" | "presets" | "extend"> 
+} satisfies Config;
 

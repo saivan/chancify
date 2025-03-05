@@ -8,7 +8,7 @@ import dynamic from "next/dynamic"
 import { useState } from "react"
 import { Pointer } from "./Pointer"
 import { Wedges } from "./Wedges"
-
+import './wheelStyles.scss'
 
 function Wheel(props: {
   className?: string
@@ -46,6 +46,9 @@ function Wheel(props: {
         minDegrees={minDegrees}
         prizeIndex={props.prizeIndex}
         onTransitionEnd={props.onTransitionEnd}
+        className={cn(
+          props.state.rotating && 'animate-spin-slow',
+        )}
       />
       <LargeShadow theme={props.theme} />
       <InnerFrame theme={props.theme} />

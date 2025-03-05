@@ -113,7 +113,10 @@ function WheelDisplay(props: {
                   onEndSpin()
                 }}
                 prizeIndex={prizeIndex}
-                state={{ animating: false }}
+                state={{ 
+                  animating: state.wheel.animating,
+                  rotating: state.wheel.rotating,
+                }}
               />
             </div>
           )

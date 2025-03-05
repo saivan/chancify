@@ -35,6 +35,7 @@ export interface Theme {
 
 export interface WheelState {
   animating: boolean
+  rotating: boolean
   prize?: Prize
 }
 

@@ -15,6 +15,8 @@ export default function ChooseCampaign() {
     current: 'disabled', 
     centered: false,
     prizeIndex: undefined,
+    animating: true,
+    rotating: true,
   })
   const selectedCampaign = state.campaigns.selected
 
@@ -27,9 +29,9 @@ export default function ChooseCampaign() {
     <>
       <div>
         <h1 className='font-semibold text-2xl md:text-4xl tracking-tight text-slate-800 leading-tight'
-        >Available Actions</h1>
+        >Want a Chance to Win?</h1>
         <p className='text-base md:text-lg font-semibold italic text-slate-500 '>
-          Complete any of the following for a free spin
+          Take one of these actions for a free spin
         </p>
       </div>
       <div className="flex flex-col gap-4">

@@ -19,6 +19,8 @@ export type CustomerViewState = {
   }
   wheel: {
     centered: boolean
+    animating: boolean
+    rotating: boolean
     current: 'disabled' | 'ready' | 'spinning' | 'finished'
     prizeIndex?: number
   },

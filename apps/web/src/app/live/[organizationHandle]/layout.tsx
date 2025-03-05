@@ -41,6 +41,8 @@ export default async function Layout({
           selected,
         },
         wheel: {
+          animating: false,
+          rotating: false,
           centered: false,
           current: 'disabled',
         },

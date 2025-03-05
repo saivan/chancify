@@ -9,6 +9,8 @@ export default function () {
   useEnforceWheelState({
     current: 'ready',
     centered: true,
+    animating: true,
+    rotating: false,
   })
   return (<> </>)
 }
