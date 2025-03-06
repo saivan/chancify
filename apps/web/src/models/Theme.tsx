@@ -157,9 +157,6 @@ export const themes: Record<string, Theme> = {
     lights: {
       offColor: "var(--color-yellow-400)",
       onColor: "var(--color-yellow-200)",
-      power: 20,
-      count: 22,
-      size: 5,
     },
     pointer: {
       width: 0.30,
@@ -191,11 +188,8 @@ export const themes: Record<string, Theme> = {
     name: 'Rose',
     padding: 0.08,
     lights: {
-      count: 22,
-      size: 5,
       onColor: "var(--color-rose-200)",
       offColor: "var(--color-rose-600)",
-      power: 35,
     },
     pointer: {
       width: 0.31,
@@ -218,11 +212,8 @@ export const themes: Record<string, Theme> = {
     name: 'Sunset',
     padding: 0.08,
     lights: {
-      count: 16,
-      size: 5,
       onColor:  "var(--color-orange-200)",
       offColor: "var(--color-orange-700)",
-      power: 32,
     },
     pointer: {
       width: 0.30,
@@ -245,11 +236,8 @@ export const themes: Record<string, Theme> = {
     name: 'Emerald',
     padding: 0.08,
     lights: {
-      count: 20,
-      size: 6,
       onColor: "#6ee7b7", // emerald-300
       offColor: "#047857", // emerald-700
-      power: 28,
     },
     pointer: {
       width: 0.32,
@@ -272,11 +260,8 @@ export const themes: Record<string, Theme> = {
     name: 'Ocean',
     padding: 0.08,
     lights: {
-      count: 20,
-      size: 5,
       onColor: "var(--color-sky-300)",
       offColor: "var(--color-sky-700)",
-      power: 25,
     },
     pointer: {
       width: 0.30,
@@ -299,11 +284,8 @@ export const themes: Record<string, Theme> = {
     name: 'Purple',
     padding: 0.08,
     lights: {
-      count: 22,
-      size: 6,
       onColor: "var(--color-purple-200)",
       offColor: "var(--color-purple-600)",
-      power: 30,
     },
     pointer: {
       width: 0.32,
@@ -326,11 +308,8 @@ export const themes: Record<string, Theme> = {
     name: 'Rose Gold',
     padding: 0.08,
     lights: {
-      count: 22,
-      size: 5,
       onColor: "var(--color-rose-200)",
       offColor: "var(--color-rose-400)",
-      power: 28,
     },
     pointer: {
       width: 0.32,
@@ -353,11 +332,8 @@ export const themes: Record<string, Theme> = {
     name: 'Candy',
     padding: 0.08,
     lights: {
-      count: 22,
-      size: 6,
       onColor: "var(--color-pink-200)",
       offColor: "var(--color-pink-400)",
-      power: 20,
     },
     pointer: {
       width: 0.30,
@@ -406,11 +382,8 @@ export const themes: Record<string, Theme> = {
     name: 'Silver Frost',
     padding: 0.08,
     lights: {
-      count: 24,
-      size: 5,
       onColor: "var(--color-slate-200)",
       offColor: "var(--color-slate-400)",
-      power: 25,
     },
     pointer: {
       width: 0.30,
@@ -433,11 +406,8 @@ export const themes: Record<string, Theme> = {
     name: 'Obsidian Shimmer',
     padding: 0.08,
     lights: {
-      count: 22,
-      size: 5,
       onColor: "var(--color-slate-400)",
       offColor: "var(--color-slate-800)",
-      power: 20,
     },
     pointer: {
       width: 0.32,

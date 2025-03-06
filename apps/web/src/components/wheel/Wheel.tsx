@@ -3,12 +3,11 @@
 import { cn } from "@repo/utilities"
 import type { CampaignType } from "@/models/Campaign"
 import type { Theme, WheelState } from "@/models/Theme"
-import { useAnimationFrame } from "@repo/utilities/client"
 import dynamic from "next/dynamic"
-import { useState } from "react"
 import { Pointer } from "./Pointer"
 import { Wedges } from "./Wedges"
 import './wheelStyles.scss'
+
 
 function Wheel(props: {
   className?: string
@@ -20,19 +19,6 @@ function Wheel(props: {
 }) {
   // Calculate the angle of the wheel from the provided angle
   const minDegrees = 18
-
-  // Allow the lights to animate
-  const [t, setT] = useState(0)
-  const [brightness, setBrightness] = useState<number[]>([])
-  useAnimationFrame(dt => {
-    setT(t + dt / 50)
-    const isAnimating = props.state.animating
-    const brightness = new Array(22).fill(0).map((_, i) => {
-      if (!isAnimating) return 1
-      return 0.3 * Math.sin(2 * Math.PI * (2 * i - t) / 22) + 0.7
-    })
-    setBrightness(brightness)
-  })
 
   // Create the wheel
   return (
@@ -53,7 +39,7 @@ function Wheel(props: {
       <LargeShadow theme={props.theme} />
       <InnerFrame theme={props.theme} />
       <OuterFrame theme={props.theme} />
-      <Lights theme={props.theme} brightness={brightness} />
+      <Lights theme={props.theme} />
       <Pointer theme={props.theme} />
     </div>
   )
@@ -86,7 +72,12 @@ function LargeShadow(props: {
         className="relative rounded-full inset-0 top-0 left-0 w-full h-full"
         style={{
           mixBlendMode: 'multiply',
-          boxShadow: 'rgb(49, 42, 29, 0.4) 0px 0px 100px 100px inset, rgb(49, 42, 29, 0.3) 20px 20px 40px 40px',
+          boxShadow: `
+            rgb(49, 42, 29, 0.4) 0px 0px 100px 100px inset, 
+            rgb(49, 42, 29, 0.3) 20px 20px 180px 40px,
+            rgb(49, 42, 29, 0.08) 10px 10px 20px 40px,
+            rgb(49, 42, 29, 0.1) 20px 20px 20px 10px
+          `,
         }}
       />
     </div>
@@ -165,19 +156,17 @@ function OuterFrame(props: {
 
 function Lights(props: {
   theme: Theme
-  brightness: number[]
 }) {
-  const n = props.theme?.lights?.count ?? 16
+  const n = props.theme?.lights?.count ?? 18
   const p = props.theme.padding ?? 0
-  const s = props.theme?.lights?.size ?? 0.5
+  const s = props.theme?.lights?.size ?? 4
   const b = props.theme?.lights?.offColor ?? 'var(--color-yellow-400)'
   const c = props.theme?.lights?.onColor ?? 'var(--color-yellow-200)'
   const lights = Array.from({ length: n }, (_, i) => i)
-  const power = props.theme?.lights?.power ?? 30
-
+  const power = props.theme?.lights?.power ?? 60
+  const animationDuration = 1.6
   return (<div>
     {lights.map((_, i) => {
-      const brightness = props.brightness[i] ?? 100
       return (
         <div
           key={i}
@@ -188,14 +177,16 @@ function Lights(props: {
             transform: `rotate(${i * 360 / n}deg)`,
           }}
         >
-          <div className="absolute rounded-full w-full h-full left-[50%]"
+          <div className="absolute rounded-full w-full h-full left-[50%] animate-opacity"
             style={{
               background: c,
               width: `${s}%`,
               height: `${s}%`,
               mixBlendMode: 'screen',
-              opacity: 0.3 * brightness,
+              filter: 'blur(5px)',
               transform: 'translateX(-50%) translateY(-50%)',
+              animationDuration: `${animationDuration}s`,
+              animationDelay: `${i / n * animationDuration}s`,
             }}
           />
           <div className="absolute rounded-full w-full h-full left-[50%]"
@@ -206,15 +197,18 @@ function Lights(props: {
               transform: 'translateX(-50%) translateY(-50%)',
             }}
           />
-          <div className="absolute rounded-full w-full h-full left-[50%]"
+          <div className="absolute rounded-full w-full h-full left-[50%] animate-opacity"
             style={{
               background: c,
               width: `${s * 2 / 3}%`,
               height: `${s * 2 / 3}%`,
               boxShadow: `0 0 40px ${power}px ${c}`,
               mixBlendMode: 'screen',
-              opacity: brightness,
               transform: 'translateX(-50%) translateY(-50%)',
+              animationDuration: `${animationDuration}s`,
+              animationDelay: `${i / n * animationDuration}s`,
+              '--base-opacity': 0.4,
+              '--amplitude': 0.4,
             }}
           />
         </div>
