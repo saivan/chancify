@@ -202,7 +202,7 @@ export const themes: Record<string, Theme> = {
       radius: 34,
     }, {
       backgroundColor: "var(--color-rose-500)",
-      textColor: "var(--color-rose-50)",
+      textColor: "var(--color-rose-800)",
       glowColor: "var(--color-rose-950)",
       radius: 29,
     }]
@@ -274,7 +274,7 @@ export const themes: Record<string, Theme> = {
       radius: 35,
     }, {
       backgroundColor: "var(--color-cyan-500)",
-      textColor: "var(--color-cyan-50)",
+      textColor: "var(--color-cyan-800)",
       glowColor: "var(--color-cyan-900)",
       radius: 30,
     }]

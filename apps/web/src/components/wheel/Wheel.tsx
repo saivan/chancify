@@ -159,12 +159,12 @@ function Lights(props: {
 }) {
   const n = props.theme?.lights?.count ?? 18
   const p = props.theme.padding ?? 0
-  const s = props.theme?.lights?.size ?? 4
+  const s = props.theme?.lights?.size ?? 4.6
   const b = props.theme?.lights?.offColor ?? 'var(--color-yellow-400)'
   const c = props.theme?.lights?.onColor ?? 'var(--color-yellow-200)'
   const lights = Array.from({ length: n }, (_, i) => i)
-  const power = props.theme?.lights?.power ?? 60
-  const animationDuration = 1.6
+  const power = props.theme?.lights?.power ?? 50
+  const animationDuration = 1.2
   return (<div>
     {lights.map((_, i) => {
       return (
@@ -202,7 +202,7 @@ function Lights(props: {
               background: c,
               width: `${s * 2 / 3}%`,
               height: `${s * 2 / 3}%`,
-              boxShadow: `0 0 40px ${power}px ${c}`,
+              boxShadow: `0 0 40px ${power}px ${c}, 0 0 10px ${power/3}px ${c}`,
               mixBlendMode: 'screen',
               transform: 'translateX(-50%) translateY(-50%)',
               animationDuration: `${animationDuration}s`,

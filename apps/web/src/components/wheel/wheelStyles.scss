@@ -1,3 +1,11 @@
+
+@font-face {
+  font-family: 'Teko';
+  src: url('/fonts/Teko.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 @keyframes full-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -9,6 +17,7 @@
   @for $i from 0 through $n {
     #{$i * 5}#{'%'} {
       // Using Taylor polynomial approximation for sine: x - x^3/6 + x^5/120
+      // https://www.desmos.com/calculator/lg5oxg0jxh
       $x: $pi * $i / $n - $pi;
       $x3: $x * $x * $x;
       $x5: $x3 * $x * $x;

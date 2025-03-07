@@ -106,14 +106,35 @@ export function Wedges(props: {
     <div className='w-full h-full rounded-full bg-red-300 relative'
       style={{ background: conicalGradient }}
     >
+      {/* Background stroke layer */}
+      {
+        textItems.map((item, index) => {
+          const w = '4px'
+          return <div className='absolute top-0 left-0 w-full h-full flex justify-center items-center'
+            key={`stroke-${index}`}
+            style={{
+              fontFamily: 'Teko',
+              color: 'transparent',
+              fontSize: '1.5em',
+              fontWeight: 'bolder',
+              WebkitTextStroke: `${w} ${item.color}`,
+              transform: `rotate(${-item.angle}deg) translateX(25%)`,
+              zIndex: 1,
+            }}> {item.text} </div>
+        })
+      }
+      {/* Foreground text layer */}
       {
         textItems.map((item, index) => {
           return <div className='absolute top-0 left-0 w-full h-full flex justify-center items-center'
-            key={index}
+            key={`text-${index}`}
             style={{
-              fontSize: 'clamp(1.8cqw, 18px, 10vh)',
-              color: item.color,
-              transform: `rotate(${-item.angle}deg) translateX(25%) `,
+              fontFamily: 'Teko',
+              color: 'white',
+              fontSize: '1.5em',
+              fontWeight: 'bolder',
+              transform: `rotate(${-item.angle}deg) translateX(25%)`,
+              zIndex: 2,
             }}> {item.text} </div>
         })
       }
@@ -173,4 +194,3 @@ export function toProbabilities(
   }
   return result
 }
-
