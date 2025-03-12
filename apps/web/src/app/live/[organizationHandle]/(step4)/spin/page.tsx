@@ -1,7 +1,8 @@
 
 "use client"
 
-import { useEnforceDefinedHistory, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
+import { useEnforceWheelState } from "../../controller"
+import { useEnforceDefinedHistory } from "../../controller"
 
 
 export default function () {

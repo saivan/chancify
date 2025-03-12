@@ -1,18 +1,18 @@
 "use client"
 
-import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
 import type { CampaignType } from "@/models/Campaign"
 import { Button } from "@repo/components"
 import { cn, useNavigationState } from "@repo/utilities/client"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect } from "react"
+import { useCustomerViewState, useEnforceWheelState, useGotoRoute } from "../../controller"
 
 
 export default function ChooseCampaign() {
   const [state, setState] = useCustomerViewState()
-  useEnforceWheelState({ 
-    current: 'disabled', 
+  useEnforceWheelState({
+    current: 'disabled',
     centered: false,
     prizeIndex: undefined,
     animating: true,
@@ -49,7 +49,7 @@ export default function ChooseCampaign() {
         <Button asChild>
           <Link href={{
             pathname: `/live/${state.organization.handle}/action`,
-            query: { selectedCampaign }
+            query: { selectedCampaign, links: state.links }
           }}>Next</Link>
         </Button>
       </div>
@@ -65,13 +65,18 @@ function CampaignButton(props: {
   const { queryParams } = useNavigationState()
   const selectedCampaign = Number(queryParams.selectedCampaign)
   const isSelected = selectedCampaign === props.index
+  const { resolve } = useGotoRoute()
+  const [state] = useCustomerViewState()
   return (
     <Link
       className={cn(
         "p-4 flex gap-4 outline outline-slate-400 rounded-md items-center",
         isSelected && "outline-2 outline-slate-800",
       )}
-      href={{ query: { selectedCampaign: props.index } }}
+      href={resolve(
+        `/live/${state.organization.handle}/campaigns`,
+        { selectedCampaign: props.index, links: state.links }
+      )}
     >
       <Image width={32} height={32}
         src={`/images/logos/${props.campaign.action.platform}.svg`}

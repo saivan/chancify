@@ -159,3 +159,120 @@ export function cssToRGB(cssColor: string, element: HTMLElement = document.body)
   const b = parseInt(rgbMatch[3], 16)
   return [r, g, b]
 }
+
+
+/**
+ * Downloads an SVG element as an image file
+ */
+export function downloadSvg(
+  svg: SVGElement,
+  options: {
+    fileName: string
+    format?: 'svg' | 'png'
+    width?: number
+    height?: number
+  }
+): Promise<void> {
+  const { 
+    fileName, 
+    format = 'png', 
+    width = 300, 
+    height = 300 
+  } = options
+  
+  return new Promise<void>((resolve, reject) => {
+    if (!svg) {
+      reject(new Error('No SVG element provided'))
+      return
+    }
+    
+    // Get SVG data
+    const svgData = new XMLSerializer().serializeToString(svg)
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' })
+    
+    // If format is SVG, download directly
+    if (format === 'svg') {
+      const url = URL.createObjectURL(svgBlob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${fileName}.svg`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      resolve()
+      return
+    }
+    
+    // For PNG format, convert SVG to PNG
+    const svgUrl = URL.createObjectURL(svgBlob)
+    
+    // Create canvas
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    
+    if (!ctx) {
+      reject(new Error('Failed to get canvas context'))
+      return
+    }
+    
+    // Create image element
+    const img = document.createElement('img')
+    
+    // Set up image load handler
+    img.onload = function() {
+      // Draw image to canvas
+      ctx.drawImage(img, 0, 0, width, height)
+      
+      // Convert to PNG and download
+      canvas.toBlob(function(blob) {
+        if (!blob) {
+          reject(new Error('Failed to create blob from canvas'))
+          return
+        }
+        
+        // Create object URL for the blob
+        const url = URL.createObjectURL(blob)
+        
+        // Create download link
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${fileName}.png`
+        document.body.appendChild(a)
+        a.click()
+        
+        // Clean up
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+        URL.revokeObjectURL(svgUrl)
+        
+        resolve()
+      }, 'image/png')
+    }
+    
+    // Handle potential errors
+    img.onerror = function() {
+      console.error('Error loading SVG for conversion')
+      URL.revokeObjectURL(svgUrl)
+      reject(new Error('Failed to load SVG'))
+    }
+    
+    // Set image source to SVG URL
+    img.src = svgUrl
+  })
+}
+
+/**
+ * Copies text to the clipboard using the modern Clipboard API
+ * @param text The text to copy to clipboard
+ * @returns Promise that resolves when the text is copied or rejects if it fails
+ */
+export function copyToClipboard(text: string): Promise<void> {
+  if (!navigator.clipboard) {
+    return Promise.reject(new Error('Clipboard API not supported in this browser'))
+  }
+  
+  return navigator.clipboard.writeText(text)
+}

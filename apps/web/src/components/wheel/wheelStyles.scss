@@ -1,4 +1,5 @@
 
+@use "sass:math";
 @font-face {
   font-family: 'Teko';
   src: url('/fonts/Teko.ttf') format('truetype');
@@ -12,21 +13,9 @@
 }
 
 @keyframes sinusoidal-opacity {
-  $n: 20;
-  $pi : 3.14159265358979323846;
-  @for $i from 0 through $n {
-    #{$i * 5}#{'%'} {
-      // Using Taylor polynomial approximation for sine: x - x^3/6 + x^5/120
-      // https://www.desmos.com/calculator/lg5oxg0jxh
-      $x: $pi * $i / $n - $pi;
-      $x3: $x * $x * $x;
-      $x5: $x3 * $x * $x;
-      $x7: $x5 * $x * $x;
-      $x9: $x7 * $x * $x;
-      $sin_approx: $x - $x3/6 + $x5/120 - $x7/5040 + $x9/362880;
-      opacity: calc(var(--base-opacity, 0.5) + var(--amplitude, 0.5) * #{$sin_approx});
-    }
-  }
+  0% { opacity: calc(var(--base-opacity, 0.5) - var(--amplitude, 0.5)); }
+  50% { opacity: calc(var(--base-opacity, 0.5) + var(--amplitude, 0.5)); }
+  100% { opacity: calc(var(--base-opacity, 0.5) - var(--amplitude, 0.5)); }
 }
 
 .animate-opacity {
@@ -34,8 +23,10 @@
   --amplitude: 0.5;
   animation-name: sinusoidal-opacity;
   animation-iteration-count: infinite;
-  animation-timing-function: linear;
+  animation-direction: alternate;
+  animation-timing-function: cubic-bezier(0.3642, 0, 0.6357, 1); // Sine wave
   animation-duration: 5s;
+  opacity: 0; // Start the lights off so that the spinning works well
 }
 
 .animate-spin-slow {

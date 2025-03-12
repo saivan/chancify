@@ -1,13 +1,16 @@
 
 "use client"
 
-import { useCustomerViewState, useEnforceDefinedHistory, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
+import { useCustomerViewState, useEnforceWheelState } from "../../controller"
+import { useEnforceDefinedHistory } from "../../controller"
 import { Button, Label, QRCode } from "@repo/components"
 import Link from "next/link"
+import { useGotoRoute } from "../../controller"
 
 
 export default function () {
   const [state] = useCustomerViewState()
+  const { resolve } = useGotoRoute()
   useEnforceDefinedHistory()
   useEnforceWheelState({
     current: 'finished',
@@ -45,10 +48,10 @@ export default function () {
 
       <div className="flex gap-2">
         <Button asChild variant='outline'>
-          <Link href={{
-            pathname: `/live/${state.organization.handle}/campaigns`,
-            query: { selectedCampaign: 0 }
-          }}>Complete</Link>
+          <Link href={resolve(`/live/${state.organization.handle}/campaigns`, { 
+            selectedCampaign: 0, 
+            links: state.links 
+          })} >Complete</Link>
         </Button>
       </div>
     </>

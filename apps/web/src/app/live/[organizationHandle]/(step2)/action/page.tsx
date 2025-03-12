@@ -1,13 +1,11 @@
 "use client"
 
-import { useCustomerViewState, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
+import { useGotoRoute, useSpinCallbacks, useCustomerViewState, useEnforceWheelState } from "../../controller"
 import type { CampaignType } from "@/models/Campaign"
 import type { OrganizationType } from "@/models/Organization"
 import { Button, LoadingButton, QRCode } from "@repo/components"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { useSpinCallbacks } from "../../actions"
 
 
 
@@ -15,8 +13,9 @@ export default function ChooseCampaign() {
   const [state, setState] = useCustomerViewState()
   const [loading, setLoading] = useState(false)
   const { pushHistory } = useSpinCallbacks()
-  useEnforceWheelState({ 
-    current: 'disabled', 
+  const { goto, resolve } = useGotoRoute()
+  useEnforceWheelState({
+    current: 'disabled',
     centered: false,
     prizeIndex: undefined,
     animating: false,
@@ -24,7 +23,6 @@ export default function ChooseCampaign() {
   })
   const selectedCampaign = state.campaigns.selected
   const campaign = state.campaigns.list[selectedCampaign]
-  const router = useRouter()
   const url = generateUrl({
     organization: state.organization.data,
     campaign,
@@ -40,14 +38,18 @@ export default function ChooseCampaign() {
         </p>
       </div>
       <div className="flex flex-col gap-4 border rounded-md border-border w-max max-w-full p-4">
-        <QRCode url={url} />
+        {
+          state.links === 'qr'
+            ? <QRCode url={url} />
+            : <a target="_blank" href={url}> Perform Action </a>
+        }
       </div>
       <div className="flex gap-2">
         <Button asChild variant='outline'>
-          <Link href={{
-            pathname: `/live/${state.organization.handle}/campaigns`,
-            query: { selectedCampaign }
-          }}>Back</Link>
+          <Link href={resolve(
+            `/live/${state.organization.handle}/campaigns`,
+            { selectedCampaign, links: state.links }
+          )}>Back</Link>
         </Button>
         <LoadingButton loading={loading} onClick={async () => {
           // Create a new history record
@@ -64,9 +66,12 @@ export default function ChooseCampaign() {
             && !campaign.collectInformation.phone
             && !campaign.collectInformation.postalAddress
           const nextPage = skipDetails ? 'spin' : 'details'
-          router.push(`/live/${state.organization.handle}/${nextPage}?selectedCampaign=${selectedCampaign}`)
+          goto(`/live/${state.organization.handle}/${nextPage}`, {
+            selectedCampaign,
+            links: state.links,
+          })
           setLoading(false)
-        }} 
+        }}
         >Next</LoadingButton>
       </div>
     </>
@@ -82,7 +87,7 @@ function generateUrl({ organization, campaign }: {
   }
 
   if (campaign.action?.platform === 'tiktok') {
-    return `https://www.tiktok.com/@${organization.tikTokHandle}` 
+    return `https://www.tiktok.com/@${organization.tikTokHandle}`
   }
 
   if (campaign.action?.platform === 'instagram') {

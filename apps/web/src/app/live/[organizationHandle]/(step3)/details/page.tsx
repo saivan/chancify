@@ -1,6 +1,7 @@
 "use client"
 
-import { useCustomerViewState, useEnforceDefinedHistory, useEnforceWheelState } from "@/app/live/[organizationHandle]/controller"
+import { useCustomerViewState, useEnforceWheelState } from "../../controller"
+import { useEnforceDefinedHistory } from "../../controller"
 import { FormArea } from "./FormArea"
 
 export default function Content () {

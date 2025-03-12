@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] 
 ### Added
+- [upstream] Added a downloadSVG and copyToClipboard function
 ### Changed
 - Lights are now completely calculated with CSS variables
 - Simplified themes
+- Simplified the spin page to remove the multiple wheel showcase
 ### Fixed
 - [upstream] QR Codes are now responsive
 - The wheel display is mobile friendly now

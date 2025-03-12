@@ -12,8 +12,7 @@ export const CampaignSchema = z.object({
   status: z.enum(['active', 'inactive']),
   action: z.object({
     label: z.string(),
-    value: z.string(),
-    platform: z.enum(['google', 'instagram', 'tiktok', 'facebook', 'personal']),
+    platform: z.enum(['google', 'instagram', 'tiktok', 'facebook', 'yelp', 'trustpilot', 'youtube', 'personal']),
     icon: z.string(),
     instruction: z.string(),
   }),

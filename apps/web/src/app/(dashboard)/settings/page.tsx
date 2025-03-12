@@ -1,10 +1,12 @@
 'use client'
 
 import { CenterBox } from "@/components/dashboard/CenterBox";
-import { cn, Input, Label, LabelledInput, LoadingButton } from "@repo/components";
+import { Button, cn, Icon, Input, Label, LabelledInput, LoadingButton, QRCode, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@repo/components";
 import Image from "next/image";
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useDashboard } from "../controller";
+import { downloadSvg } from "@repo/utilities/client";
+import { toast } from "sonner";
 
 
 export default function () {
@@ -15,8 +17,9 @@ export default function () {
         caption='Change settings to administrate your organization'
       >
         <div className="flex flex-col gap-8 py-8" >
-          <HandleUpdater />
           <SocialAccounts />
+          <LivePage />
+          <QRCodeArea />
         </div>
       </CenterBox>
     </div>
@@ -44,7 +47,23 @@ function FormArea(props: {
 
 }
 
-function HandleUpdater() {
+function SocialAccounts() {
+  return (
+    <FormArea
+      title="Social Accounts"
+      caption="Connect your social accounts to share your campaigns"
+    >
+      <div className="flex flex-col gap-8">
+        <GoogleMyBusinessAccount />
+        <InstagramAccount />
+        <TikTokAccount />
+        <FacebookAccount />
+      </div>
+    </FormArea>
+  )
+}
+
+function LivePage() {
   const { state } = useDashboard()
   const { updateOrganizationHandle } = useDashboard()
   const [handle, setHandle] = useState(state.organizationHandle)
@@ -56,13 +75,13 @@ function HandleUpdater() {
     >
       <Label htmlFor="url-input">Handle</Label>
       <div className="flex gap-2 flex-wrap">
-        <LabelledInput 
-          id="url-input" 
-          placeholder="handle" 
-          label="chancify.org/live/" 
-          className="w-96 max-w-full" 
+        <LabelledInput
+          id="url-input"
+          placeholder="handle"
+          label="app.chancify.org/live/"
+          className="w-96 max-w-full"
           onChange={e => setHandle(e.target.value)}
-          value={handle} 
+          value={handle}
         />
         <LoadingButton variant="destructive" loading={loading} size='sm'
           className="min-w-max"
@@ -79,17 +98,102 @@ function HandleUpdater() {
   )
 }
 
-function SocialAccounts() {
+function QRCodeArea() {
+  const { state } = useDashboard()
+  const qrContainerRef = useRef<HTMLDivElement>(null)
+  
+  // FIX: Make this work on the server
+  const qrCodeUrl = `${window.origin}/live/${state.organizationHandle}/campaigns?links=button`
+  
+  async function handleDownloadQRCode() {
+    if (!qrContainerRef.current) return
+    const svg = qrContainerRef.current.querySelector('svg')
+    if (!svg || !(svg instanceof SVGElement)) return
+    try {
+      await downloadSvg(svg, {
+        fileName: `${state.organizationHandle}-qrcode`,
+        format: 'png',
+        width: 2000,
+        height: 2000,
+      })
+      
+      toast.success('QR code downloaded')
+    } catch (error) {
+      console.error('Failed to download QR code:', error)
+      toast.error('Failed to download QR code')
+    }
+  }
+  
+  async function handleCopyUrl() {
+    try {
+      await navigator.clipboard.writeText(qrCodeUrl)
+      toast.success('URL copied to clipboard')
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error)
+      toast.error('Failed to copy URL')
+    }
+  }
+  
   return (
     <FormArea
-      title="Social Accounts"
-      caption="Connect your social accounts to share your campaigns"
+      title="Customer QR Code"
+      caption="Provide customers with this QR code to allow them to access this campaign on their mobiles"
     >
-      <div className="flex flex-col gap-8">
-        <GoogleMyBusinessAccount />
-        <InstagramAccount />
-        <TikTokAccount />
-        <FacebookAccount />
+      <div className="flex flex-col gap-2 p-4 border rounded-md border-slate-300">
+        <div 
+          className="border rounded-md border-slate-700 p-2"
+          ref={qrContainerRef}
+        >
+          <QRCode url={qrCodeUrl} />
+        </div>
+
+        <div className="flex gap-2">
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" asChild>
+                <a 
+                  href={qrCodeUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  <Icon icon="external-link" />
+                </a>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Open in New Tab
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant='outline' size="icon" onClick={handleDownloadQRCode}>
+                  <Icon icon="download" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Download QR Code as PNG
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <TooltipProvider delayDuration={0}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" onClick={handleCopyUrl}>
+                  <Icon icon="clipboard" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Copy URL to Clipboard
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+        </div>
       </div>
     </FormArea>
   )
@@ -110,9 +214,9 @@ function GoogleMyBusinessAccount() {
       </div>
       <div>
         <Label htmlFor="review-link-input">Review Link</Label>
-        <Input className="w-96 max-w-full" 
-          id="review-link-input" 
-          placeholder="https://g.page/r/CTAANO9cfKlBEAE/review" 
+        <Input className="w-96 max-w-full"
+          id="review-link-input"
+          placeholder="https://g.page/r/CTAANO9cfKlBEAE/review"
           value={state.googleLink}
           onChange={e => setState({
             googleLink: e.target.value
@@ -138,12 +242,12 @@ function InstagramAccount() {
       </div>
       <div>
         <Label htmlFor="instagram-handle-input">Instagram Handle</Label>
-        <LabelledInput 
+        <LabelledInput
           value={state.instagramHandle}
           onChange={e => setState({
             instagramHandle: e.target.value
           })}
-          label="@" className="w-96 max-w-full" id="instagram-handle-input" placeholder="handle" 
+          label="@" className="w-96 max-w-full" id="instagram-handle-input" placeholder="handle"
         />
       </div>
     </div>
@@ -165,7 +269,7 @@ function TikTokAccount() {
       </div>
       <div>
         <Label htmlFor="tiktok-handle-input">TikTok Handle</Label>
-        <LabelledInput 
+        <LabelledInput
           value={state.tikTokHandle}
           onChange={e => setState({
             tikTokHandle: e.target.value
@@ -176,7 +280,7 @@ function TikTokAccount() {
   )
 }
 
-function FacebookAccount () {
+function FacebookAccount() {
   const { state, setState } = useDashboard()
   return (
     <div className="flex flex-col gap-2">
@@ -191,7 +295,7 @@ function FacebookAccount () {
       </div>
       <div>
         <Label htmlFor="facebook-username-input">Facebook Username</Label>
-        <LabelledInput 
+        <LabelledInput
           value={state.facebookUsername}
           onChange={e => setState({
             facebookUsername: e.target.value

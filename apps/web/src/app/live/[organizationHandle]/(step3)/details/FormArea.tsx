@@ -1,6 +1,6 @@
 "use client"
 
-import { useCustomerViewState } from "@/app/live/[organizationHandle]/controller"
+import { useCustomerViewState } from "../../controller"
 import type { CampaignType } from "@/models/Campaign"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Checkbox, Form, FormControl, FormField, FormItem, Input, Label, LoadingButton } from "@repo/components"
@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { useSpinCallbacks } from "../../actions"
+import { useGotoRoute, useSpinCallbacks } from "../../controller"
 
 const makeSchema = (campaign: CampaignType) => {
   return z.object({
@@ -35,9 +35,9 @@ type FormData = z.infer<ReturnType<typeof makeSchema>>
 
 export function FormArea() {
   const { pushHistory, pushHistoryDebounced } = useSpinCallbacks()
+  const { resolve, goto } = useGotoRoute()
   const [state] = useCustomerViewState()
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
   const selectedCampaign = state.campaigns.selected
   const campaign = state.campaigns.list[selectedCampaign]
 
@@ -91,7 +91,10 @@ export function FormArea() {
               details: {}
             },
           })
-          router.push(`/live/${state.organization.handle}/spin?selectedCampaign=${selectedCampaign}`)
+          goto( `/live/${state.organization.handle}/spin`, {
+            selectedCampaign,
+            links: state.links,
+          })
           setLoading(false)
         })}
         className="space-y-4 max-w-md"
@@ -160,10 +163,10 @@ export function FormArea() {
 
         <div className="flex gap-2">
           <Button asChild variant='outline'>
-            <Link href={{
-              pathname: `/live/${state.organization.handle}/action`,
-              query: { selectedCampaign }
-            }}>Back</Link>
+            <Link href={resolve(`/live/${state.organization.handle}/action`, { 
+              selectedCampaign, 
+              links: state.links 
+            })}>Back</Link>
           </Button>
           <LoadingButton loading={loading} type="submit">Spin Now</LoadingButton>
         </div>

@@ -61,6 +61,9 @@ const iconMap = {
   'network': require('lucide-react').Network, 
   'cog': require('lucide-react').Cog, 
   'play': require('lucide-react').Play,
+  'clipboard': require('lucide-react').Clipboard,
+  'link': require('lucide-react').Link,
+  'external-link': require('lucide-react').ExternalLink,
 } as const
 export type IconName = keyof typeof iconMap
 
