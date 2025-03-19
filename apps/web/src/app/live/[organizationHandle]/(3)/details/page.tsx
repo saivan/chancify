@@ -21,7 +21,7 @@ export default function Content () {
     <>
       <div>
         <h1 className='font-semibold text-2xl md:text-4xl tracking-tight text-slate-800 leading-tight'
-        >{campaign.action.label}</h1>
+        >{campaign.action.name}</h1>
         <p className='text-base md:text-lg text-slate-800 '>
           Fill in your details to claim your spin
         </p>

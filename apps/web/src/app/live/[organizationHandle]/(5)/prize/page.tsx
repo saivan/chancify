@@ -32,7 +32,7 @@ export default function () {
         <h1 className='font-semibold text-2xl md:text-4xl tracking-tight text-slate-800 leading-tight'
         >You've Won!</h1>
         <p className='text-base md:text-lg text-slate-800 '>
-          Claim your prize by presenting this QR code
+          Claim your prize by presenting this QR code on your next visit
         </p>
       </div>
       <div className="flex flex-col gap-4">
