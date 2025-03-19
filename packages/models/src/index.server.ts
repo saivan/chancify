@@ -114,7 +114,7 @@ export function baseModel<T extends ExpectedData>(options: {
       if (hasAssignedId && exists) {
         throw Error(`This object already exists in the database`)
       }
-  
+
       // Make sure an id exists
       if (this.id() == null) {
         const newId = idGenerator(this._data)

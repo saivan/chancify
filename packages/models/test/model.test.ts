@@ -29,7 +29,7 @@ describe(`Model`, () => {
       { partition: 'id' },
       { partition: 'group', sort: 'dateCreated' },
     ],
-  }) {}
+  }) { }
 
   const UserSchema = z.object({
     id: z.string(),
@@ -46,7 +46,7 @@ describe(`Model`, () => {
       { partition: 'id' },
       { partition: 'email' },
     ],
-  }) {}
+  }) { }
 
   describe(`set`, () => {
     it(`sets the data of a model`, async () => {
@@ -56,7 +56,7 @@ describe(`Model`, () => {
 
     it(`accepts an object as an input`, async () => {
       const model = new Model()
-      model.set({ 
+      model.set({
         name: 'john',
         group: 'friends',
       })
@@ -68,7 +68,7 @@ describe(`Model`, () => {
   describe(`create`, () => {
     it('creates a persistent object in a database', async () => {
       // Create the model and get its id
-      const name = `john-${shortId()}` 
+      const name = `john-${shortId()}`
       const item = new Model({ name })
       await item.create()
       const id = item.id()
@@ -80,7 +80,7 @@ describe(`Model`, () => {
     })
   })
 
-  describe (`exists`, () => {
+  describe(`exists`, () => {
     it(`returns true if the model exists`, async () => {
       // Create a model
       const id = shortId()
@@ -117,7 +117,7 @@ describe(`Model`, () => {
       // Make sure we can find the user by email
       const byEmail = new User({ email })
       expect(await byEmail.exists()).toBe(true)
-    }) 
+    })
 
     it(`returns false if the model doesn't exist`, async () => {
       const item = new Model({ name: 'does-not-exist' })
@@ -132,6 +132,46 @@ describe(`Model`, () => {
       // MAke sure that a copy without the same primary key doesn't exist
       const tester = new Model({ name: 'john' })
       expect(await tester.exists()).toBe(false)
+    })
+
+    it(`handles race conditions`, async () => {
+      // Create a unique email for this test
+      const email = `race-condition-${shortId()}@example.com`
+
+      // Define an async function that creates if not exists
+      async function createIfNotExists() {
+        const user = new User({ email })
+        const exists = await user.exists()
+        if (!exists) await user.create()
+        else await user.pull()
+        return user
+      }
+
+      // Simulate race condition by calling the function multiple times 
+      const [user1, user2, user3] = await Promise.all([
+        createIfNotExists(),
+        createIfNotExists(),
+        createIfNotExists()
+      ]);
+
+      // All calls should return a user with the same email
+      expect(user1.data.email).toBe(email)
+      expect(user2.data.email).toBe(email)
+      expect(user3.data.email).toBe(email)
+
+      // All users should have the same ID
+      const id = user1.id()
+      expect(user2.id()).toBe(id)
+      expect(user3.id()).toBe(id)
+
+      // Verify the user exists
+      const finalCheck = new User({ email })
+      expect(await finalCheck.exists()).toBe(true)
+
+      // Verify we can retrieve the same user by ID
+      const byId = new User({ id })
+      await byId.pull()
+      expect(byId.data.email).toBe(email)
     })
   })
 
@@ -198,15 +238,15 @@ describe(`Model`, () => {
       // Make a model
       const item = new Model({ name: 'john' })
       await item.create()
-      expect (item.data.name).toEqual('john')
-      expect (item.data.group).toBeUndefined()
+      expect(item.data.name).toEqual('john')
+      expect(item.data.group).toBeUndefined()
       const id = item.id()
 
       // Update the model
       const pusher = new Model({ id })
       pusher.set({ group: 'swimming' })
-      expect (pusher.data.name).toBeUndefined()
-      expect (pusher.data.group).toEqual('swimming')
+      expect(pusher.data.name).toBeUndefined()
+      expect(pusher.data.group).toEqual('swimming')
       await pusher.push()
 
       // Check that the database model has everything we expect
@@ -242,7 +282,7 @@ describe(`Model`, () => {
         indexes: [{ partition: 'id' }],
         connection,
       }) {
-        async create () {
+        async create() {
           ensureObjectHasFields(this.data, ['name', 'artist', 'releaseDate'])
           await super.create()
           return this
@@ -250,9 +290,9 @@ describe(`Model`, () => {
       }
 
       // Create a record
-      const record = new Record({ 
-        name: 'Thriller', 
-        artist: 'Michael Jackson', 
+      const record = new Record({
+        name: 'Thriller',
+        artist: 'Michael Jackson',
         releaseDate: new Date('1982-12-01').toISOString(),
       })
       await record.create()
@@ -283,7 +323,7 @@ describe(`Model`, () => {
           indexes: [{ partition: 'name' }],
           connection,
         }) {
-          async create () {
+          async create() {
             ensureObjectHasFields(this.data, ['name', 'artist', 'releaseDate'])
             await super.create()
             return this
