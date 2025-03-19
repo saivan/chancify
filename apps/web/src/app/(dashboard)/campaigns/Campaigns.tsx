@@ -1,43 +1,33 @@
 "use client"
 
 import type { CampaignType } from "@/models/Campaign"
-import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core'
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy
-} from '@dnd-kit/sortable'
 import { Icon, LoadingButton } from "@repo/components"
 import { cn } from "@repo/utilities"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import { useDebouncedCallback } from "use-debounce"
 import { useDashboard } from "../controller"
-import { CampaignButton } from "./CampaignButton"
+import dynamic from "next/dynamic"
 
 
-type Brand = 'google' | 'instagram' | 'tiktok' | 'facebook'
+const DraggableCampaigns = dynamic(
+  () => import('./DraggableCampaigns').then((mod) => mod.default),
+  { ssr: false }
+)
+
+
 export function Campaigns(props: {
   campaigns: CampaignType[]
 }) {
   const [campaigns, setCampaigns] = useState<CampaignType[]>(props.campaigns)
   const { updateCampaign } = useDashboard()
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  )
+  const [isClient, setIsClient] = useState(false)
+
+  // Only render DND components after client hydration
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const updateOrder = useDebouncedCallback(async (campaigns: CampaignType[]) => {
     // Update each campaign
@@ -49,44 +39,49 @@ export function Campaigns(props: {
     }
   }, 800)
 
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event
+  function handleDragEnd(active: any, over: any) {
     if (over && active.id !== over.id) {
       setCampaigns((items) => {
+        // Find the index of the active and over items
         const oldIndex = items.findIndex((item) => item.id === active.id)
         const newIndex = items.findIndex((item) => item.id === over.id)
-        const resultingArray = arrayMove(items, oldIndex, newIndex)
-        updateOrder(resultingArray)
-        return resultingArray
+        
+        // Move the active item to the new index
+        const newArray = [...items]
+        const [movedItem] = newArray.splice(oldIndex, 1)
+        newArray.splice(newIndex, 0, movedItem)
+        
+        // Update the order
+        updateOrder(newArray)
+        return newArray
       })
     }
   }
+  
 
   const CampaignArea = campaigns.length === 0 ? (
     <div className={cn(
       "text-center text-slate-700 p-8 border-dashed border-4",
       "border-slate-300 rounded-md bg-slate-50"
     )}> No Campaigns Defined </div>
-  ) : (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
+  ) : isClient ? (
+    <DraggableCampaigns
+      campaigns={campaigns}
       onDragEnd={handleDragEnd}
-    >
-      <SortableContext items={campaigns} strategy={verticalListSortingStrategy}>
-        <div className="flex flex-col gap-2">
-          {campaigns.map((campaign) => (
-            <CampaignButton
-              key={campaign.id}
-              id={campaign.id}
-              name={campaign.action.name}
-              icon={campaign.action.platform as Brand}
-              status={campaign.status}
-            />
-          ))}
+    />
+  ) : (
+    <div className="flex flex-col gap-2">
+      {campaigns.map((campaign) => (
+        <div key={campaign.id} className="border border-border rounded-lg">
+          <div className="flex items-center flex-1 gap-4 p-4">
+            {campaign.action.name || 'Incomplete Campaign'}
+            {campaign.status === 'inactive' && 
+              <span className="text-sm border rounded px-2">Unpublished</span>
+            }
+          </div>
         </div>
-      </SortableContext>
-    </DndContext>
+      ))}
+    </div>
   )
 
   return (
@@ -96,7 +91,6 @@ export function Campaigns(props: {
     </div>
   )
 }
-
 
 function CreateCampaignButton() {
   const { createCampaign } = useDashboard()

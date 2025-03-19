@@ -10,7 +10,6 @@ import { useDashboard } from "../controller"
 
 type Brand = 'google' | 'instagram' | 'tiktok' | 'facebook'
 
-
 export function CampaignButton(props: {
   id: string
   name: string
@@ -63,7 +62,6 @@ export function CampaignButton(props: {
     </div>
   )
 }
-
 
 function DeleteButton(props: {
   name: string
