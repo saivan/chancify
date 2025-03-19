@@ -1,38 +1,62 @@
 
 export const availableActions = [{ 
-    label: 'Follow us on Instagram', 
+    id: 'instagram-follow',
+    name: 'Follow us on Instagram',
     platform: 'instagram', 
-    icon: 'instagram',
-    instruction: 'Scan the code below to leave a review'
   }, { 
-    label: 'Tag us on Instagram', 
+    id: 'instagram-tag',
+    name: 'Tag us on Instagram',
     platform: 'instagram', 
-    icon: 'instagram',
-    instruction: 'Make a new post and include the following Instagram handle',
   }, { 
-    label: 'Leave a Google Review', 
+    id: 'google-review',
+    name: 'Leave us a Google review',
     platform: 'google', 
-    icon: 'google',
-    instruction: 'Scan the code below to leave a review'
   }, { 
-    label: 'Leave a Facebook Review', 
+    id: 'facebook-review',
+    name: 'Leave us a Facebook review',
     platform: 'facebook', 
-    icon: 'facebook',
-    instruction: 'Scan the code below to leave a review',
   }, { 
-    label: 'Follow us on Facebook', 
+    id: 'facebook-follow',
+    name: 'Follow us on Facebook',
     platform: 'facebook', 
-    icon: 'facebook',
-    instruction: 'Scan the code below and follow us',
   }, { 
-    label: 'Follow us on TikTok', 
+    id: 'tiktok-follow',
+    name: 'Follow us on TikTok',
     platform: 'tiktok',
-    icon: 'tiktok',
-    instruction: 'Scan the code below and follow us',
   }, { 
-    label: 'Tag us on TikTok', 
+    id: 'tiktok-tag',
+    name: 'Tag us on TikTok',
     platform: 'tiktok',
-    icon: 'tiktok',
-    instruction: 'Make a new post and include the following TikTok handle',
   },
 ]
+
+export const availableActionInstructions: Record<string, {qr: string, button: string}> = {
+  'instagram-follow': {
+    qr: 'Scan the QR code to follow us on Instagram',
+    button: 'Click the button and follow us on Instagram',
+  },
+  'instagram-tag': {
+    qr: 'Tag the following account on a new Instagram post',
+    button: 'Tag the following account on a new Instagram post',
+  },
+  'google-review': {
+    qr: 'Scan the QR code to leave us a Google review',
+    button: 'Click the button and leave us a Google review',
+  },
+  'facebook-review': {
+    qr: 'Scan the QR code to leave us a Facebook review',
+    button: 'Click the button and leave us a Facebook review',
+  },
+  'facebook-follow': {
+    qr: 'Scan the QR code to follow us on Facebook',
+    button: 'Click the button and follow us on Facebook',
+  },
+  'tiktok-follow': {
+    qr: 'Scan the QR code to follow us on TikTok',
+    button: 'Click the button and follow us on TikTok',
+  },
+  'tiktok-tag': {
+    qr: 'Tag the following account on a new TikTok post',
+    button: 'Tag the following account on a new TikTok post',
+  },
+}

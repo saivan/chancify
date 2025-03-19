@@ -14,8 +14,12 @@ export function EditCampaign() {
   return (
     <CenterBox
       back="/campaigns"
-      icon={campaign.action?.icon}
-      title={campaign.action?.label ?? 'New Campaign'}
+      icon={
+        campaign.action?.platform == 'personal' 
+          ? 'unknown' 
+          : campaign.action?.platform
+      }
+      title={campaign.action?.name || 'New Campaign'}
       caption="Define the parameters of this Campaign"
     >
       <div className="flex flex-col gap-8 py-4">

@@ -147,16 +147,16 @@ export function useQueryParamUpdateEffect() {
   const [state, setState] = useCustomerViewState()
   const searchParams = useSearchParams()
   useEffect(() => {
+    // Update the selected campaign
     const selected = Number(searchParams.get('selectedCampaign') || 0)
+    if (selected !== state.campaigns.selected) {
+      setState({ campaigns: { ...state.campaigns, selected }})
+    }
+
+    // Update the link display format
     const links = (searchParams.get('links') || 'qr') as 'qr' | 'button'
-    if (selected !== state.campaigns.selected || links !== state.links) {
-      setState({
-        campaigns: {
-          ...state.campaigns,
-          selected,
-        },
-        links,
-      })
+    if (links !== state.links) {
+      setState({ links })
     }
   }, [state.campaigns, searchParams])
 }
@@ -164,11 +164,14 @@ export function useQueryParamUpdateEffect() {
 export function useEnforceDefinedHistory() {
   // If we don't have a historyId navigate home
   const [state] = useCustomerViewState()
+  const searchParams = useSearchParams()
   const { goto } = useGotoRoute()
   useEffect(() => {
     // If we don't have a historyId navigate home
     if (state.historyId == null) {
-      goto(`/live/${state.organization.handle}/campaigns`)
+      goto(`/live/${state.organization.handle}/campaigns`, {
+        links: searchParams.get('links') as 'qr' | 'button',
+      })
     }
   }, [])
 }

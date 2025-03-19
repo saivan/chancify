@@ -32,6 +32,7 @@ export function WheelPreview() {
           state={{
             animating: false,
             prize: undefined,
+            rotating: false,
           }}
           prizes={campaign.prizes ?? []}
           theme={theme} />

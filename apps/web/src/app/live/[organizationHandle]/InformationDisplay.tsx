@@ -14,14 +14,14 @@ export function InformationDisplay (props: { children: ReactNode }) {
 
   <div className={cn(
     "z-10 absolute inset-0 flex items-start pt-[40svh] pb-2 justify-center",
-    "md:static md:flex md:items-center md:pt-0 md:pb-0",
+    "md:static md:flex md:items-center md:pt-0 md:pb-0 md:justify-start",
     state.wheel?.centered && 'pointer-events-none',
     "max-h-[100svh] overflow-auto", // Make this container scrollable
   )}>
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
         className={cn(
-          "w-11/12 md:w-full",
+          "w-11/12 md:w-full md:max-w-160",
           "md:py-0 py-12",
         )}
         initial={{ opacity: 0, x: 40 }}

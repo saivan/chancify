@@ -55,11 +55,9 @@ export class Organization extends baseModel<OrganizationType>({
       priority: 0,
       status: 'inactive',
       action: {
-        label: '',
-        value: '',
+        id: '',
+        name: '',
         platform: 'personal',
-        icon: '',
-        instruction: '',
       },
       collectInformation: {
         name: false,

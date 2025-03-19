@@ -79,8 +79,8 @@ export function Campaigns(props: {
             <CampaignButton
               key={campaign.id}
               id={campaign.id}
-              name={campaign.action.label}
-              icon={campaign.action.icon as Brand}
+              name={campaign.action.name}
+              icon={campaign.action.platform as Brand}
               status={campaign.status}
             />
           ))}

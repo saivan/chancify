@@ -7,7 +7,14 @@ import { snakeToTitleCase } from "@repo/utilities"
 
 export function CampaignInformation() {
   const [campaign, setCampaign] = useCampaign()
-  const value = useMemo(() => campaign.action?.value, [campaign.action])
+  const optionsForActions = useMemo(() => availableActions.map(
+    action => ({
+      ...action,
+      label: action.name,
+      value: action.id,
+    })
+  ), [])
+  const selectedId = useMemo(() => campaign.action?.id, [campaign.action])
 
   return (
     <Card className="shadow-none">
@@ -21,10 +28,10 @@ export function CampaignInformation() {
         <Label htmlFor="user-action">User Action</Label>
         <ComboboxCreatable
           className="flex max-w-96 w-full"
-          options={availableActions}
-          value={value}
-          onChange={value => {
-            const action = availableActions.find(action => action?.value === value)
+          options={optionsForActions}
+          value={selectedId}
+          onChange={id => {
+            const action = availableActions.find(action => action?.id === id)
             // @ts-ignore - value is a string
             setCampaign({ action: action! })
           }}

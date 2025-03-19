@@ -11,10 +11,10 @@ export const CampaignSchema = z.object({
   priority: z.number(),
   status: z.enum(['active', 'inactive']),
   action: z.object({
-    label: z.string(),
-    platform: z.enum(['google', 'instagram', 'tiktok', 'facebook', 'yelp', 'trustpilot', 'youtube', 'personal']),
-    icon: z.string(),
-    instruction: z.string(),
+    id: z.string(),
+    name: z.string(),
+    platform: z.enum(['google', 'instagram', 'tiktok', 'facebook', 'personal']),
+    data: z.record(z.string(), z.any()).optional(),
   }),
   prizes: z.array(z.object({
     id: z.string(),

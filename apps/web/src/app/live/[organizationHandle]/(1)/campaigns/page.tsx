@@ -80,10 +80,10 @@ function CampaignButton(props: {
     >
       <Image width={32} height={32}
         src={`/images/logos/${props.campaign.action.platform}.svg`}
-        alt={props.campaign.action.label}
+        alt={props.campaign.action.name}
       />
       <div>
-        {props.campaign.action.label}
+        {props.campaign.action.name}
       </div>
     </Link>
   )
