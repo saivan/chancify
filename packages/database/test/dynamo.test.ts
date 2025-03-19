@@ -6,18 +6,18 @@ import { z } from "zod"
 import { initialise, connection } from './setup'
 
 
-describe (`dynamo`, () => {
+describe(`dynamo`, () => {
 
   beforeAll(async () => {
     await initialise()
   })
 
   describe(`constructing`, () => {
-    it (`handles a simple zod schema`, () => {
+    it(`handles a simple zod schema`, () => {
       const UserSchema = z.object({
         id: z.number().positive().int(),
-        name: z.string(), 
-        email: z.string().email(), 
+        name: z.string(),
+        email: z.string().email(),
         age: z.number().min(0).optional(),
         dateUpdated: z.date(),
         dateCreated: z.date(),
@@ -30,12 +30,12 @@ describe (`dynamo`, () => {
           .indexes([
             { partition: 'id' },
             { partition: 'name', sort: 'dateCreated' },
-            { partition: 'age', sort: ['name', 'email']},
+            { partition: 'age', sort: ['name', 'email'] },
           ])
       }).not.toThrow()
     })
 
-    it (`handles a zod schema with a nested object`, () => {
+    it(`handles a zod schema with a nested object`, () => {
       const NestedSchema = z.object({
         id: z.number().positive().int(),
         name: z.string(),
@@ -59,11 +59,11 @@ describe (`dynamo`, () => {
       }).not.toThrow()
     })
 
-    it (`handles a zod schema with a list`, () => {
+    it(`handles a zod schema with a list`, () => {
       // Define a schema with a list of numbers and an enum
       const ListSchema = z.object({
         id: z.number().positive().int(),
-        numberList: z.array(z.number()), 
+        numberList: z.array(z.number()),
         favoriteColor: z.enum(['Red', 'Green', 'Blue']),
       })
       expect(() => {
@@ -77,6 +77,193 @@ describe (`dynamo`, () => {
       }).not.toThrow()
     })
   })
+
+  describe(`create`, () => {
+    it(`creates a new item successfully`, async () => {
+      const schema = z.object({ id: z.string(), name: z.string() })
+      const dynamo = new DynamoDB()
+        .schema(schema)
+        .name('create-test')
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+
+      // Create a new item
+      const id = shortId()
+      const input = { id, name: 'john' }
+      const result = await dynamo.create(input)
+      expect(result).toStrictEqual(input)
+
+      // Verify it was created correctly
+      const getResult = await dynamo.get({ id })
+      expect(getResult).toStrictEqual(input)
+    })
+
+    it(`fails when trying to create an item that already exists`, async () => {
+      const schema = z.object({ id: z.string(), name: z.string() })
+      const dynamo = new DynamoDB()
+        .schema(schema)
+        .name('create-duplicate-test')
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+
+      // Create the initial item
+      const id = shortId()
+      const input = { id, name: 'john' }
+      await dynamo.create(input)
+
+      // Attempt to create the same item again
+      await expect(async () => {
+        await dynamo.create(input)
+      }).rejects.toThrow('Item already exists')
+    })
+
+    it(`applies computed values on create`, async () => {
+      const schema = z.object({
+        id: z.string(),
+        name: z.string(),
+        counter: z.number().optional(),
+        dateCreated: z.string(),
+        dateUpdated: z.string(),
+      })
+      const dynamo = new DynamoDB()
+        .schema(schema)
+        .name('create-computed-test')
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+        .computed(() => ({ counter: 42 }))
+
+      // Create a new item
+      const id = shortId()
+      const input = { id, name: 'john' }
+      const result = await dynamo.create(input)
+
+      // Verify computed values were applied
+      expect(result.counter).toBe(42)
+      expect(result.dateCreated).toBeDefined()
+      expect(result.dateUpdated).toBeDefined()
+    })
+
+    it(`validates schema on create`, async () => {
+      const schema = z.object({
+        id: z.string(),
+        age: z.number().min(18)
+      })
+      const dynamo = new DynamoDB()
+        .schema(schema)
+        .name('create-validate-test')
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+
+      // Attempt to create an invalid item
+      const id = shortId()
+      await expect(async () => {
+        await dynamo.create({ id, age: 16 })
+      }).rejects.toThrow()
+    })
+
+    it(`can create with just a partition key`, async () => {
+      const schema = z.object({
+        id: z.string(),
+        name: z.string().optional(),
+        email: z.string().optional(),
+      })
+      const dynamo = new DynamoDB()
+        .schema(schema)
+        .name('create-partition-test')
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+
+      // Create with just the partition key
+      const id = shortId()
+      const result = await dynamo.create({ id })
+      expect(result.id).toBe(id)
+
+      // Verify it was created
+      const getResult = await dynamo.get({ id })
+      expect(getResult).not.toBeNull()
+      expect(getResult?.id).toBe(id)
+    })
+
+    it(`differs from put by not updating existing items`, async () => {
+      const schema = z.object({
+        id: z.string(),
+        name: z.string().optional(),
+        count: z.number().optional()
+      })
+      const dynamo = new DynamoDB()
+        .schema(schema)
+        .name('create-vs-put-test')
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+
+      // Create initial item
+      const id = shortId()
+      await dynamo.create({ id, name: 'john', count: 1 })
+
+      // Try to update with create (should fail)
+      await expect(async () => {
+        await dynamo.create({ id, name: 'jane', count: 2 })
+      }).rejects.toThrow('Item already exists')
+
+      // Verify item wasn't changed
+      const afterCreateAttempt = await dynamo.get({ id })
+      expect(afterCreateAttempt?.name).toBe('john')
+      expect(afterCreateAttempt?.count).toBe(1)
+
+      // Update with put (should succeed)
+      await dynamo.put({ id, name: 'jane', count: 2 })
+
+      // Verify item was changed
+      const afterPut = await dynamo.get({ id })
+      expect(afterPut?.name).toBe('jane')
+      expect(afterPut?.count).toBe(2)
+    })
+
+    it(`prevents race conditions when creating the same item simultaneously`, async () => {
+      const schema = z.object({ 
+        id: z.string(), 
+        name: z.string().optional(),
+        counter: z.number().optional() 
+      })
+      const dynamo = new DynamoDB()
+        .schema(schema)
+        .name('race-condition-test')
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+    
+      // Create a shared ID that will be used by both operations
+      const sharedId = shortId()
+      const item1 = { id: sharedId, name: 'first attempt', counter: 1 }
+      const item2 = { id: sharedId, name: 'second attempt', counter: 2 }
+      
+      // Run both create operations simultaneously
+      const results = await Promise.allSettled([
+        dynamo.create(item1),
+        dynamo.create(item2)
+      ])
+      
+      // One should succeed and one should fail
+      const succeeded = results.filter(r => r.status === 'fulfilled')
+      const failed = results.filter(r => r.status === 'rejected')
+      
+      expect(succeeded.length).toBe(1)
+      expect(failed.length).toBe(1)
+      
+      // The failed one should have our custom error message
+      const failedResult = failed[0] as PromiseRejectedResult
+      expect(failedResult.reason.message).toBe('Item already exists')
+      
+      // Verify only one item was created with the expected data
+      const storedItem = await dynamo.get({ id: sharedId })
+      expect(storedItem).not.toBeNull()
+      
+      // The stored item should match one of our attempts
+      const isFirstAttempt = storedItem?.name === 'first attempt' && storedItem?.counter === 1
+      const isSecondAttempt = storedItem?.name === 'second attempt' && storedItem?.counter === 2
+      expect(isFirstAttempt || isSecondAttempt).toBe(true)
+    })
+  })
+
 
   describe(`put`, () => {
     it(`refuses to write invalid data`, async () => {
@@ -93,7 +280,7 @@ describe (`dynamo`, () => {
 
       // Try to write something invalid
       await expect(async () => {
-        await dynamo.put({ 
+        await dynamo.put({
           id: 6,
           color: 'orange',
         })
@@ -124,14 +311,14 @@ describe (`dynamo`, () => {
 
       // Put something and check the result
       const id = shortId()
-      const input ={ id, name: 'john' } 
+      const input = { id, name: 'john' }
       const result = await dynamo.put(input)
       expect(result).toStrictEqual(input)
     })
 
     it(`can be used to update a subset of the data`, async () => {
-      const schema = z.object({ 
-        id: z.string(), 
+      const schema = z.object({
+        id: z.string(),
         name: z.string().optional(),
         age: z.number().optional(),
       })
@@ -143,7 +330,7 @@ describe (`dynamo`, () => {
 
       // Put something and check the result
       const id = shortId()
-      const firstInput = { id, name: 'john', age: 5 } 
+      const firstInput = { id, name: 'john', age: 5 }
       const firstResult = await dynamo.put(firstInput)
       expect(firstResult).toStrictEqual(firstInput)
 
@@ -153,7 +340,7 @@ describe (`dynamo`, () => {
     })
 
     it(`can update with just a partition key`, async () => {
-      const schema = z.object({ 
+      const schema = z.object({
         id: z.string().optional(),
         name: z.string().optional(),
         email: z.string().optional(),
@@ -178,13 +365,13 @@ describe (`dynamo`, () => {
       const updates = { id, email: 'johnny@hello.co' }
       await dynamo.put(updates)
       const secondResult = await dynamo.get({ id })
-      expect(secondResult).toStrictEqual({...input, ...updates})  
+      expect(secondResult).toStrictEqual({ ...input, ...updates })
 
       // Try changing the email by id
       const nextUpdates = { id, name: 'frankie' }
       await dynamo.put(nextUpdates)
       const thirdResult = await dynamo.get({ id })
-      expect(thirdResult).toStrictEqual({...input, ...updates, ...nextUpdates})  
+      expect(thirdResult).toStrictEqual({ ...input, ...updates, ...nextUpdates })
     })
 
     it(`can push any data type`, async () => {
@@ -371,7 +558,7 @@ describe (`dynamo`, () => {
         .schema(schemaTwo)
         .connection(connection)
         .indexes([{ partition: 'name' }])
-      const john = { name: 'john', age: 5 } 
+      const john = { name: 'john', age: 5 }
       await dynamoTwo.put(john)
 
       // Make sure they can read their own data
@@ -430,10 +617,10 @@ describe (`dynamo`, () => {
         ])
 
       // Write some data into the database and populate the gsi
-      const james = { 
-        name: 'james', 
+      const james = {
+        name: 'james',
         address: '3 Terrace St Sunny Boulevard',
-        id: 6, 
+        id: 6,
         age: 32,
       }
       await dynamo.put(james)
@@ -444,42 +631,42 @@ describe (`dynamo`, () => {
     })
 
     it(`handles gsi composite sort keys`, async () => {
-        // Make a database with GSIs
-        const schema = z.object({
-          name: z.string(),
-          id: z.number(),
-          age: z.number(),
-          color: z.enum(['red', 'green', 'blue']),
-          address: z.string(),
-        })
-        const dynamo = new DynamoDB()
-          .name('gsiWriter')
-          .connection(connection)
-          .schema(schema)
-          .indexes([
-            { partition: 'name' },
-            { partition: 'id', sort: ['color', 'age'] },
-          ])
-  
-        // Write some data into the database and populate the gsi
-        const james = { 
-          name: 'james', 
-          address: '3 Terrace St Sunny Boulevard',
-          color: 'blue',
-          id: 6, 
-          age: 32,
-        }
-        await dynamo.put(james)
-  
-        // Check that the result is correct
-        const result = await dynamo.get({ id: 6, color: 'blue' })
-        expect(result).toStrictEqual(james)
+      // Make a database with GSIs
+      const schema = z.object({
+        name: z.string(),
+        id: z.number(),
+        age: z.number(),
+        color: z.enum(['red', 'green', 'blue']),
+        address: z.string(),
+      })
+      const dynamo = new DynamoDB()
+        .name('gsiWriter')
+        .connection(connection)
+        .schema(schema)
+        .indexes([
+          { partition: 'name' },
+          { partition: 'id', sort: ['color', 'age'] },
+        ])
+
+      // Write some data into the database and populate the gsi
+      const james = {
+        name: 'james',
+        address: '3 Terrace St Sunny Boulevard',
+        color: 'blue',
+        id: 6,
+        age: 32,
+      }
+      await dynamo.put(james)
+
+      // Check that the result is correct
+      const result = await dynamo.get({ id: 6, color: 'blue' })
+      expect(result).toStrictEqual(james)
     })
   })
 
   describe(`computed`, () => {
 
-    function setupDynamo (name: string) {
+    function setupDynamo(name: string) {
       const schema = z.object({
         id: z.string(),
         string: z.string(),
@@ -492,12 +679,12 @@ describe (`dynamo`, () => {
         .schema(schema)
         .connection(connection)
         .indexes([
-          { partition: 'id', sort: 'id' }, 
+          { partition: 'id', sort: 'id' },
           { partition: 'string', sort: 'id' },
         ])
     }
 
-    it (`computes static values on push`, async () => {
+    it(`computes static values on push`, async () => {
       const id = shortId()
       const dynamo = setupDynamo('computed-static-test')
       dynamo.computed(() => ({ number: 5 }))
@@ -507,7 +694,7 @@ describe (`dynamo`, () => {
       expect(result.number).toBe(5)
     })
 
-    it (`overrides user provided values`, async () => {
+    it(`overrides user provided values`, async () => {
       const dynamo = setupDynamo('computed-override-test')
       dynamo.computed(() => ({ number: 5 }))
       const id = shortId()
@@ -517,9 +704,9 @@ describe (`dynamo`, () => {
       expect(result.number).toBe(5)
     })
 
-    it (`computes dynamic values on push`, async () => {
+    it(`computes dynamic values on push`, async () => {
       const dynamo = setupDynamo('computed-dynamic-test')
-      dynamo.computed(({ number, string }, oldState) => ({ 
+      dynamo.computed(({ number, string }, oldState) => ({
         number: number ? number + 5 : oldState.number,
         string: string ? `${string}-${string}` : "hi",
       }))
@@ -542,7 +729,7 @@ describe (`dynamo`, () => {
       expect(result2).toStrictEqual({ id, number: 105, string: 'hello-hello' })
     })
 
-    it (`fetches the latest values when computing`, async () => {
+    it(`fetches the latest values when computing`, async () => {
       // Push something
       const id = shortId()
       const dynamo = setupDynamo('computed-fetch-test')
@@ -561,7 +748,7 @@ describe (`dynamo`, () => {
       await dynamo.put({ id })
     })
 
-    it (`computes dateCreated and dateUpdated automatically`, async () => {
+    it(`computes dateCreated and dateUpdated automatically`, async () => {
       const id = shortId()
       const dynamo = setupDynamo('computed-date-test')
       await dynamo.put({ id })
@@ -573,7 +760,7 @@ describe (`dynamo`, () => {
       expect(result.dateUpdated).toMatch(isoDatePattern)
     })
 
-    it (`computes id automatically if it's not provided`, async () => {
+    it(`computes id automatically if it's not provided`, async () => {
       // Make sure we get back the id
       const dynamo = setupDynamo('computed-date-test')
       const string = "hi there"
@@ -592,13 +779,13 @@ describe (`dynamo`, () => {
       expect(result.string).toEqual(string)
     })
 
-    function sleep (ms: number) {
+    function sleep(ms: number) {
       return new Promise((resolve) => {
         setTimeout(resolve, ms)
       })
     }
 
-    it (`doesn't pull values from other models when computing`, async () => {
+    it(`doesn't pull values from other models when computing`, async () => {
       // Put the same item twice
       const dynamo = setupDynamo('computed-date-test')
       const item = { string: "hi there" }
@@ -612,7 +799,7 @@ describe (`dynamo`, () => {
       expect(firstPutResult.dateUpdated).not.toEqual(secondPutResult.dateUpdated)
     })
 
-    it (`ignores dates if they don't exist in the schema`, async () => {
+    it(`ignores dates if they don't exist in the schema`, async () => {
       const schema = z.object({
         id: z.number(),
         string: z.string().optional(),
@@ -640,7 +827,7 @@ describe (`dynamo`, () => {
       expect(result.number).toBe(5)
     })
 
-    it (`allows a computed function to be replaced with tags`, async () => {
+    it(`allows a computed function to be replaced with tags`, async () => {
       // Use the first computed function
       const dynamo = setupDynamo('computed-replace-test')
       const id = shortId()
@@ -658,7 +845,7 @@ describe (`dynamo`, () => {
       expect(result2.number).toBe(34)
     })
 
-    it (`allows a computed function to be deleted with tags`, async () => {
+    it(`allows a computed function to be deleted with tags`, async () => {
       // Have a computed function that returns 5
       const id = shortId()
       const dynamo = setupDynamo('computed-delete-test')
@@ -689,11 +876,11 @@ describe (`dynamo`, () => {
       .connection(connection)
       .schema(schema)
       .indexes([
-        { partition: 'id', sort: 'id' }, 
+        { partition: 'id', sort: 'id' },
         { partition: 'school', sort: 'id' },
       ])
 
-    async function addFivePeople () {
+    async function addFivePeople() {
       await dynamo.put({ id: 1, name: 'john', school: "ash" })
       await dynamo.put({ id: 2, name: 'jane', school: "ash" })
       await dynamo.put({ id: 3, name: 'james', school: "ash" })
@@ -703,7 +890,7 @@ describe (`dynamo`, () => {
 
     it(`can list all items in a table`, async () => {
       await addFivePeople()
-      const result = await dynamo.list({ school: "ash" }) 
+      const result = await dynamo.list({ school: "ash" })
       if (result == null) throw Error(`Result is null`)
       expect(result.data.length).toBe(3)
       expect(result.data[1].name).toBe('jane')
@@ -725,12 +912,12 @@ describe (`dynamo`, () => {
       expect(result.data.length).toBe(2)
     })
 
-    async function addPeople (school: string, start: number, end: number) {
+    async function addPeople(school: string, start: number, end: number) {
       for (let id = start; id < end; id++) {
-        await dynamo.put({ 
+        await dynamo.put({
           id,
           name: 'a'.repeat(16000), // Make it large to force pagination
-          school 
+          school
         })
       }
     }
@@ -776,10 +963,10 @@ describe (`dynamo`, () => {
     it(`allows for cursor pagination`, async () => {
       // Add lots of students
       for (let id = 10; id < 110; id++) {
-        await dynamo.put({ 
-          id, 
+        await dynamo.put({
+          id,
           name: `a`.repeat(20000), // Make it large to force pagination
-          school: "clone-high" 
+          school: "clone-high"
         })
       }
 
@@ -802,7 +989,7 @@ describe (`dynamo`, () => {
       expect(result1.data.length + result2.data.length).toEqual(100)
     })
 
-    async function dynamoList (name: string) {
+    async function dynamoList(name: string) {
       // Make the database schema
       const schema = z.object({
         id: z.number(),
@@ -814,7 +1001,7 @@ describe (`dynamo`, () => {
         .schema(schema)
         .connection(connection)
         .indexes([
-          { partition: 'id', sort: 'id' }, 
+          { partition: 'id', sort: 'id' },
           { partition: 'string', sort: 'dateCreated' },
         ])
 
@@ -860,8 +1047,8 @@ describe (`dynamo`, () => {
 
     it(`correctly returns an empty list if all keys don't match`, async () => {
       // Make the database
-      const schema = z.object({ 
-        id: z.number(), 
+      const schema = z.object({
+        id: z.number(),
         name: z.string(),
         club: z.string(),
         group: z.string(),
@@ -876,7 +1063,7 @@ describe (`dynamo`, () => {
           { partition: ['club', 'group'], sort: 'dateCreated' },
           { partition: 'club', sort: 'dateCreated' },
         ])
-      
+
       // Add a few entries
       const values = [
         { id: 1, name: 'john', club: 'gym', group: 'yoga' },
@@ -919,7 +1106,7 @@ describe (`dynamo`, () => {
       const deletedResult = await dynamo.get({ id: 'abc' })
       expect(deletedResult).toBeNull()
     })
-    
+
     it(`fails on any other key`, async () => {
       // Store the item and check that it exists
       const item = { id: 'abc', name: 'john' }
@@ -936,14 +1123,14 @@ describe (`dynamo`, () => {
 
   describe(`use patterns`, () => {
 
-    function stripMetadata (data: any) {
+    function stripMetadata(data: any) {
       delete data.id
       delete data.dateCreated
       delete data.dateUpdated
       return data
     }
 
-    it (`can be used to create a two way linked table`, async () => {
+    it(`can be used to create a two way linked table`, async () => {
       // Define a two way linked schema and database
       const Memberships = z.object({
         id: z.string(),
@@ -987,9 +1174,9 @@ describe (`dynamo`, () => {
       expect(johnMemberships.data.map(stripMetadata)).toEqual([
         memberships[0], memberships[1], memberships[4]
       ])
-      
+
       const jennyMemberships = await dynamo.list({ chain, customerId: 'jenny' })
-      expect(jennyMemberships.data.map(stripMetadata)).toEqual([ memberships[2] ])
+      expect(jennyMemberships.data.map(stripMetadata)).toEqual([memberships[2]])
 
       // Get all the memberships for a store
       const baltimoreMemberships = await dynamo.list({ chain, storeId: 'Baltimore' })

@@ -199,6 +199,37 @@ export class DynamoDB {
     return this
   }
 
+  async create(item: object) {
+    // Get the entity to push to dynamo right away for validation
+    const entity = this._getEntity()
+  
+    // Run all of the computed functions
+    const newItem = Object.assign({}, item)
+    for (let fn of this._computed.values()) {
+      const result = fn(newItem, {}, 'create')
+      Object.assign(newItem, result)
+    }
+  
+    // Validate the result
+    if (this._schema == null) throw Error(`Can't create without a schema`)
+    const parsing = this._schema.strict().safeParse(newItem)
+    const parsingFailed = parsing.success == false
+    if (parsingFailed) throw new Error(parsing.error.message)
+  
+    // Create the item in the database, failing if it already exists
+    try {
+      const result = await entity.create(newItem).go() as Record<string, any>
+      if (result.data == null) throw Error(`Create failed: no data returned`)
+      return result.data
+    } catch (error: any) {
+      // Check for the specific error message from ElectroDB
+      if (error.message && error.message.includes("The conditional request failed")) {
+        throw new Error(`Item already exists`)
+      }
+      throw error
+    }
+  }
+
   async put(item: object) {
     // Get the entity to push to dynamo right away for validation
     const entity = this._getEntity()
@@ -248,10 +279,10 @@ export class DynamoDB {
     if (listWholeTable) {
       // Scan the entire table
       const chosenCount = count ?? Infinity
-      const result = await entity.scan.go({ 
+      const result = await entity.scan.go({
         order: descending ? 'desc' : 'asc',
         count: chosenCount,
-        cursor, 
+        cursor,
       })
 
       // Then sort the result according to the sort key
@@ -279,10 +310,10 @@ export class DynamoDB {
       // If so, query by this index
       const { indexLabel } = this._getIndexNames(i)
       const command = entity.query[indexLabel](item as never)
-      const result = await command.go({ 
+      const result = await command.go({
         order: descending ? 'desc' : 'asc',
-        cursor, 
-        limit, 
+        cursor,
+        limit,
         count,
       })
 

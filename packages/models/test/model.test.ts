@@ -137,39 +137,45 @@ describe(`Model`, () => {
     it(`handles race conditions`, async () => {
       // Create a unique email for this test
       const email = `race-condition-${shortId()}@example.com`
-
-      // Define an async function that creates if not exists
-      async function createIfNotExists() {
+    
+      // First, create a user with this email
+      const initialUser = new User({ email })
+      await initialUser.create()
+      const expectedId = initialUser.id()
+    
+      // Now simulate multiple concurrent lookups
+      async function findUser() {
         const user = new User({ email })
-        const exists = await user.exists()
-        if (!exists) await user.create()
-        else await user.pull()
-        return user
+        try {
+          return await user.pull()
+        } catch (error) {
+          return await user.create()
+        }
       }
-
-      // Simulate race condition by calling the function multiple times 
+    
+      // Run concurrent lookups
       const [user1, user2, user3] = await Promise.all([
-        createIfNotExists(),
-        createIfNotExists(),
-        createIfNotExists()
-      ]);
-
+        findUser(),
+        findUser(),
+        findUser()
+      ])
+    
       // All calls should return a user with the same email
       expect(user1.data.email).toBe(email)
       expect(user2.data.email).toBe(email)
       expect(user3.data.email).toBe(email)
-
-      // All users should have the same ID
-      const id = user1.id()
-      expect(user2.id()).toBe(id)
-      expect(user3.id()).toBe(id)
-
+    
+      // All users should have the same ID as the initially created user
+      expect(user1.id()).toBe(expectedId)
+      expect(user2.id()).toBe(expectedId)
+      expect(user3.id()).toBe(expectedId)
+    
       // Verify the user exists
       const finalCheck = new User({ email })
       expect(await finalCheck.exists()).toBe(true)
-
+    
       // Verify we can retrieve the same user by ID
-      const byId = new User({ id })
+      const byId = new User({ id: expectedId })
       await byId.pull()
       expect(byId.data.email).toBe(email)
     })

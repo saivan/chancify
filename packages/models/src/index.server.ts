@@ -1,5 +1,5 @@
 
-import { ZodObject, z } from 'zod'
+import { ZodObject, unknown, z } from 'zod'
 import { DynamoDB, TableConnection, type ComputeFunction, type DynamoIndexes } from '@repo/database'
 import { schemaHasField } from '@repo/utilities/server'
 import { shortId } from '@repo/utilities/server'
@@ -88,7 +88,7 @@ export function baseModel<T extends ExpectedData>(options: {
   
     // Actions
 
-    async exists () {
+    async exists() {
       // Make sure we have indexes in this model
       const indexes = database.indexes()
       if (indexes == null) throw Error(`Please define indexes for this model`)
@@ -107,62 +107,86 @@ export function baseModel<T extends ExpectedData>(options: {
       return false
     }
   
-    async create () {
-      // Make sure this model doesn't already exist in the database
-      const hasAssignedId = this.id()
-      const exists = await this.exists()
-      if (hasAssignedId && exists) {
-        throw Error(`This object already exists in the database`)
-      }
-
-      // Make sure an id exists
-      if (this.id() == null) {
-        const newId = idGenerator(this._data)
-        this.id(newId)
-      }
-
-      // Put the item in the database and record its id
-      const dataInput = Object.assign({}, this._data, {
+    async create() {
+      // Generate an ID if needed
+      if (this.id() == null) this.id(idGenerator(this._data))
+    
+      // Prepare the data for creation and backup the old data
+      const originalData = { ...this._data }
+      const dataInput = {
+        ...this._data,
         dateCreated: new Date().toISOString(),
         dateUpdated: new Date().toISOString(),
+      }
+      
+      // Attempt to create the item
+      const result = await database.create(dataInput).catch(error => {
+        // If this isn't the "item exists" error, then it's unexpected
+        if (!(error instanceof Error) || error.message !== 'Item already exists') {
+          throw error
+        }
+
+        // If the creation failed, then there was no result
+        return null
       })
-      const result = await database.put(dataInput)
-      Object.assign(this._data, result)
+      
+      // If creation succeeded, update and return
+      if (result) {
+        Object.assign(this._data, result)
+        return this
+      }
+      
+      // Here we have a conflict, so we need to pull the existing item
+      await this.pull().catch(() => {
+        // Restore original data if pull fails
+        this._data = originalData
+        throw new Error(`Failed to find existing item after creation conflict`)
+      })
       return this
     }
   
-    async push ({ 
-      force = false,
-    } = {}) {
+    async push({ force = false } = {}) {
       // Force pushes can create new items if they don't exist
       if (force) {
         const result = await database.put(this._data)
         this._data = result
         return this
       }
-
-      // We can only push if we have our id
-      if (this.id() == null) throw Error(`No id is defined for this item`)
       
-      // Make sure we have the latest data before overwriting it
-      const dataToPush = this._data
-      await this.pull()
-      const newData = { ...this._data, ...dataToPush }
-  
+      // Throw an error if the item doesn't exist
+      if (this.id() == null) throw Error(`No id is defined for this item`)
+      const existingItem = await database.get({ id: this.id()})
+      if (existingItem === null) throw Error(`Item not found in the database`)
+      
       // Update the database and store the new data on the model
-      const result = await database.put(newData)
+      const result = await database.put(this._data)
       this._data = result
       return this
     }
 
-    async pull () {
-      const result = await database.get(this._data)
-      if (result == null) throw Error(`Item not found in the database`)
-      this._data = result as T
-      return this
+    async pull() {
+      // Try each index in order
+      const indexes = database.indexes()
+      if (!indexes) throw Error(`Please define indexes for this model`)
+    
+      // Iterate through each index according to the schema to find the item
+      for (const [i, index] of indexes.entries()) {
+        // Check if we have all required fields for this index
+        const { primary, unique } = database._isolatePrimaryKey(this._data, { index: i })
+        if (!unique) continue
+        
+        // Query using this index
+        const result = await database.get(primary).catch(() => null)
+        if (result) {
+          this._data = result as T
+          return this
+        }
+      }
+      
+      throw Error(`Item not found in the database`)
     }
   
-    async delete () {
+    async delete() {
       const id = this.id()
       if (id == null) throw Error(`No id is defined for this item`)
       await database.delete({ id })
@@ -191,7 +215,6 @@ export function baseModel<T extends ExpectedData>(options: {
     }
   }
 }
-
 
 function ensureRequiredFieldsInSchema (schema: ZodObject<any>) {  
   // Make sure the schema has the required fields
