@@ -37,7 +37,10 @@ export function Campaigns(props: {
       updateCampaign(campaign)
     }
   }, [updateCampaign])
-  const updateOrder = useDebouncedCallback(updateOrderDirect, 800)
+  const updateOrder = useDebouncedCallback(updateOrderDirect, 600, { 
+    leading: true, 
+    trailing: true,
+  })
 
   // When a campaign is dragged, update the order
   function handleDragEnd(active: any, over: any) {

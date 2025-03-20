@@ -19,7 +19,10 @@ export function useCampaign() {
     // Deal with the error state
     const { success, campaign: errorData } = await updateCampaign(campaignData)
     if (!success) setCampaignDirect(errorData)
-  }, 800)
+  }, 800, {
+    leading: true,
+    trailing: true,
+  })
 
   function setCampaign(newCampaign: Partial<CampaignType>) {
     setCampaignDirect(newCampaign)
