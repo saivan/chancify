@@ -4,7 +4,7 @@ import type { CampaignType } from "@/models/Campaign"
 import { Icon, LoadingButton } from "@repo/components"
 import { cn } from "@repo/utilities"
 import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { toast } from "sonner"
 import { useDebouncedCallback } from "use-debounce"
 import { useDashboard } from "../controller"
@@ -25,11 +25,10 @@ export function Campaigns(props: {
   const [isClient, setIsClient] = useState(false)
 
   // Only render DND components after client hydration
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
+  useEffect(() => { setIsClient(true) }, [])
 
-  const updateOrder = useDebouncedCallback(async (campaigns: CampaignType[]) => {
+  // Update the order of the campaigns
+  const updateOrderDirect = useCallback(async (campaigns: CampaignType[]) => {
     // Update each campaign
     const orderedCampaigns = campaigns.map((campaign, index) => ({
       ...campaign, priority: index
@@ -37,27 +36,29 @@ export function Campaigns(props: {
     for (let campaign of orderedCampaigns) {
       updateCampaign(campaign)
     }
-  }, 800)
+  }, [updateCampaign])
+  const updateOrder = useDebouncedCallback(updateOrderDirect, 800)
 
+  // When a campaign is dragged, update the order
   function handleDragEnd(active: any, over: any) {
     if (over && active.id !== over.id) {
       setCampaigns((items) => {
         // Find the index of the active and over items
         const oldIndex = items.findIndex((item) => item.id === active.id)
         const newIndex = items.findIndex((item) => item.id === over.id)
-        
+
         // Move the active item to the new index
         const newArray = [...items]
         const [movedItem] = newArray.splice(oldIndex, 1)
         newArray.splice(newIndex, 0, movedItem)
-        
+
         // Update the order
         updateOrder(newArray)
         return newArray
       })
     }
   }
-  
+
 
   const CampaignArea = campaigns.length === 0 ? (
     <div className={cn(
@@ -75,7 +76,7 @@ export function Campaigns(props: {
         <div key={campaign.id} className="border border-border rounded-lg">
           <div className="flex items-center flex-1 gap-4 p-4">
             {campaign.action.name || 'Incomplete Campaign'}
-            {campaign.status === 'inactive' && 
+            {campaign.status === 'inactive' &&
               <span className="text-sm border rounded px-2">Unpublished</span>
             }
           </div>
