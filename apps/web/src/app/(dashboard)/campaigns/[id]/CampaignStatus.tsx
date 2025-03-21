@@ -3,7 +3,9 @@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Card, CardContent, CardDescription, CardHeader, CardTitle, Icon, Label, Switch } from "@repo/components"
 import { cn } from "@repo/utilities"
 import { useCampaign } from "./provider"
-import {} from 'react'
+import { useCallback } from 'react'
+import { useDashboard } from "../../controller"
+import { toast } from "sonner"
 
 export function CampaignStatus() {
   const [campaign, setCampaign] = useCampaign()
@@ -34,7 +36,10 @@ export function CampaignStatus() {
             />
           </div>
         </div>
-        <DeleteButton name={campaign.action?.label as string} />
+        <DeleteButton 
+          name={campaign.action?.name as string} 
+          campaignId={campaign.id as string}
+        />
       </CardContent>
     </Card>
   )
@@ -43,7 +48,20 @@ export function CampaignStatus() {
 
 function DeleteButton(props: {
   name: string
+  campaignId: string
 }) {
+  const { deleteCampaign } = useDashboard()
+  const handleDelete = useCallback(async (e: any) => {
+    e.preventDefault()
+    try {
+      await deleteCampaign(props.campaignId)
+      window.location.href = '/campaigns'
+    } catch (error) {
+      toast.error("Failed to delete campaign")
+    }
+  }, [deleteCampaign, props.campaignId])
+  
+
   return (
     <AlertDialog>
       <AlertDialogTrigger type="button" className={cn(
@@ -63,7 +81,9 @@ function DeleteButton(props: {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction className="bg-destructive">Continue</AlertDialogAction>
+          <AlertDialogAction className="bg-destructive"
+            onClick={handleDelete}
+          >Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

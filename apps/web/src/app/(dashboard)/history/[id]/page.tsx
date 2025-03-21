@@ -15,9 +15,9 @@ export default async function Page({ params }: {
   return (
     <CenterBox
       back="/history"
-      icon={campaign.action?.icon}
+      icon={campaign.action?.platform}
       title={history.prize?.name || '(No Prize)'}
-      caption={campaign.action?.label || '(No Action)'}
+      caption={campaign.action?.name || '(No Action)'}
       headerClassName="pb-2"
     >
       <div>
@@ -105,7 +105,7 @@ function PrizeDetails(props: {
           </div>
           <div className="flex flex-col">
             <span className="text-sm text-slate-600">Action</span>
-            <span>{props.campaign.action?.label || '(No Action)'}</span>
+            <span>{props.campaign.action?.name || '(No Action)'}</span>
           </div>
         </div>
       </CardContent>

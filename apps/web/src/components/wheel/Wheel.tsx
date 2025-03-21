@@ -209,7 +209,7 @@ function Lights(props: {
               animationDelay: `${i / n * animationDuration}s`,
               '--base-opacity': 0.4,
               '--amplitude': 0.4,
-            }}
+            } as React.StyleHTMLAttributes<HTMLDivElement>}
           />
         </div>
       )

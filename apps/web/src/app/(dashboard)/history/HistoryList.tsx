@@ -31,7 +31,7 @@ export function HistoryList({ campaigns }: { campaigns: CampaignType[] }) {
           text: history => history?.prize?.name || "(Unclaimed Prize)",
           subtext: history => {
             const campaign = campaigns.find(campaign => campaign.id === history.campaignId)
-            return campaign?.action.label || "(No Action)"
+            return campaign?.action.name || "(No Action)"
           },
         },
         label: 'Prize'

@@ -1,8 +1,7 @@
 import { availableActionInstructions } from "@/models/Action";
 import type { CampaignType } from "@/models/Campaign";
-import { OrganizationType } from "@/models/Organization";
+import type { OrganizationType } from "@/models/Organization";
 import { Button, Icon, QRCode } from "@repo/components";
-import { cn } from "@repo/utilities";
 import Image from "next/image";
 import { toast } from "sonner";
 
@@ -117,6 +116,10 @@ function TagAction(props: {
     }
   }
 
+  const url = props.platform === 'instagram' ? 'http://instagram.com'
+    : props.platform === 'tiktok' ? 'http://tiktok.com'
+      : props.platform === 'facebook' ? 'http://facebook.com'
+        : ''
 
   return (
     <div className="flex flex-col gap-8">
@@ -127,29 +130,38 @@ function TagAction(props: {
       <div className="flex flex-col gap-2">
         <div className="p-2 outline outline-border bg-white rounded-md flex justify-between items-center">
           @{props.handle}
-          <Button variant="default" onClick={handleCopyUrl} className="flex gap-2">
-                  <Icon icon="clipboard" />
-                  Copy Handle
-                </Button>
-        </div>
-        <Button variant="outline" asChild
-                    className="flex justify-start gap-2 p-6">
-          <a href={
-            props.platform === 'instagram' ? 'http://instagram.com'
-              : props.platform === 'tiktok' ? 'http://tiktok.com'
-                : props.platform === 'facebook' ? 'http://facebook.com'
-                  : ''
+          {
+            props.links === 'button' &&
+            <Button variant="default" onClick={handleCopyUrl} className="flex gap-2">
+              <Icon icon="clipboard" />
+              Copy Handle
+            </Button>
           }
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image height={24} width={24}
-              src={`/images/logos/${props.platform}.svg`}
-              alt={props.name}
-            />
-            {props.platform === 'instagram' ? 'Open Instagram' : 'Open TikTok'}
-          </a>
-        </Button>
+        </div>
+
+        {
+          props.links === 'qr'
+            ? (
+              <div className="flex flex-col gap-4 py-4">
+                <p>Scan this QR code to open the app on your phone</p>
+                <QRCodeAction url={url} />
+              </div>
+            ) : (
+              <Button variant="outline" asChild
+                className="flex justify-start gap-2 p-6">
+                <a href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Image height={24} width={24}
+                    src={`/images/logos/${props.platform}.svg`}
+                    alt={props.name}
+                  />
+                  {props.platform === 'instagram' ? 'Open Instagram' : 'Open TikTok'}
+                </a>
+              </Button>
+            )
+        }
       </div>
     </div>
   )
