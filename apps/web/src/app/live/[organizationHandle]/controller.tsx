@@ -36,9 +36,10 @@ export type CustomerViewState = {
   historyId: string | null
   links: 'qr' | 'button'
 }
-export const [
+const [
   useCustomerViewState, CustomerViewStateProvider,
 ] = createInitialisedObjectContext<CustomerViewState>()
+export { useCustomerViewState, CustomerViewStateProvider }
 
 type SpinCallbacks = {
   onStartSpin: () => Promise<void>

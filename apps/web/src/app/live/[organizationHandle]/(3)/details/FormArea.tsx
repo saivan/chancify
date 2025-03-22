@@ -167,7 +167,7 @@ export function FormArea() {
               links: state.links 
             })}>Back</Link>
           </Button>
-          <LoadingButton loading={loading} type="submit">Spin Now</LoadingButton>
+          <LoadingButton className="h-9" loading={loading} type="submit">Spin Now</LoadingButton>
         </div>
       </form>
     </Form>

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified themes
 - Simplified the spin page to remove the multiple wheel showcase
 - [upstream] Migrated to tailwind v4
+- [upstream] Moved most tailwind variables into a shared config
 ### Removed
 - The wheel preview page
 - [upstream] Stopped using SCSS, it's features are now unnecessary

@@ -37,7 +37,8 @@ export default function ChooseCampaign() {
             selectedCampaign, 
           })}>Back</Link>
         </Button>
-        <LoadingButton loading={loading} onClick={async () => {
+        <LoadingButton className="h-9"
+          loading={loading} onClick={async () => {
           // Create a new history record
           setLoading(true)
           const { id } = await pushHistory({

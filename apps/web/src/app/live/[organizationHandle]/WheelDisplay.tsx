@@ -19,7 +19,7 @@ export function WheelDisplay() {
         "md:rotate-0 rotate-90 translate-x-[-100%] -translate-y-2/3",
         state.wheel?.centered 
           ? `translate-y-[-54%] md:translate-x-[50%] md:translate-y-0` 
-          : `md:-translate-x-1/2 md:-translate-y-1/2 md:transform-none`
+          : `md:translate-x-0 md:-translate-y-0 md:transform-none`
       )}>
         <div
           className={cn(
@@ -67,5 +67,5 @@ export function WheelDisplay() {
         </div>
       </div>
     </div>
-  );
+  )
 }

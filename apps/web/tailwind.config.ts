@@ -1,6 +1,3 @@
-import sharedConfig from "@repo/config/tailwind"
-import type { Config } from "tailwindcss"
-
 
 export default {
   content: [
@@ -10,10 +7,22 @@ export default {
   exclude: [
     "**/node_modules/**"
   ],
-  presets: [sharedConfig],
+  presets: [{
+    content: ["./src/**/*.tsx"],
+    darkMode: "class",
+    prefix: "",
+    safelist: [
+      'object-cover', 'object-contain', 'object-fill', 'object-none',
+      'object-scale-down',
+    ],
+    plugins: [
+      require("tailwindcss-animate"),
+      require('@tailwindcss/typography'),
+    ],
+  }],
   theme: {
     extend: {
     },
   },
-} satisfies Config;
+} 
 

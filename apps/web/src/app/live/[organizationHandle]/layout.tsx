@@ -1,6 +1,6 @@
 
 import type { ReactNode } from 'react'
-import { CustomerViewStateProvider, SpinProvider } from "./controller"
+import { CustomerViewStateProvider, SpinProvider  } from "./controller"
 import { WheelDisplay } from "./WheelDisplay"
 import { InformationDisplay } from './InformationDisplay'
 import { resolveOrganization } from './serverActions'
