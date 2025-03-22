@@ -202,7 +202,7 @@ function UrlActionButton(props: {
     <a
       target="_blank"
       href={props.url}
-      className="flex items-center bg-white gap-2 p-4 border rounded-md border-border shadow-sm w-max max-w-full"
+      className="flex items-center bg-white gap-2 p-4 border rounded-md border-border shadow-xs w-max max-w-full"
     >
       <Image width={32} height={32}
         src={`/images/logos/${props.platform}.svg`}

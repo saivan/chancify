@@ -218,8 +218,8 @@ export function Popup({
           "pointer-events-auto",
           "flex flex-col relative touch-none",
           "rounded-md outline outline-slate-300 p-2",
-          "backdrop-blur-sm",
-          "bg-gradient-to-br from-slate-50 via-slate-50/40 to-slate-50",
+          "backdrop-blur-xs",
+          "bg-linear-to-br from-slate-50 via-slate-50/40 to-slate-50",
         )}
         onMouseDown={handleMouseDown}
       >

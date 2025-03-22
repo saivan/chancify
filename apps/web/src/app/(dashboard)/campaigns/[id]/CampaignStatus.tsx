@@ -18,7 +18,7 @@ export function CampaignStatus() {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4"> 
-        <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+        <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
           <div className="space-y-0.5">
             <Label>Publish Campaign</Label>
             <p className="text-sm text-slate-500">

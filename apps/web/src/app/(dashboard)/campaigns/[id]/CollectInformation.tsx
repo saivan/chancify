@@ -31,7 +31,7 @@ function CheckBox(props: {
   const [campaign, setCampaign] = useCampaign()
   const checked = campaign.collectInformation?.[props.for]
   return (
-    <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+    <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
       <div className="space-y-0.5">
         <Label>{props.label}</Label>
       </div>

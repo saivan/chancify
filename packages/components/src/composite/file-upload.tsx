@@ -103,7 +103,7 @@ function FileListing ({ file, modifiedDate }: {
       className={cn(
         "justify-start p-2 w-full mx-auto rounded-md",
         "border border-slate-300",
-        "min-h-max flex-grow",
+        "min-h-max grow",
       )}
     >
       <div className="flex justify-between w-full items-center gap-4">
@@ -120,7 +120,7 @@ function FileListing ({ file, modifiedDate }: {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           layout
-          className="rounded-lg px-2 py-1 w-fit flex-shrink-0 text-sm text-slate-600 dark:bg-slate-800 dark:text-white shadow-input"
+          className="rounded-lg px-2 py-1 w-fit shrink-0 text-sm text-slate-600 dark:bg-slate-800 dark:text-white shadow-input"
         > {(file.size / (1024 * 1024)).toFixed(2)} MB </motion.p>
       </div>
 
@@ -157,7 +157,7 @@ export function GridPattern() {
 
   return (
     <div className={cn(
-      "grid bg-slate-100 dark:bg-slate-900 flex-shrink-0 flex-wrap",
+      "grid bg-slate-100 dark:bg-slate-900 shrink-0 flex-wrap",
       "justify-center items-center gap-x-px gap-y-px scale-105",
       `grid-cols-[repeat(18,1fr)] gap-2`,
     )}>

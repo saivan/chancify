@@ -15,7 +15,7 @@ export function Banner(props: { src: string }) {
       />
       <div className={cn(
         "absolute bottom-0 w-full", 
-        "bg-gradient-to-t from-white via-white/80 to-white/0 h-[70%]"
+        "bg-linear-to-t from-white via-white/80 to-white/0 h-[70%]"
       )}></div>
     </div>
   )

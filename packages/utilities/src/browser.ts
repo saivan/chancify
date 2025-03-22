@@ -1,4 +1,6 @@
 
+import Color from 'colorjs.io'
+
 
 export function detectOS() {
   // Get the platform name
@@ -126,32 +128,70 @@ export function runScript(code: string, options = {
 }
 
 
+/**
+ * Converts any CSS color format to hex, including CSS variables
+ * @param cssColor - CSS color string in any format (hex, rgb, hsl, oklab, etc.) or CSS variable
+ * @param element - Optional element to use as context for CSS variables (defaults to document.body)
+ * @returns Hex color string or null if conversion fails
+ */
 export function cssToHex(cssColor: string, element: HTMLElement = document.body): string | null {
-  // Create a temporary element
-  const tempElement = document.createElement('div')
-  tempElement.style.color = cssColor
-  element.appendChild(tempElement)
-
-  // Get the computed color value
-  const computedColor = getComputedStyle(tempElement).color
-  element.removeChild(tempElement)
-
-  // Extract the RGB values
-  const rgbMatch = computedColor.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/)
-  if (!rgbMatch) {
-    return null // Return null if the format is not expected
+  try {
+    // Check if the color is a CSS variable
+    if (cssColor.trim().startsWith('var(')) {
+      // Extract the variable name from var(--name)
+      const varName = cssColor.match(/var\s*\(\s*(--[^,)]+)(?:,\s*([^)]+))?\s*\)/)?.[1];
+      
+      if (!varName) {
+        return null;
+      }
+      
+      // Create a temporary element to resolve the variable
+      const tempElement = document.createElement('div');
+      tempElement.style.color = cssColor;
+      tempElement.style.display = 'none';
+      
+      // Append to the provided element or document body to ensure CSS inheritance
+      element.appendChild(tempElement);
+      
+      // Get the computed color value
+      const computedColor = getComputedStyle(tempElement).color;
+      
+      // Clean up
+      element.removeChild(tempElement);
+      
+      // If we got a computed color, convert it
+      if (computedColor && computedColor !== '') {
+        // Parse the computed color with Color.js
+        const color = new Color(computedColor);
+        const srgbColor = color.to("srgb");
+        
+        if (!srgbColor.inGamut()) {
+          srgbColor.toGamut();
+        }
+        
+        return srgbColor.toString({format: "hex"}).toUpperCase();
+      }
+      
+      return null;
+    }
+    
+    // For non-variable colors, use Color.js directly
+    const color = new Color(cssColor);
+    const srgbColor = color.to("srgb");
+    
+    if (!srgbColor.inGamut()) {
+      srgbColor.toGamut();
+    }
+    
+    return srgbColor.toString({format: "hex"}).toUpperCase();
+  } catch (error) {
+    // Return null if color parsing fails
+    return null;
   }
-
-  // Convert RGB to hex
-  const r = parseInt(rgbMatch[1], 10)
-  const g = parseInt(rgbMatch[2], 10)
-  const b = parseInt(rgbMatch[3], 10)
-
-  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase()}`
 }
 
-export function cssToRGB(cssColor: string, element: HTMLElement = document.body): number[] | null {
-  const hexColor = cssToHex(cssColor, element)
+export function cssToRGB(cssColor: string): number[] | null {
+  const hexColor = cssToHex(cssColor)
   const rgbMatch = hexColor?.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i)
   if (!rgbMatch) return null
   const r = parseInt(rgbMatch[1], 16)

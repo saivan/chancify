@@ -6,7 +6,7 @@ import type { Theme, WheelState } from "@/models/Theme"
 import dynamic from "next/dynamic"
 import { Pointer } from "./Pointer"
 import { Wedges } from "./Wedges"
-import './wheelStyles.scss'
+import './wheelStyles.css'
 
 
 function Wheel(props: {
@@ -132,6 +132,7 @@ function OuterFrame(props: {
             background: props.theme?.frame?.outerStroke ?? '#1e293b',
             mask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',
             maskComposite: 'exclude',
+            borderColor: 'rgba(0,0,0,0.0)',
           }}
         />
       </div>
@@ -147,6 +148,7 @@ function OuterFrame(props: {
             background: props.theme?.frame?.outerFill,
             mask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',
             maskComposite: 'exclude',
+            borderColor: 'rgba(0,0,0,0.0)',
           }}
         />
       </div>

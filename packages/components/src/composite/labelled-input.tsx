@@ -8,7 +8,7 @@ export function LabelledInput (props: {
   inputClassName?: string
 } & React.ComponentProps<typeof Input>) {
   return (
-    <div className='flex shadow-sm rounded-md'>
+    <div className='flex shadow-xs rounded-md'>
       <span className={cn(
         'bg-slate-100 border border-r-0 border-input rounded-l-md',
         'flex items-center px-2 text-sm text-slate-600 font-light text-sm',

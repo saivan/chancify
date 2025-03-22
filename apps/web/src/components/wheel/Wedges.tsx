@@ -49,6 +49,7 @@ export function Wedges(props: {
       const wedge = props.theme.wedges[index % props.theme.wedges.length]
       const color = cssToRGB(wedge.backgroundColor || '')
       const highlight = cssToRGB(wedge.glowColor || '')
+
       if (!color || !highlight) return ''
 
       const probability = probabilities[index]
@@ -108,7 +109,7 @@ export function Wedges(props: {
     >
       {/* Background stroke layer */}
       {
-        textItems.map((item, index) => {
+        textItems.map((item: any, index: number) => {
           const w = '4px'
           return <div className='absolute top-0 left-0 w-full h-full flex justify-center items-center'
             key={`stroke-${index}`}
@@ -125,7 +126,7 @@ export function Wedges(props: {
       }
       {/* Foreground text layer */}
       {
-        textItems.map((item, index) => {
+        textItems.map((item: any, index: number) => {
           return <div className='absolute top-0 left-0 w-full h-full flex justify-center items-center'
             key={`text-${index}`}
             style={{

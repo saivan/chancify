@@ -21,7 +21,7 @@ export default async function RootLayout({
       }}
       className="
         background-cover h-[100vh] 
-        grid md:grid-cols-[3fr,min(90vw,500px),1fr] place-items-end
+        grid md:grid-cols-[3fr_min(90vw,500px)_1fr] place-items-end
         grid-cols-[0px_1fr]
       "
     >

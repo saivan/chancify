@@ -161,14 +161,7 @@ export const themes: Record<string, Theme> = {
     pointer: {
       width: 0.30,
     },
-    frame: {
-      width: 40,
-      inset: 3,
-      outerStroke: 'linear-gradient(140deg, #E19A19 13.29%, #FDF3D8 61.46%, #947424 65.36%, #EBC153 73.6%, #D59B04 86.83%) border-box',
-      outerFill: 'linear-gradient(140deg, #D88D0E 6.59%, #F0CA5F 22.71%, #FDD37E 32.92%, #F4B043 42.31%, #9B5404 55.79%, #CC9F4A 74.99%, #F7BB45 93.72%) border-box',
-      innerStroke: 'conic-gradient(from 140deg at 49.51% 50.7%, #F2EBBF 0deg, #D8B661 52.77752637863159deg, #FDD37E 108.80772471427917deg, #F4B043 147.59999871253967deg, #EDB55B 208.67242813110352deg, #825A16 269.60837602615356deg, #EAE4BA 360deg)',
-      innerFill: `conic-gradient(from 140deg at 49.51% 50.7%, #D88D0E 0deg, #F0CA5F 66.60000085830688deg, #FDD37E 108.80772471427917deg, #F4B043 147.59999871253967deg, #9B5404 203.27728271484375deg, #CC9F4A 271.4095115661621deg, #D88D0E 360deg)`,
-    },
+    frame: frames.gold,     
     wedges: [{
       // Amber
       backgroundColor: "#fffbeb",
@@ -226,7 +219,7 @@ export const themes: Record<string, Theme> = {
       radius: 38,
     }, {
       backgroundColor: "#f97316", // orange-500
-      textColor: "#fff7ed", // orange-50
+      textColor: "var(--color-orange-900)",
       glowColor: "#7c2d12", // orange-950
       radius: 33,
     }]
@@ -246,12 +239,12 @@ export const themes: Record<string, Theme> = {
     wedges: [{
       backgroundColor: "var(--color-emerald-500)",
       textColor: "var(--color-emerald-900)",
-      glowColor: "var(--color-emerald-600)",
+      glowColor: "var(--color-emerald-800)",
       radius: 32,
     }, {
-      backgroundColor: "var(--color-lime-200)",
-      textColor: "var(--color-lime-950)",
-      glowColor: "var(--color-lime-500)",
+      backgroundColor: "var(--color-emerald-700)",
+      textColor: "var(--color-emerald-900)",
+      glowColor: "var(--color-emerald-900)",
       radius: 28,
     }]
   },
@@ -298,7 +291,7 @@ export const themes: Record<string, Theme> = {
       radius: 32,
     }, {
       backgroundColor: "var(--color-purple-500)",
-      textColor: "var(--color-purple-50)",
+      textColor: "var(--color-purple-800)",
       glowColor: "var(--color-purple-950)",
       radius: 28,
     }]
@@ -354,7 +347,7 @@ export const themes: Record<string, Theme> = {
     }, {
       // Candy stripe red
       backgroundColor: "var(--color-rose-200)",
-      textColor: "var(--color-rose-50)",
+      textColor: "var(--color-rose-900)",
       glowColor: "var(--color-rose-300)",
       radius: 30,
     }, {
@@ -415,12 +408,12 @@ export const themes: Record<string, Theme> = {
     frame: frames.blueObsidian,
     wedges: [{
       backgroundColor: "var(--color-slate-400)",
-      textColor: "var(--color-slate-50)",
+      textColor: "var(--color-slate-900)",
       glowColor: "var(--color-slate-800)",
       radius: 34,
     }, {
       backgroundColor: "var(--color-slate-600)",
-      textColor: "var(--color-slate-100)",
+      textColor: "var(--color-slate-900)",
       glowColor: "var(--color-slate-400)",
       radius: 30,
     }]

@@ -1,4 +1,4 @@
-"use-server"
+"use server"
 
 import * as auth from "@repo/authentication/server"
 import { redirect } from "next/navigation"
