@@ -7,7 +7,6 @@ import { resolveOrganization } from './serverActions'
 import { cn } from '@repo/utilities'
 
 
-
 export default async function Layout({
   children,
   params,

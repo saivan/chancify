@@ -1,5 +1,5 @@
 
-import "@/global/globals.scss"
+import "@/global/globals.css"
 import { Inter as FontSans } from "next/font/google"
 import { cn } from "@repo/utilities"
 import { GeistSans } from "geist/font/sans"

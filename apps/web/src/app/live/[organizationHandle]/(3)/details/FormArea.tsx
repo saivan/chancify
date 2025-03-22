@@ -5,7 +5,6 @@ import type { CampaignType } from "@/models/Campaign"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Checkbox, Form, FormControl, FormField, FormItem, Input, Label, LoadingButton } from "@repo/components"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -78,7 +77,7 @@ export function FormArea() {
   return (
     <Form {...form}>
       <form
-        onSubmit={handleSubmit(async inputs => {
+        onSubmit={handleSubmit(async () => {
           setLoading(true)
           await pushHistory({
             id: state.historyId as string,
