@@ -2,19 +2,12 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { schemaHasField, shortId } from '@repo/utilities/server'
 import { Entity } from 'electrodb'
 import {
-  ZodArray,
-  ZodBigInt,
-  ZodBoolean,
-  ZodDate,
-  ZodEffects,
-  ZodEnum,
-  ZodNumber,
-  ZodObject,
-  ZodOptional,
-  ZodRecord,
-  ZodSchema,
-  ZodString
+  ZodArray, ZodBigInt, ZodBoolean, ZodDate, ZodDefault, ZodDiscriminatedUnion,
+  ZodEffects, ZodEnum, ZodIntersection, ZodLazy, ZodNumber, ZodObject,
+  ZodOptional, ZodRecord, ZodSchema, ZodString, ZodTransformer, ZodType,
+  ZodTypeAny, ZodUnion
 } from 'zod'
+
 
 function determineDataType(input: ZodSchema): string | Record<string, any> {
   // Recursively remove optional types, as they aren't necessary
@@ -23,21 +16,63 @@ function determineDataType(input: ZodSchema): string | Record<string, any> {
     return determineDataType(input._def.innerType)
   }
 
-  // Recursively remove effect types, as they aren't necessary
-  const isEffectsType = input instanceof ZodEffects
-  if (isEffectsType) {
+  // Handle default values
+  if ('_def' in input &&
+    typeof input._def === 'object' &&
+    input._def !== null &&
+    'defaultValue' in input._def &&
+    'innerType' in input._def) {
+    return determineDataType(input._def.innerType as ZodSchema)
+  }
+
+  // Check for transformations and reject them
+  if (input instanceof ZodEffects) {
+    if (input._def.effect.type === 'transform') {
+      throw new Error('Transformations are not supported in database schemas')
+    }
+    // For other effects like refinements, process the inner schema
     return determineDataType(input._def.schema)
   }
 
-  // Handle default values - with type safety
-  // Check if this is a ZodDefault type (has defaultValue in _def)
-  if ('_def' in input && 
-      typeof input._def === 'object' && 
-      input._def !== null && 
-      'defaultValue' in input._def &&
-      'innerType' in input._def) {
-    // Use the inner type for the schema with default value
-    return determineDataType(input._def.innerType as ZodSchema)
+  // Reject unions
+  if ('_def' in input &&
+    typeof input._def === 'object' &&
+    input._def !== null &&
+    'options' in input._def) {
+    throw new Error('Unions are not supported in database schemas')
+  }
+
+  // Reject discriminated unions
+  if ('_def' in input &&
+    typeof input._def === 'object' &&
+    input._def !== null &&
+    'discriminator' in input._def) {
+    throw new Error('Discriminated unions are not supported in database schemas')
+  }
+
+  // Reject intersections
+  if ('_def' in input &&
+    typeof input._def === 'object' &&
+    input._def !== null &&
+    'left' in input._def &&
+    'right' in input._def) {
+    throw new Error('Intersections are not supported in database schemas')
+  }
+
+  // Reject preprocess
+  if ('_def' in input &&
+    typeof input._def === 'object' &&
+    input._def !== null &&
+    'preprocess' in input._def) {
+    throw new Error('Preprocessing is not supported in database schemas')
+  }
+
+  // Reject lazy/recursive schemas
+  if ('_def' in input &&
+    typeof input._def === 'object' &&
+    input._def !== null &&
+    'getter' in input._def) {
+    throw new Error('Lazy/recursive schemas are not supported in database schemas')
   }
 
   // Handle arrays specifically
@@ -78,11 +113,21 @@ function determineDataType(input: ZodSchema): string | Record<string, any> {
 }
 
 function zodToElectroAttributes(schema: ZodObject<any>): Record<string, any> {
+  // Handle intersection schemas which might not have a shape property
+  if (!schema.shape) {
+    return {}
+  }
+
   const attributeList = Object.entries(schema.shape)
     .map(([key, value]) => {
-      const dataType = determineDataType(value as ZodSchema)
-      return {
-        [key]: typeof dataType === 'string' ? { type: dataType } : dataType
+      try {
+        const dataType = determineDataType(value as ZodSchema)
+        return {
+          [key]: typeof dataType === 'string' ? { type: dataType } : dataType
+        }
+      } catch (error) {
+        console.warn(`Error processing field ${key}:`, error)
+        return { [key]: { type: 'any' } }
       }
     })
 
@@ -213,20 +258,20 @@ export class DynamoDB {
   async create(item: object) {
     // Get the entity to push to dynamo right away for validation
     const entity = this._getEntity()
-  
+
     // Run all of the computed functions
     const newItem = Object.assign({}, item)
     for (let fn of this._computed.values()) {
       const result = fn(newItem, {}, 'create')
       Object.assign(newItem, result)
     }
-  
+
     // Validate the result
     if (this._schema == null) throw Error(`Can't create without a schema`)
     const parsing = this._schema.strict().safeParse(newItem)
     const parsingFailed = parsing.success == false
     if (parsingFailed) throw new Error(parsing.error.message)
-  
+
     // Create the item in the database, failing if it already exists
     try {
       const result = await entity.create(newItem).go() as Record<string, any>

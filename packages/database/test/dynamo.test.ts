@@ -90,13 +90,60 @@ describe(`dynamo`, () => {
           notifications: z.boolean().default(true)
         }).default({})
       })
-      
+
       expect(() => {
         new DynamoDB()
           .name('default-values-test')
           .schema(DefaultSchema)
           .connection(connection)
           .indexes([{ partition: 'id' }])
+      }).not.toThrow()
+    })
+
+
+    it(`handles zod refinements`, () => {
+      const RefinedSchema = z.object({
+        id: z.string(),
+        email: z.string().email().refine(email => email.endsWith('@example.com'), {
+          message: "Email must be from example.com domain"
+        }),
+        age: z.number().refine(age => age >= 18, {
+          message: "Must be at least 18 years old"
+        })
+      })
+
+      expect(() => {
+        new DynamoDB()
+          .name('refine-test')
+          .schema(RefinedSchema)
+          .connection(connection)
+          .indexes([{ partition: 'id' }])
+      }).not.toThrow()
+    })
+
+    it(`handles zod lazy and recursive schemas`, () => {
+      type TreeNode = {
+        id: string;
+        children: TreeNode[];
+      }
+
+      const TreeNodeSchema: z.ZodType<TreeNode> = z.lazy(() =>
+        z.object({
+          id: z.string(),
+          children: z.array(TreeNodeSchema)
+        })
+      )
+
+      const RecursiveSchema = z.object({
+        rootNode: TreeNodeSchema
+      })
+
+      expect(() => {
+        new DynamoDB()
+          .name('recursive-test')
+          .schema(RecursiveSchema)
+          .connection(connection)
+          .indexes([{ partition: 'rootNode.id' }])
       }).not.toThrow()
     })
   })
@@ -243,50 +290,49 @@ describe(`dynamo`, () => {
     })
 
     it(`prevents race conditions when creating the same item simultaneously`, async () => {
-      const schema = z.object({ 
-        id: z.string(), 
+      const schema = z.object({
+        id: z.string(),
         name: z.string().optional(),
-        counter: z.number().optional() 
+        counter: z.number().optional()
       })
       const dynamo = new DynamoDB()
         .schema(schema)
         .name('race-condition-test')
         .connection(connection)
         .indexes([{ partition: 'id' }])
-    
+
       // Create a shared ID that will be used by both operations
       const sharedId = shortId()
       const item1 = { id: sharedId, name: 'first attempt', counter: 1 }
       const item2 = { id: sharedId, name: 'second attempt', counter: 2 }
-      
+
       // Run both create operations simultaneously
       const results = await Promise.allSettled([
         dynamo.create(item1),
         dynamo.create(item2)
       ])
-      
+
       // One should succeed and one should fail
       const succeeded = results.filter(r => r.status === 'fulfilled')
       const failed = results.filter(r => r.status === 'rejected')
-      
+
       expect(succeeded.length).toBe(1)
       expect(failed.length).toBe(1)
-      
+
       // The failed one should have our custom error message
       const failedResult = failed[0] as PromiseRejectedResult
       expect(failedResult.reason.message).toBe('Item already exists')
-      
+
       // Verify only one item was created with the expected data
       const storedItem = await dynamo.get({ id: sharedId })
       expect(storedItem).not.toBeNull()
-      
+
       // The stored item should match one of our attempts
       const isFirstAttempt = storedItem?.name === 'first attempt' && storedItem?.counter === 1
       const isSecondAttempt = storedItem?.name === 'second attempt' && storedItem?.counter === 2
       expect(isFirstAttempt || isSecondAttempt).toBe(true)
     })
   })
-
 
   describe(`put`, () => {
     it(`refuses to write invalid data`, async () => {
@@ -693,39 +739,39 @@ describe(`dynamo`, () => {
         age: z.number().default(18),
         isActive: z.boolean().default(true)
       })
-      
+
       const dynamo = new DynamoDB()
         .name('default-values-crud-test')
         .schema(DefaultSchema)
         .connection(connection)
         .indexes([{ partition: 'id' }])
-      
+
       // Create with just the required field
       const id = shortId()
       const result = await dynamo.create({ id })
-      
+
       // Verify defaults weren't stored in DynamoDB (they're applied by Zod)
       const storedItem = await dynamo.get({ id })
       expect(storedItem).toEqual({ id })
-      
+
       // Verify explicit values override defaults
       const id2 = shortId()
-      await dynamo.create({ 
-        id: id2, 
-        name: "TestUser", 
-        age: 25, 
-        isActive: false 
+      await dynamo.create({
+        id: id2,
+        name: "TestUser",
+        age: 25,
+        isActive: false
       })
-      
+
       const storedItem2 = await dynamo.get({ id: id2 })
-      expect(storedItem2).toEqual({ 
-        id: id2, 
-        name: "TestUser", 
-        age: 25, 
-        isActive: false 
+      expect(storedItem2).toEqual({
+        id: id2,
+        name: "TestUser",
+        age: 25,
+        isActive: false
       })
     })
-    
+
     it(`handles nested objects with default values`, async () => {
       const NestedDefaultSchema = z.object({
         id: z.string(),
@@ -737,70 +783,121 @@ describe(`dynamo`, () => {
           }).default({})
         }).default({})
       })
-      
+
       const dynamo = new DynamoDB()
         .name('nested-defaults-test')
         .schema(NestedDefaultSchema)
         .connection(connection)
         .indexes([{ partition: 'id' }])
-      
+
       const id = shortId()
       await dynamo.create({ id })
-      
+
       const storedItem = await dynamo.get({ id })
       expect(storedItem).toEqual({ id })
-      
+
       // Test with partial nested data
       const id2 = shortId()
-      await dynamo.create({ 
-        id: id2, 
-        profile: { 
-          displayName: "CustomName" 
-        } 
+      await dynamo.create({
+        id: id2,
+        profile: {
+          displayName: "CustomName"
+        }
       })
-      
+
       const storedItem2 = await dynamo.get({ id: id2 })
-      expect(storedItem2).toEqual({ 
-        id: id2, 
-        profile: { 
-          displayName: "CustomName" 
-        } 
+      expect(storedItem2).toEqual({
+        id: id2,
+        profile: {
+          displayName: "CustomName"
+        }
       })
     })
-    
+
     it(`handles arrays with default values`, async () => {
       const ArrayDefaultSchema = z.object({
         id: z.string(),
         tags: z.array(z.string()).default([]),
         scores: z.array(z.number()).default([0, 0, 0])
       })
-      
+
       const dynamo = new DynamoDB()
         .name('array-defaults-test')
         .schema(ArrayDefaultSchema)
         .connection(connection)
         .indexes([{ partition: 'id' }])
-      
+
       const id = shortId()
       await dynamo.create({ id })
-      
+
       const storedItem = await dynamo.get({ id })
       expect(storedItem).toEqual({ id })
-      
+
       // Test with custom array data
       const id2 = shortId()
-      await dynamo.create({ 
-        id: id2, 
+      await dynamo.create({
+        id: id2,
         tags: ["tag1", "tag2"],
         scores: [10, 20, 30]
       })
-      
+
       const storedItem2 = await dynamo.get({ id: id2 })
-      expect(storedItem2).toEqual({ 
-        id: id2, 
+      expect(storedItem2).toEqual({
+        id: id2,
         tags: ["tag1", "tag2"],
         scores: [10, 20, 30]
       })
+    })
+
+    it(`can push and pull data with zod refinements`, async () => {
+      const RefinedSchema = z.object({
+        id: z.string(),
+        email: z.string().email().refine(email => email.endsWith('@example.com'), {
+          message: "Email must be from example.com domain"
+        }),
+        age: z.number().refine(age => age >= 18, {
+          message: "Must be at least 18 years old"
+        })
+      })
+
+      const dynamo = new DynamoDB()
+        .name('refine-push-pull-test')
+        .schema(RefinedSchema)
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+
+      const id = shortId()
+      const validData = {
+        id,
+        email: 'test@example.com',
+        age: 25
+      }
+
+      // Create valid item
+      await dynamo.put(validData)
+
+      // Retrieve item
+      const result = await dynamo.get({ id })
+
+      // Verify the data was stored correctly
+      expect(result).toEqual(validData)
+
+      // Attempt to create invalid items
+      const invalidEmail = {
+        id: shortId(),
+        email: 'test@gmail.com', // Not from example.com
+        age: 25
+      }
+
+      const invalidAge = {
+        id: shortId(),
+        email: 'test@example.com',
+        age: 16 // Under 18
+      }
+
+      // Both should fail validation
+      await expect(dynamo.put(invalidEmail)).rejects.toThrow()
+      await expect(dynamo.put(invalidAge)).rejects.toThrow()
     })
   })
 
@@ -1255,7 +1352,7 @@ describe(`dynamo`, () => {
       expect(result).toStrictEqual(item)
 
       // Make sure we can't get the item
-      expect(async () => {
+      await expect(async () => {
         await dynamo.delete({ name: 'john' })
       }).rejects.toThrow()
     })
