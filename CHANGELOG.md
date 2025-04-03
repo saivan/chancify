@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] 
 ### Added
 - [upstream] Added a downloadSVG and copyToClipboard function
+- [upstream] Added a dns configuration to allow production to work
 - Tagging actions now work on mobile
 ### Changed
 - Lights are now completely calculated with CSS variables
@@ -16,9 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified the spin page to remove the multiple wheel showcase
 - [upstream] Migrated to tailwind v4
 - [upstream] Moved most tailwind variables into a shared config
+- Mobile links now route to their apps or the app store by default
 ### Removed
 - The wheel preview page
 - [upstream] Stopped using SCSS, it's features are now unnecessary
+- Lights don't display on mobile to save memory
 ### Fixed
 - [upstream] QR Codes are now responsive
 - The wheel display is mobile friendly now

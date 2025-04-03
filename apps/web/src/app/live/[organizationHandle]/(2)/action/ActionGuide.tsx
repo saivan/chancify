@@ -1,7 +1,7 @@
 import { availableActionInstructions } from "@/models/Action";
 import type { CampaignType } from "@/models/Campaign";
 import type { OrganizationType } from "@/models/Organization";
-import { Button, Icon, QRCode } from "@repo/components";
+import { Button, Icon, QRCode, useIsMobile } from "@repo/components";
 import Image from "next/image";
 import { toast } from "sonner";
 
@@ -111,7 +111,6 @@ function TagAction(props: {
       await navigator.clipboard.writeText(props.handle)
       toast.success('Handle copied to clipboard')
     } catch (error) {
-      console.error('Failed to copy to clipboard:', error)
       toast.error('Failed to copy handle, please input it manually in the app')
     }
   }
@@ -215,24 +214,33 @@ function UrlActionButton(props: {
   )
 }
 
+
 function generateUrl({ organization, campaign }: {
   organization: Partial<OrganizationType>
   campaign: Partial<CampaignType>
 }): string {
+  const isMobile = useIsMobile()
+
   if (campaign.action?.platform === 'google') {
     return organization.googleLink || ''
   }
 
   if (campaign.action?.platform === 'tiktok') {
-    return `https://www.tiktok.com/@${organization.tikTokHandle}`
+    return isMobile
+        ? `tiktok://user?username=${organization.tikTokHandle}`
+        : `https://www.tiktok.com/@${organization.tikTokHandle}`
   }
 
   if (campaign.action?.platform === 'instagram') {
-    return `https://www.instagram.com/${organization.instagramHandle}`
+    return isMobile
+      ? `instagram://user?username=${organization.instagramHandle}`
+      : `https://www.instagram.com/${organization.instagramHandle}`
   }
 
   if (campaign.action?.platform === 'facebook') {
-    return `https://fb.com/${organization.facebookUsername}`
+    return isMobile
+      ? `fb://profile/${organization.facebookUsername}`
+      : `https://fb.com/${organization.facebookUsername}`
   }
 
   return ''

@@ -35,12 +35,24 @@ export function Wedges(props: {
     const minimumAngle = cumulative[props.prizeIndex] 
     const maximumAngle = minimumAngle + probabilities[props.prizeIndex]
 
-    // Add a buffer
-    const minBuffer = minimumAngle * 360 + props.minDegrees / 4
-    const maxBuffer = maximumAngle * 360 - props.minDegrees / 4
-    const randomAngle = Math.random() * (maxBuffer - minBuffer) + minBuffer
+    // Prevent potential NaN or invalid calculations 
+    if (!isFinite(minimumAngle) || !isFinite(maximumAngle) || 
+        minimumAngle === maximumAngle) {
+      return 360 * 5 // Default rotation if the angles are invalid
+    }
+
+    // Add a buffer with bounds checking
+    const minBuffer = (minimumAngle * 360) + Math.min(props.minDegrees / 4, 10)
+    const maxBuffer = (maximumAngle * 360) - Math.min(props.minDegrees / 4, 10)
+    
+    // Ensure the buffer values are valid
+    const safeMinBuffer = isFinite(minBuffer) ? minBuffer : 0;
+    const safeMaxBuffer = isFinite(maxBuffer) && maxBuffer > safeMinBuffer 
+      ? maxBuffer : safeMinBuffer + 10;
+      
+    const randomAngle = Math.random() * (safeMaxBuffer - safeMinBuffer) + safeMinBuffer;
     return randomAngle + 360 * 5
-  }, [props.prizeIndex])
+  }, [props.prizeIndex, cumulative, probabilities, props.minDegrees])
 
   // Calculate a conical gradient to display all of the wedges
   const conicalGradient = useMemo(() => {
@@ -89,12 +101,15 @@ export function Wedges(props: {
   }, [props.prizes, props.theme.wedges])
 
   // Create the wheel
+  // const outlineThickness = '4px'
+  const fontSize = `min(2em, 5vw)`
   return (<div
     className={cn('w-full h-full transition-transform', props.className)}
     style={{ 
       padding: `${(props.theme.padding ?? 0) * 100}%`,
       transform: `rotate(${90-angle}deg)`,
       transition: 'transform 7s cubic-bezier(0.17, 0.84, 0.44, 1)',
+      willChange: 'transform', 
       ...props.style,
     }}
     onTransitionEnd={(e) => {
@@ -104,36 +119,19 @@ export function Wedges(props: {
       }
     }}
   >
-    <div className='w-full h-full rounded-full bg-red-300 relative'
+    <div className='w-full h-full rounded-full relative'
       style={{ background: conicalGradient }}
     >
-      {/* Background stroke layer */}
       {
         textItems.map((item: any, index: number) => {
-          const w = '4px'
-          return <div className='absolute top-0 left-0 w-full h-full flex justify-center items-center'
-            key={`stroke-${index}`}
-            style={{
-              fontFamily: 'Teko',
-              color: 'transparent',
-              fontSize: '1.5em',
-              fontWeight: 'bolder',
-              WebkitTextStroke: `${w} ${item.color}`,
-              transform: `rotate(${-item.angle}deg) translateX(25%)`,
-              zIndex: 1,
-            }}> {item.text} </div>
-        })
-      }
-      {/* Foreground text layer */}
-      {
-        textItems.map((item: any, index: number) => {
-          return <div className='absolute top-0 left-0 w-full h-full flex justify-center items-center'
+          return <div className='absolute top-0 left-0 w-full h-full flex justify-center items-center tracking-tight'
             key={`text-${index}`}
             style={{
               fontFamily: 'Teko',
-              color: 'white',
-              fontSize: '1.5em',
+              color: item.color,
+              fontSize: fontSize,
               fontWeight: 'bolder',
+              textTransform: 'uppercase',
               transform: `rotate(${-item.angle}deg) translateX(25%)`,
               zIndex: 2,
             }}> {item.text} </div>

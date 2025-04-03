@@ -7,6 +7,7 @@ import dynamic from "next/dynamic"
 import { Pointer } from "./Pointer"
 import { Wedges } from "./Wedges"
 import './wheelStyles.css'
+import { useIsMobile } from "@repo/utilities/client"
 
 
 function Wheel(props: {
@@ -19,6 +20,7 @@ function Wheel(props: {
 }) {
   // Calculate the angle of the wheel from the provided angle
   const minDegrees = 18
+  const isMobile = useIsMobile()
 
   // Create the wheel
   return (
@@ -39,7 +41,7 @@ function Wheel(props: {
       <LargeShadow theme={props.theme} />
       <InnerFrame theme={props.theme} />
       <OuterFrame theme={props.theme} />
-      <Lights theme={props.theme} />
+      { isMobile ? null : <Lights theme={props.theme} /> }
       <Pointer theme={props.theme} />
     </div>
   )
@@ -159,6 +161,7 @@ function OuterFrame(props: {
 function Lights(props: {
   theme: Theme
 }) {
+  const isMobile = useIsMobile()
   const n = props.theme?.lights?.count ?? 18
   const p = props.theme.padding ?? 0
   const s = props.theme?.lights?.size ?? 4.6
@@ -194,8 +197,8 @@ function Lights(props: {
           <div className="absolute rounded-full w-full h-full left-[50%]"
             style={{
               background: b,
-              width: `${s * 2 / 3}%`,
-              height: `${s * 2 / 3}%`,
+              width: `${s * 3 / 5}%`,
+              height: `${s * 3 / 5}%`,
               transform: 'translateX(-50%) translateY(-50%)',
             }}
           />

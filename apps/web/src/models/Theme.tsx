@@ -164,15 +164,15 @@ export const themes: Record<string, Theme> = {
     frame: frames.gold,     
     wedges: [{
       // Amber
-      backgroundColor: "#fffbeb",
-      textColor: "#78350f",
-      glowColor: "#d97706",
+      backgroundColor: "var(--color-amber-50)",
+      textColor: "var(--color-amber-900)",
+      glowColor: "var(--color-amber-600)",
       radius: 25,
     }, {
       // Red
-      backgroundColor: "#ef4444",
-      textColor: "#7f1d1d",
-      glowColor: '#450a0a',
+      backgroundColor: "var(--color-red-500)",
+      textColor: "var(--color-red-50)",
+      glowColor: 'var(--color-red-950)',
       radius: 30,
     }]
   },
@@ -195,7 +195,7 @@ export const themes: Record<string, Theme> = {
       radius: 34,
     }, {
       backgroundColor: "var(--color-rose-500)",
-      textColor: "var(--color-rose-800)",
+      textColor: "var(--color-rose-50)",
       glowColor: "var(--color-rose-950)",
       radius: 29,
     }]
@@ -213,14 +213,14 @@ export const themes: Record<string, Theme> = {
     },
     frame: frames.orange,
     wedges: [{
-      backgroundColor: "#fff7ed", // orange-50
-      textColor: "#9a3412", // orange-900
-      glowColor: "#ea580c", // orange-600
+      backgroundColor: "var(--color-orange-100)", 
+      textColor: "var(--color-orange-900)",
+      glowColor: "var(--color-orange-300)",
       radius: 38,
     }, {
-      backgroundColor: "#f97316", // orange-500
-      textColor: "var(--color-orange-900)",
-      glowColor: "#7c2d12", // orange-950
+      backgroundColor: "var(--color-orange-500)",
+      textColor: "var(--color-orange-50)",
+      glowColor: "var(--color-orange-950)",
       radius: 33,
     }]
   }, 
@@ -237,14 +237,14 @@ export const themes: Record<string, Theme> = {
     },
     frame: frames.emerald,
     wedges: [{
-      backgroundColor: "var(--color-emerald-500)",
-      textColor: "var(--color-emerald-900)",
-      glowColor: "var(--color-emerald-800)",
+      backgroundColor: "var(--color-emerald-100)",
+      textColor: "var(--color-emerald-800)",
+      glowColor: "var(--color-emerald-200)",
       radius: 32,
     }, {
-      backgroundColor: "var(--color-emerald-700)",
-      textColor: "var(--color-emerald-900)",
-      glowColor: "var(--color-emerald-900)",
+      backgroundColor: "var(--color-emerald-500)",
+      textColor: "var(--color-emerald-50)",
+      glowColor: "var(--color-emerald-700)",
       radius: 28,
     }]
   },
@@ -261,14 +261,14 @@ export const themes: Record<string, Theme> = {
     },
     frame: frames.ocean,
     wedges: [{
-      backgroundColor: "var(--color-sky-300)",
+      backgroundColor: "var(--color-sky-100)",
       textColor: "var(--color-sky-900)",
-      glowColor: "var(--color-sky-600)",
+      glowColor: "var(--color-sky-200)",
       radius: 35,
     }, {
-      backgroundColor: "var(--color-cyan-500)",
-      textColor: "var(--color-cyan-800)",
-      glowColor: "var(--color-cyan-900)",
+      backgroundColor: "var(--color-sky-500)",
+      textColor: "var(--color-sky-50)",
+      glowColor: "var(--color-sky-900)",
       radius: 30,
     }]
   },
@@ -287,11 +287,11 @@ export const themes: Record<string, Theme> = {
     wedges: [{
       backgroundColor: "var(--color-purple-50)",
       textColor: "var(--color-purple-900)",
-      glowColor: "var(--color-purple-600)",
+      glowColor: "var(--color-purple-300)",
       radius: 32,
     }, {
       backgroundColor: "var(--color-purple-500)",
-      textColor: "var(--color-purple-800)",
+      textColor: "var(--color-purple-50)",
       glowColor: "var(--color-purple-950)",
       radius: 28,
     }]
@@ -365,57 +365,57 @@ export const themes: Record<string, Theme> = {
     }, {
       // Grape
       backgroundColor: "var(--color-purple-300)",
-      textColor: "var(--color-purple-50)",
+      textColor: "var(--color-purple-900)",
       glowColor: "var(--color-purple-400)",
       radius: 34,
     }]
   },
 
-  silverFrost: {
-    name: 'Silver Frost',
-    padding: 0.08,
-    lights: {
-      onColor: "var(--color-slate-200)",
-      offColor: "var(--color-slate-400)",
-    },
-    pointer: {
-      width: 0.30,
-    },
-    frame: frames.silver,
-    wedges: [{
-      backgroundColor: "var(--color-slate-50)",
-      textColor: "var(--color-slate-900)",
-      glowColor: "var(--color-slate-400)",
-      radius: 35,
-    }, {
-      backgroundColor: "var(--color-slate-200)",
-      textColor: "var(--color-slate-900)",
-      glowColor: "var(--color-slate-500)",
-      radius: 30,
-    }]
-  },
+  // silverFrost: {
+  //   name: 'Silver Frost',
+  //   padding: 0.08,
+  //   lights: {
+  //     onColor: "var(--color-slate-200)",
+  //     offColor: "var(--color-slate-400)",
+  //   },
+  //   pointer: {
+  //     width: 0.30,
+  //   },
+  //   frame: frames.silver,
+  //   wedges: [{
+  //     backgroundColor: "var(--color-slate-50)",
+  //     textColor: "var(--color-slate-900)",
+  //     glowColor: "var(--color-slate-400)",
+  //     radius: 35,
+  //   }, {
+  //     backgroundColor: "var(--color-slate-200)",
+  //     textColor: "var(--color-slate-900)",
+  //     glowColor: "var(--color-slate-500)",
+  //     radius: 30,
+  //   }]
+  // },
 
-  obsidianShimmer: {
-    name: 'Obsidian Shimmer',
-    padding: 0.08,
-    lights: {
-      onColor: "var(--color-slate-400)",
-      offColor: "var(--color-slate-800)",
-    },
-    pointer: {
-      width: 0.32,
-    },
-    frame: frames.blueObsidian,
-    wedges: [{
-      backgroundColor: "var(--color-slate-400)",
-      textColor: "var(--color-slate-900)",
-      glowColor: "var(--color-slate-800)",
-      radius: 34,
-    }, {
-      backgroundColor: "var(--color-slate-600)",
-      textColor: "var(--color-slate-900)",
-      glowColor: "var(--color-slate-400)",
-      radius: 30,
-    }]
-  },
+  // obsidianShimmer: {
+  //   name: 'Obsidian Shimmer',
+  //   padding: 0.08,
+  //   lights: {
+  //     onColor: "var(--color-slate-400)",
+  //     offColor: "var(--color-slate-800)",
+  //   },
+  //   pointer: {
+  //     width: 0.32,
+  //   },
+  //   frame: frames.blueObsidian,
+  //   wedges: [{
+  //     backgroundColor: "var(--color-slate-400)",
+  //     textColor: "var(--color-slate-900)",
+  //     glowColor: "var(--color-slate-800)",
+  //     radius: 34,
+  //   }, {
+  //     backgroundColor: "var(--color-slate-600)",
+  //     textColor: "var(--color-slate-900)",
+  //     glowColor: "var(--color-slate-400)",
+  //     radius: 30,
+  //   }]
+  // },
 }
