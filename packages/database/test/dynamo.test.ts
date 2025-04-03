@@ -76,6 +76,29 @@ describe(`dynamo`, () => {
           ])
       }).not.toThrow()
     })
+
+    it(`handles a zod schema with default values`, () => {
+      const DefaultSchema = z.object({
+        id: z.string(),
+        name: z.string().default("Anonymous"),
+        age: z.number().default(18),
+        isActive: z.boolean().default(true),
+        role: z.enum(['user', 'admin']).default('user'),
+        tags: z.array(z.string()).default([]),
+        settings: z.object({
+          theme: z.string().default("light"),
+          notifications: z.boolean().default(true)
+        }).default({})
+      })
+      
+      expect(() => {
+        new DynamoDB()
+          .name('default-values-test')
+          .schema(DefaultSchema)
+          .connection(connection)
+          .indexes([{ partition: 'id' }])
+      }).not.toThrow()
+    })
   })
 
   describe(`create`, () => {
@@ -661,6 +684,123 @@ describe(`dynamo`, () => {
       // Check that the result is correct
       const result = await dynamo.get({ id: 6, color: 'blue' })
       expect(result).toStrictEqual(james)
+    })
+
+    it(`correctly stores and retrieves values with defaults`, async () => {
+      const DefaultSchema = z.object({
+        id: z.string(),
+        name: z.string().default("Anonymous"),
+        age: z.number().default(18),
+        isActive: z.boolean().default(true)
+      })
+      
+      const dynamo = new DynamoDB()
+        .name('default-values-crud-test')
+        .schema(DefaultSchema)
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+      
+      // Create with just the required field
+      const id = shortId()
+      const result = await dynamo.create({ id })
+      
+      // Verify defaults weren't stored in DynamoDB (they're applied by Zod)
+      const storedItem = await dynamo.get({ id })
+      expect(storedItem).toEqual({ id })
+      
+      // Verify explicit values override defaults
+      const id2 = shortId()
+      await dynamo.create({ 
+        id: id2, 
+        name: "TestUser", 
+        age: 25, 
+        isActive: false 
+      })
+      
+      const storedItem2 = await dynamo.get({ id: id2 })
+      expect(storedItem2).toEqual({ 
+        id: id2, 
+        name: "TestUser", 
+        age: 25, 
+        isActive: false 
+      })
+    })
+    
+    it(`handles nested objects with default values`, async () => {
+      const NestedDefaultSchema = z.object({
+        id: z.string(),
+        profile: z.object({
+          displayName: z.string().default("User"),
+          preferences: z.object({
+            theme: z.string().default("dark"),
+            fontSize: z.number().default(12)
+          }).default({})
+        }).default({})
+      })
+      
+      const dynamo = new DynamoDB()
+        .name('nested-defaults-test')
+        .schema(NestedDefaultSchema)
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+      
+      const id = shortId()
+      await dynamo.create({ id })
+      
+      const storedItem = await dynamo.get({ id })
+      expect(storedItem).toEqual({ id })
+      
+      // Test with partial nested data
+      const id2 = shortId()
+      await dynamo.create({ 
+        id: id2, 
+        profile: { 
+          displayName: "CustomName" 
+        } 
+      })
+      
+      const storedItem2 = await dynamo.get({ id: id2 })
+      expect(storedItem2).toEqual({ 
+        id: id2, 
+        profile: { 
+          displayName: "CustomName" 
+        } 
+      })
+    })
+    
+    it(`handles arrays with default values`, async () => {
+      const ArrayDefaultSchema = z.object({
+        id: z.string(),
+        tags: z.array(z.string()).default([]),
+        scores: z.array(z.number()).default([0, 0, 0])
+      })
+      
+      const dynamo = new DynamoDB()
+        .name('array-defaults-test')
+        .schema(ArrayDefaultSchema)
+        .connection(connection)
+        .indexes([{ partition: 'id' }])
+      
+      const id = shortId()
+      await dynamo.create({ id })
+      
+      const storedItem = await dynamo.get({ id })
+      expect(storedItem).toEqual({ id })
+      
+      // Test with custom array data
+      const id2 = shortId()
+      await dynamo.create({ 
+        id: id2, 
+        tags: ["tag1", "tag2"],
+        scores: [10, 20, 30]
+      })
+      
+      const storedItem2 = await dynamo.get({ id: id2 })
+      expect(storedItem2).toEqual({ 
+        id: id2, 
+        tags: ["tag1", "tag2"],
+        scores: [10, 20, 30]
+      })
     })
   })
 

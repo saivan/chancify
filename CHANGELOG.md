@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified the spin page to remove the multiple wheel showcase
 - [upstream] Migrated to tailwind v4
 - [upstream] Moved most tailwind variables into a shared config
+- [upstream] DynamoDB can now handle default values
 - Mobile links now route to their apps or the app store by default
 ### Removed
 - The wheel preview page

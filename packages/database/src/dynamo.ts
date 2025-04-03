@@ -29,6 +29,17 @@ function determineDataType(input: ZodSchema): string | Record<string, any> {
     return determineDataType(input._def.schema)
   }
 
+  // Handle default values - with type safety
+  // Check if this is a ZodDefault type (has defaultValue in _def)
+  if ('_def' in input && 
+      typeof input._def === 'object' && 
+      input._def !== null && 
+      'defaultValue' in input._def &&
+      'innerType' in input._def) {
+    // Use the inner type for the schema with default value
+    return determineDataType(input._def.innerType as ZodSchema)
+  }
+
   // Handle arrays specifically
   if (input instanceof ZodArray) {
     const elementType = determineDataType(input._def.type)
