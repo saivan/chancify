@@ -9,6 +9,7 @@ import type { ReactNode } from "react"
 import { Toaster } from "@repo/components"
 
 
+// Remove viewport from metadata
 export const metadata = {
   title: "Chancify Application",
   description: "A simple chancify application to get you started",
@@ -33,6 +34,13 @@ export const metadata = {
     ],
     shortcut: [{ url: "/favicon.ico" }],
   },
+}
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 

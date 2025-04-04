@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [upstream] Added a downloadSVG and copyToClipboard function
 - [upstream] Added a dns configuration to allow production to work
 - Tagging actions now work on mobile
+- Don't allow viewport zooming
 ### Changed
 - Lights are now completely calculated with CSS variables
 - Simplified themes
@@ -30,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [upstream] Database model creation is idempotent to handle race conditions
 - Hydration issues for draggable items
 - Writing to server on leading and trailing edges of debounced calls
+- Added a minimum font size to stop iOS zooming
+- Made sure the button mode is preserved between spins
 
 
 ## [v1.0.0] 14 Feb 2025

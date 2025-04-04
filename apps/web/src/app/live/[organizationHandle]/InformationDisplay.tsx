@@ -16,7 +16,7 @@ export function InformationDisplay (props: { children: ReactNode }) {
     "z-10 absolute inset-0 flex items-start pt-[40svh] pb-2 justify-center",
     "md:static md:flex md:items-center md:pt-0 md:pb-0 md:justify-start",
     state.wheel?.centered && 'pointer-events-none',
-    "max-h-[100svh] overflow-auto", // Make this container scrollable
+    "max-h-[100svh] overflow-auto",
   )}>
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
@@ -34,7 +34,7 @@ export function InformationDisplay (props: { children: ReactNode }) {
           "p-4 px-6 md:px-20",
           state.wheel?.centered == false && "bg-white/70 backdrop-blur-md md:bg-transparent md:backdrop-blur-none",
           state.wheel?.centered == false && "rounded-lg shadow-2xl shadow-slate-700/10 md:shadow-none md:rounded-none",
-          "overflow-y-auto" // Add scrolling to this inner container
+          "overflow-y-auto" 
         )}>
           {props.children}
         </div>

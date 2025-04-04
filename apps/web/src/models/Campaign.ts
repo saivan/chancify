@@ -21,6 +21,7 @@ export const CampaignSchema = z.object({
     name: z.string(),
     chance: z.number(),
   })),
+  equallySized: z.boolean().default(false),
   themeId: z.string(),
   collectInformation: z.object({
     name: z.boolean(),

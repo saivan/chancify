@@ -51,6 +51,7 @@ export function WheelDisplay() {
               >
                 <PrizeWheel
                   className="h-full transition-transform"
+                  equallySized={campaign.equallySized}
                   prizes={campaign.prizes}
                   theme={theme}
                   onTransitionEnd={() => {

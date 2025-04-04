@@ -16,6 +16,7 @@ function Wheel(props: {
   state: WheelState
   theme: Theme
   onTransitionEnd?: () => void
+  equallySized?: boolean
   prizeIndex?: number
 }) {
   // Calculate the angle of the wheel from the provided angle
@@ -33,6 +34,7 @@ function Wheel(props: {
         prizes={props.prizes} 
         minDegrees={minDegrees}
         prizeIndex={props.prizeIndex}
+        equallySized={props.equallySized}
         onTransitionEnd={props.onTransitionEnd}
         className={cn(
           props.state.rotating && 'animate-spin-slow',

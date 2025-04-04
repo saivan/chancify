@@ -53,7 +53,7 @@ export function SpinProvider({ children }: {
   children: ReactNode 
 }) {
   const [state, setState] = useCustomerViewState()
-  const router = useRouter()
+  const { goto } = useGotoRoute()
 
   const onStartSpin = useCallback(async () => {
     // Do nothing if we can't spin yet
@@ -74,7 +74,7 @@ export function SpinProvider({ children }: {
 
   const onEndSpin = useCallback(async () => {
     if (state.wheel.current != 'spinning') return
-    router.push(`/live/${state.organization.handle}/prize?selectedCampaign=${state.campaigns.selected}`)
+    goto(`/live/${state.organization.handle}/prize`)
     setState({ wheel: { ...state.wheel , current: 'finished' } })
   }, [state])
 
@@ -165,14 +165,11 @@ export function useQueryParamUpdateEffect() {
 export function useEnforceDefinedHistory() {
   // If we don't have a historyId navigate home
   const [state] = useCustomerViewState()
-  const searchParams = useSearchParams()
   const { goto } = useGotoRoute()
   useEffect(() => {
     // If we don't have a historyId navigate home
     if (state.historyId == null) {
-      goto(`/live/${state.organization.handle}/campaigns`, {
-        links: searchParams.get('links') as 'qr' | 'button',
-      })
+      goto(`/live/${state.organization.handle}/campaigns`)
     }
   }, [])
 }

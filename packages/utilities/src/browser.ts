@@ -305,14 +305,84 @@ export function downloadSvg(
 }
 
 /**
- * Copies text to the clipboard using the modern Clipboard API
+ * Copies text to the clipboard using modern APIs with iOS Safari support
  * @param text The text to copy to clipboard
- * @returns Promise that resolves when the text is copied or rejects if it fails
+ * @returns Promise that resolves when the text is copied
  */
 export function copyToClipboard(text: string): Promise<void> {
-  if (!navigator.clipboard) {
-    return Promise.reject(new Error('Clipboard API not supported in this browser'))
+  // For iOS Safari, we need to use the fallback in the context of a user gesture
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent) && navigator.userAgent.includes('Safari')) {
+    return new Promise((resolve, reject) => {
+      try {
+        // Create temporary element
+        const tempElement = document.createElement('textarea')
+        tempElement.value = text
+        
+        // Make it invisible but part of the DOM
+        tempElement.style.position = 'absolute'
+        tempElement.style.left = '-9999px'
+        tempElement.style.top = '-9999px'
+        document.body.appendChild(tempElement)
+        
+        // Special handling for iOS
+        tempElement.contentEditable = 'true'
+        tempElement.readOnly = false
+        
+        // Select the text properly on iOS
+        const range = document.createRange()
+        range.selectNodeContents(tempElement)
+        
+        const selection = window.getSelection()
+        if (selection) {
+          selection.removeAllRanges()
+          selection.addRange(range)
+          tempElement.setSelectionRange(0, text.length)
+        }
+        
+        // Execute copy command
+        const successful = document.execCommand('copy')
+        
+        // Clean up
+        document.body.removeChild(tempElement)
+        
+        if (successful) {
+          resolve()
+        } else {
+          reject(new Error('Unable to copy text'))
+        }
+      } catch (err) {
+        reject(err)
+      }
+    })
   }
   
-  return navigator.clipboard.writeText(text)
+  // For modern browsers, use the Clipboard API
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    return navigator.clipboard.writeText(text)
+  }
+  
+  // Fallback for browsers without Clipboard API support
+  return new Promise((resolve, reject) => {
+    try {
+      const tempElement = document.createElement('textarea')
+      tempElement.value = text
+      tempElement.style.position = 'fixed'
+      tempElement.style.opacity = '0'
+      document.body.appendChild(tempElement)
+      tempElement.focus()
+      tempElement.select()
+      
+      const successful = document.execCommand('copy')
+      document.body.removeChild(tempElement)
+      
+      if (successful) {
+        resolve()
+      } else {
+        reject(new Error('Unable to copy using execCommand'))
+      }
+    } catch (err) {
+      reject(new Error('Clipboard copy failed'))
+    }
+  })
 }
+

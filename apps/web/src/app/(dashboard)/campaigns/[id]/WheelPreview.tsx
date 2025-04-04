@@ -35,6 +35,7 @@ export function WheelPreview() {
             rotating: false,
           }}
           prizes={campaign.prizes ?? []}
+          equallySized={campaign.equallySized}
           theme={theme} />
       </div>
     </div>

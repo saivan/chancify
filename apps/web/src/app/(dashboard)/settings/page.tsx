@@ -5,7 +5,7 @@ import { Button, cn, Icon, Input, Label, LabelledInput, LoadingButton, QRCode, T
 import Image from "next/image";
 import { useRef, useState } from 'react';
 import { useDashboard } from "../controller";
-import { downloadSvg } from "@repo/utilities/client";
+import { copyToClipboard, downloadSvg } from "@repo/utilities/client";
 import { toast } from "sonner";
 
 
@@ -126,7 +126,7 @@ function QRCodeArea() {
   
   async function handleCopyUrl() {
     try {
-      await navigator.clipboard.writeText(qrCodeUrl)
+      await copyToClipboard(qrCodeUrl)
       toast.success('URL copied to clipboard')
     } catch (error) {
       console.error('Failed to copy to clipboard:', error)

@@ -10,6 +10,7 @@ export function Wedges(props: {
   onTransitionEnd?: () => void
   style?: React.CSSProperties
   className?: string
+  equallySized?: boolean
   prizes: CampaignType['prizes']
   theme: Theme
   minDegrees: number
@@ -17,7 +18,10 @@ export function Wedges(props: {
 }) {
   // Convert the prize chances to probabilities with a minimum threshold
   const { probabilities, cumulative } = useMemo(() => {
-    const probabilities = toProbabilities(props.prizes, props.minDegrees/360)
+    const probabilities = toProbabilities(props.prizes, {
+      equallySized: props.equallySized,
+      minWidth: props.minDegrees / 360
+    })
     const cumulative = probabilities.map((_, index) => {
       return probabilities
         .slice(0, index)
@@ -32,24 +36,24 @@ export function Wedges(props: {
     if (props.prizeIndex === undefined) return 0
 
     // Get within the range of the prize
-    const minimumAngle = cumulative[props.prizeIndex] 
+    const minimumAngle = cumulative[props.prizeIndex]
     const maximumAngle = minimumAngle + probabilities[props.prizeIndex]
 
     // Prevent potential NaN or invalid calculations 
-    if (!isFinite(minimumAngle) || !isFinite(maximumAngle) || 
-        minimumAngle === maximumAngle) {
+    if (!isFinite(minimumAngle) || !isFinite(maximumAngle) ||
+      minimumAngle === maximumAngle) {
       return 360 * 5 // Default rotation if the angles are invalid
     }
 
     // Add a buffer with bounds checking
     const minBuffer = (minimumAngle * 360) + Math.min(props.minDegrees / 4, 10)
     const maxBuffer = (maximumAngle * 360) - Math.min(props.minDegrees / 4, 10)
-    
+
     // Ensure the buffer values are valid
     const safeMinBuffer = isFinite(minBuffer) ? minBuffer : 0;
-    const safeMaxBuffer = isFinite(maxBuffer) && maxBuffer > safeMinBuffer 
+    const safeMaxBuffer = isFinite(maxBuffer) && maxBuffer > safeMinBuffer
       ? maxBuffer : safeMinBuffer + 10;
-      
+
     const randomAngle = Math.random() * (safeMaxBuffer - safeMinBuffer) + safeMinBuffer;
     return randomAngle + 360 * 5
   }, [props.prizeIndex, cumulative, probabilities, props.minDegrees])
@@ -105,11 +109,11 @@ export function Wedges(props: {
   const fontSize = `min(2em, 5vw)`
   return (<div
     className={cn('w-full h-full transition-transform', props.className)}
-    style={{ 
+    style={{
       padding: `${(props.theme.padding ?? 0) * 100}%`,
-      transform: `rotate(${90-angle}deg)`,
+      transform: `rotate(${90 - angle}deg)`,
       transition: 'transform 7s cubic-bezier(0.17, 0.84, 0.44, 1)',
-      willChange: 'transform', 
+      willChange: 'transform',
       ...props.style,
     }}
     onTransitionEnd={(e) => {
@@ -149,45 +153,56 @@ export function Wedges(props: {
  * @returns Array of probabilities corresponding to input prizes
  */
 export function toProbabilities(
-  prizes: CampaignType['prizes'], 
-  minWidth: number = 0.05
-): number[] {
+  prizes: CampaignType['prizes'], {
+    minWidth = 0.05,
+    equallySized = false,
+  }: {
+    minWidth?: number
+    equallySized?: boolean
+  }): number[] 
+{
+  // If equally sized, set all probabilities to equal value
+  if (equallySized) {
+    const total = prizes.length
+    return Array(total).fill(1 / total)
+  }
+  
   // Convert to probabilities with minimum threshold
   if (prizes == null) throw new Error('Prizes are required')
   const chances = prizes.map(prize => prize.chance)
   const total = chances.reduce((sum, current) => sum + current, 0)
   const rawProbabilities = chances.map(chance => chance / total)
-  
+
   // Find indices of probabilities below minimum threshold
   const belowMin = rawProbabilities
     .map((prob, index) => ({ prob, index }))
     .filter(item => item.prob < minWidth)
     .map(item => item.index)
-  
+
   // Find indices of probabilities at or above minimum threshold  
   const aboveMin = rawProbabilities
     .map((prob, index) => ({ prob, index }))
     .filter(item => item.prob >= minWidth)
     .map(item => item.index)
-  
+
   // If no probabilities are below minimum, return raw probabilities
   if (belowMin.length === 0) return rawProbabilities
-  
+
   // Set minimum width for all below-threshold values, zero for others
-  const result = rawProbabilities.map((prob, index) => 
+  const result = rawProbabilities.map((prob, index) =>
     belowMin.includes(index) ? minWidth : 0
   )
-  
+
   // Calculate how much probability remains after setting minimums
   const totalMinWidth = belowMin.length * minWidth
   const remaining = 1.0 - totalMinWidth
-  
+
   // If we have values above minimum, redistribute remaining probability
   if (aboveMin.length > 0) {
     const aboveMinSum = aboveMin.reduce((sum, index) => sum + rawProbabilities[index], 0)
-    return result.map((prob, index) => 
-      aboveMin.includes(index) 
-        ? (rawProbabilities[index] / aboveMinSum) * remaining 
+    return result.map((prob, index) =>
+      aboveMin.includes(index)
+        ? (rawProbabilities[index] / aboveMinSum) * remaining
         : prob
     )
   }

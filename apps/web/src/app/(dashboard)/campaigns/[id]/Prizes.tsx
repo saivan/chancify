@@ -17,7 +17,7 @@ import {
   useSortable
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Icon, Input } from "@repo/components"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button, Icon, Input, Label, Switch } from "@repo/components"
 import { cn, shortId } from '@repo/utilities'
 import { useMemo, useState, useEffect } from 'react'
 import { useCampaign } from './provider'
@@ -27,7 +27,7 @@ export function PotentialPrizes() {
   const [campaign, setCampaign] = useCampaign()
   const [isClient, setIsClient] = useState(false)
   useEffect(() => { setIsClient(true) }, [])
-  
+
   // Calculate the total chance of winning a prize
   const total = useMemo(() => campaign.prizes?.reduce(
     (acc, prize) => acc + prize.chance, 0
@@ -40,7 +40,7 @@ export function PotentialPrizes() {
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
-  ) 
+  )
 
   // Create all dragging function handlers
   function handleDragEnd(event: DragEndEvent) {
@@ -85,31 +85,52 @@ export function PotentialPrizes() {
       </CardHeader>
 
       <CardContent>
-        {isClient ? (
-          <DraggablePrizesList
-            prizes={campaign.prizes || []}
-            total={total}
-            sensors={sensors}
-            onDragEnd={handleDragEnd}
-            onDelete={handleDeletePrize}
-            onUpdate={handleUpdatePrize}
-          />
-        ) : (
-          <StaticPrizesList
-            prizes={campaign.prizes || []}
-            total={total}
-            onDelete={handleDeletePrize}
-            onUpdate={handleUpdatePrize}
-          />
-        )}
+            {isClient ? (
+              <DraggablePrizesList
+                prizes={campaign.prizes || []}
+                total={total}
+                sensors={sensors}
+                onDragEnd={handleDragEnd}
+                onDelete={handleDeletePrize}
+                onUpdate={handleUpdatePrize}
+              />
+            ) : (
+              <StaticPrizesList
+                prizes={campaign.prizes || []}
+                total={total}
+                onDelete={handleDeletePrize}
+                onUpdate={handleUpdatePrize}
+              />
+            )}
+            <Button className="gap-2 mt-2" onClick={handleAddPrize}>
+              <Icon icon="plus" /> Add Prize
+            </Button>
       </CardContent>
 
       <CardFooter>
-        <Button className="gap-2" onClick={handleAddPrize}>
-          <Icon icon="plus" /> Add Prize
-        </Button>
+        <PrizeOptions />
       </CardFooter>
     </Card>
+  )
+}
+
+function PrizeOptions() {
+  const [campaign, setCampaign] = useCampaign()
+  return (
+    <div className="w-full flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
+      <div className="space-y-0.5">
+        <Label>Equally Sized Slices</Label>
+        <p className="text-sm text-slate-500">
+          The size of each slice will be the same, regardless of the chance of winning
+        </p>
+      </div>
+      <div>
+        <Switch
+          checked={campaign.equallySized === true}
+          onCheckedChange={checked => setCampaign({ equallySized: checked })}
+        />
+      </div>
+    </div>
   )
 }
 
@@ -268,6 +289,7 @@ function PrizeItem(props: {
               <Input
                 type="text"
                 placeholder='Prize Name'
+                className='placeholder:text-slate-400 placeholder:italic'
                 value={props.name}
                 onChange={handleNameChange}
               />
