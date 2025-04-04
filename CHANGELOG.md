@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] 
 ### Added
+### Changed
+### Removed
+### Fixed
+
+
+## [v1.1.0] 4 Apr 2025
+### Added
 - [upstream] Added a downloadSVG and copyToClipboard function
 - [upstream] Added a dns configuration to allow production to work
 - Tagging actions now work on mobile
